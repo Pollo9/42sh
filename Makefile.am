@@ -6,7 +6,6 @@ DISTCLEANFILES=42sh$(EXEEXT)
 .PHONY: tar doc re
 
 42sh$(EXEEXT): src/42sh$(EXEEXT)
-	cp -f src/42sh$(EXEEXT) .
 
 tar: distcheck
 

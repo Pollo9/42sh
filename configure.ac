@@ -25,7 +25,7 @@ case $host_os in
 	AC_SUBST([CFLAGS], ['-Wall -Werror -W -ansi -pedantic -D_XOPEN_SOURCE=600'])
 	;;
   *linux*)
-	AC_SUBST([CFLAGS], ['-Wall -Werror -W -ansi -pedantic -D_XOPEN_SOURCE=600'])
+	AC_SUBST([CFLAGS], ['-Wall -Werror -W -std=c99 -pedantic -D_XOPEN_SOURCE=600'])
 	;;
   *)
 	pl="`uname -s`"
@@ -66,7 +66,6 @@ AC_CHECK_FUNCS([getcwd])
 AC_CHECK_FUNCS([setenv])
 AC_CHECK_FUNCS([strdup])
 AC_CHECK_FUNCS([strstr])
-AC_CHECK_FUNCS([get_current_dir_name])
 AC_CHECK_FUNCS([atexit])
 AC_CHECK_FUNCS([putenv])
 AC_CHECK_FUNCS([strtoul])
@@ -106,15 +105,6 @@ AC_ARG_WITH([debug],
   ]
 )
 
-AC_ARG_WITH([leaktrack],
-  [AS_HELP_STRING([--with-leaktrack], [add a builtin leak track for debug])],
-  [
-    if test x$withval = xyes; then
-      CFLAGS="$CFLAGS -DLEAK_TRACK"
-    fi
-  ],
-)
-
 AC_SUBST([CFLAGS])
 
 # define Autoconf config header
@@ -123,15 +113,7 @@ AC_CONFIG_HEADERS([config.h])
 # define Autoconf config files
 AC_CONFIG_FILES([
 	Makefile
-	doc/Makefile
-	check/Makefile
-	check/leaktrack/Makefile
 	src/Makefile
-	src/parser/Makefile
-	src/evalexpr/Makefile
 ])
-
-AC_CONFIG_FILES([check/checker_wrapper.sh],
-                [chmod a=rx check/checker_wrapper.sh])
 
 AC_OUTPUT

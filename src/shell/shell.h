@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sun Jul 16 20:03:53 2006 Seblu
-** Last update Sun Jul 16 20:12:27 2006 Seblu
+** Last update Sun Jul 16 20:18:23 2006 Seblu
 */
 
 #ifndef SHELL_H_
@@ -28,16 +28,16 @@
 
 struct			s_shell
 {
-  struct s_ast		*ast;
-  struct s_var		*vars;
-  struct s_func		*funcs;
-  struct s_opt		*opt;
-  struct s_history	*history;
+/*   struct s_ast		*ast; */
+/*   struct s_var		*vars; */
+/*   struct s_func		*funcs; */
+/*   struct s_opt		*opt; */
+/*   struct s_history	*history; */
   int			last_status;
 };
 
-struct s_shell		*sh_init(void);
-void			sh_destroy(struct s_shell *sh);
+struct s_shell		*shell_init(void);
+void			shell_destroy(struct s_shell *sh);
 char			*strmerges(int n, const char *s1, ...);
 
 #endif /* !SHELL_H_ */

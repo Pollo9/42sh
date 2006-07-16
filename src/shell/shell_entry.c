@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Mon Apr 10 23:57:28 2006 Seblu
-** Last update Sun Jul 16 20:13:34 2006 Seblu
+** Last update Sun Jul 16 20:26:30 2006 Seblu
 */
 
 #include <stdio.h>
@@ -23,16 +23,22 @@ struct s_shell *shell = NULL;
 **
 ** @return return program value
 */
+
+#include "shell.h"
+
 int		main(int argc, char *argv[])
 {
   int		ret;
 
-  shell = sh_init();
-
+  /* shell initialization */
+  shell = shell_init();
+  /* parse arg line */
+  argc = argc;
+  argv = argv;
   //open_parse(argc, argv, shell);
-/*   if (shell->ast) */
-/*      exec_start(shell); */
+  /*   if (shell->ast) */
+  /*      exec_start(shell); */
   ret = shell->last_status;
-  sh_destroy(shell);
+  shell_destroy(shell);
   return ret;
 }
