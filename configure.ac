@@ -89,7 +89,7 @@ AC_ARG_WITH([debug],
   [AS_HELP_STRING([--with-debug], [use -g and don't use -DNDEBUG -O3])],
   [dnl action-if-given: --with-debug => -g || --without-debug => -DNDEBUG
     if test x$withval = xyes; then
-      CFLAGS="$CFLAGS -g"
+      CFLAGS="$CFLAGS -g -DDEBUG42"
     else
       CFLAGS="$CFLAGS -DNDEBUG -O3"
     fi

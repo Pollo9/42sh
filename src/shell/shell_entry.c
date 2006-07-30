@@ -5,15 +5,16 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Mon Apr 10 23:57:28 2006 Seblu
-** Last update Sun Jul 16 20:26:30 2006 Seblu
+** Last update Sun Jul 30 03:15:49 2006 Seblu
 */
 
 #include <stdio.h>
+#include "shell.h"
 
 /*
 ** Global shell structure
 */
-struct s_shell *shell = NULL;
+ts_shell *shell = NULL;
 
 /*!
 ** Program entry point
@@ -23,9 +24,6 @@ struct s_shell *shell = NULL;
 **
 ** @return return program value
 */
-
-#include "shell.h"
-
 int		main(int argc, char *argv[])
 {
   int		ret;
@@ -33,8 +31,7 @@ int		main(int argc, char *argv[])
   /* shell initialization */
   shell = shell_init();
   /* parse arg line */
-  argc = argc;
-  argv = argv;
+  opt_parser(argc, argv, shell->opt);
   //open_parse(argc, argv, shell);
   /*   if (shell->ast) */
   /*      exec_start(shell); */

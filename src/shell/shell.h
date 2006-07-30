@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sun Jul 16 20:03:53 2006 Seblu
-** Last update Sun Jul 16 20:18:23 2006 Seblu
+** Last update Sun Jul 30 03:42:43 2006 Seblu
 */
 
 #ifndef SHELL_H_
@@ -13,31 +13,27 @@
 
 # include <errno.h>
 # include <stdlib.h>
+# include "../opt/opt.h"
 
-# define SCAN_ERROR 1
-# define PARSE_ERROR 2
-# define MEM_ERROR 42
-# define FORK_ERROR 128
-# define RED_ERROR 1
-
-# define secmalloc(name, size) if (!(name = malloc(size))) exit(MEM_ERROR)
-# define secrealloc(ret, name, size) if (!(ret = realloc(name, size))) exit(MEM_ERROR)
-# define secstrdup(ret, str) if (!(ret = strdup(str))) exit(MEM_ERROR)
+static const int SCAN_ERROR = 1;
+static const int PARSE_ERROR = 2;
+static const int FORK_ERROR = 128;
+static const int RED_ERROR = 1;
 
 
-
-struct			s_shell
+typedef struct
 {
 /*   struct s_ast		*ast; */
 /*   struct s_var		*vars; */
 /*   struct s_func		*funcs; */
-/*   struct s_opt		*opt; */
 /*   struct s_history	*history; */
+  ts_opt		*opt;
   int			last_status;
-};
+} ts_shell;
 
-struct s_shell		*shell_init(void);
-void			shell_destroy(struct s_shell *sh);
-char			*strmerges(int n, const char *s1, ...);
+ts_shell		*shell_init(void);
+void			shell_destroy(ts_shell *sh);
+
+ts_shell *shell;
 
 #endif /* !SHELL_H_ */

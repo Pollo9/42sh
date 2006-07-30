@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Fri Apr  7 00:19:04 2006 Seblu
-** Last update Sun Jul 16 20:30:02 2006 Seblu
+** Last update Sun Jul 30 03:16:45 2006 Seblu
 */
 
 #include <stdlib.h>
@@ -19,7 +19,7 @@
 ** @param sh structure to destroy
 **
 */
-void			shell_destroy(struct s_shell *sh)
+void			shell_destroy(ts_shell *sh)
 {
   assert(sh);
 /*   var_delete(&sh->vars); */

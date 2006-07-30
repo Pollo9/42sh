@@ -1,11 +1,11 @@
 /*
-** shell_init.c for 42sh in /home/seblu/devel/c/42sh
+** shell_init.c for 42sh
 **
 ** Made by Seblu
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sun Jul 16 20:11:09 2006 Seblu
-** Last update Sun Jul 16 20:27:58 2006 Seblu
+** Last update Sun Jul 30 03:39:46 2006 Seblu
 */
 
 #include <stdlib.h>
@@ -15,6 +15,8 @@
 #include <sys/stat.h>
 #include <stdlib.h>
 #include "shell.h"
+#include "../opt/opt.h"
+#include "../common/macro.h"
 
 
 /* static int		pwd_isgood(); */
@@ -25,18 +27,17 @@
 **
 ** @return the new shell structure
 */
-struct s_shell		*shell_init(void)
+ts_shell		*shell_init(void)
 {
-  struct s_shell	*new;
+  ts_shell	*new;
 /*   char			*tmp; */
 
-  secmalloc(new, sizeof (struct s_shell));
+  secmalloc(new, sizeof (ts_shell));
 /*   new->ast = NULL; */
 /*   new->vars = var_create(); */
 /*   new->funcs = NULL; */
 /*   new->history = NULL; */
-/*   secmalloc(new->opt, sizeof (struct s_opt)); */
-/*   set_default_option(new->opt); */
+  new->opt = opt_init();
 /*   if (!pwd_isgood()) */
 /*   { */
 /*      var_setenv("PWD", (tmp = var_getcwd()), 1); */

@@ -1,16 +1,16 @@
 /*
-** strmerges.c for 42sh in /home/seblu/devel/c/42sh
+** strmerge.c for 42sh
 **
 ** Made by Seblu
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Tue May 16 21:23:02 2006 Seblu
-** Last update Tue May 16 21:27:30 2006 Seblu
+** Last update Sun Jul 30 04:15:36 2006 Seblu
 */
 
 #include <stdarg.h>
 #include <string.h>
-#include "42sh.h"
+#include "macro.h"
 
 /*!
 ** Merge strings
@@ -21,7 +21,7 @@
 ** @return malloced string merged
 ** @warning the returned string must be freed by the caller
 */
-char            *strmerges(int n, const char *s1, ...)
+char            *strmerge(int n, const char *s1, ...)
 {
   va_list       param;
   char          *new = NULL;
