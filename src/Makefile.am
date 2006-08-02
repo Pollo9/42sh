@@ -10,14 +10,19 @@ bin_PROGRAMS=42sh
 		common/strmerge.c		\
 		common/strvmerge.c		\
 		lexer/lexer.h			\
+		opt/opt.h			\
+		opt/opt.c			\
+		opt/opt_init.c			\
+		opt/opt_parser.c		\
+		parser/parser.h			\
+		parser/parser.c			\
+		readline/readline.h		\
+		readline/readline.c		\
+		readline/getln.c		\
 		shell/shell.h			\
 		shell/shell_entry.c		\
 		shell/shell_init.c		\
 		shell/shell_destroy.c		\
-		shell/shell_prompt.c		\
-		opt/opt.h			\
-		opt/opt.c			\
-		opt/opt_init.c			\
-		opt/opt_parser.c
+		shell/shell_prompt.c
 
 CLEANFILES= *~ '\#*'
