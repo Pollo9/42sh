@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Wed Aug  2 01:13:56 2006 Seblu
-** Last update Wed Aug  2 17:58:03 2006 Seblu
+** Last update Wed Aug  2 20:24:51 2006 Seblu
 */
 
 #include <string.h>

@@ -1,0 +1,63 @@
+good_input:	  simple_list '\n'
+		| '\n'
+		| EOF
+
+redirection:  [NUMBER] '>' WORD
+		| [NUMBER] '<' WORD
+		| [NUMBER] '>>' WORD
+		| [NUMBER] '<<' WORD
+		| [NUMBER] '<<-' WORD
+		| [NUMBER] '>&' WORD
+		| [NUMBER] '<&' WORD
+		| [NUMBER] '>|' WORD
+		| [NUMBER] '<>' WORD
+
+element:	  WORD
+		| redirection
+
+
+cmd_prefix:	  ASSIGMENT_WORD
+		| redirection
+
+simple_command:	(cmp_prefix)* (element)+
+
+command:	  simple_command
+		| shell_command  (redirection)*
+		| function_def
+
+simple_list:	and_or ((';'|'&') and_or)* ['&'|';']
+
+and_or:	pipeline (('&&'|'||') ('\n')* pipeline)*
+
+pipeline:	['!'] command ('|' ('\n')* command)*
+
+shell_command:	'{' compound_list '}'
+                | '(' compound_list ')'
+                | rule_for
+                | rule_while
+                | rule_until
+                | rule_case
+                | rule_if
+
+rule_if:  'if' compound_list 'then' compound_list [else_clause] 'fi'
+
+else_clause:  'else' compound_list
+		| 'elif' compound_list 'then' compound_list [else_clause]
+
+rule_for:	'for' WORD ('\n')* ['in' (WORD)+ (';'|'\n') ('\n')*] do_group
+
+rule_while:	'while' compound_list do_group
+
+rule_until:	'until' compound_list do_group
+
+do_group:	'do' compound_list 'done'
+
+compound_list:  ('\n')* and_or ((';'|'&'|'\n') ('\n')* and_or)* [(('&'|';'|'\n') ('\n')*)]
+
+case:	'case' WORD ('\n')* 'in' ('\n')* [case_clause] 'esac'
+
+case_clause:	pattern (';;' (\n)* pattern)* [;;]
+
+pattern:	['('] WORD ('|' WORD)* ')' ( ('\n')* | compound_list )
+
+function:	['function'] WORD '(' ')' ('\n')* shell_command (redirection)*
