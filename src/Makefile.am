@@ -5,17 +5,23 @@ bin_PROGRAMS=42sh
 
 
 42sh_SOURCES=	ast/ast.h			\
+		ast/ast_destruct.c		\
+		ast/ast_sep.c			\
 		common/common.h			\
-		common/macro.h			\
+		common/mem.h			\
 		common/strmerge.c		\
 		common/strvmerge.c		\
-		lexer/lexer.h			\
+		common/strndup.c		\
+		common/basename.c		\
+		exec/exec.h			\
+		exec/exec_ast.c			\
 		opt/opt.h			\
 		opt/opt.c			\
 		opt/opt_init.c			\
 		opt/opt_parser.c		\
 		parser/parser.h			\
 		parser/parser.c			\
+		parser/lexer.c			\
 		readline/readline.h		\
 		readline/readline.c		\
 		readline/getln.c		\

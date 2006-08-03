@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sun Jul 30 04:40:03 2006 Seblu
-** Last update Wed Aug  2 17:54:14 2006 Seblu
+** Last update Thu Aug  3 03:03:42 2006 Seblu
 */
 
 #ifndef AST_H_
@@ -16,13 +16,12 @@
 # include <stdlib.h>
 # include <assert.h>
 
-struct s_ast;
 typedef struct s_ast  ts_ast_node;
 
 /*
 ** If ast node
 */
-typedef struct
+typedef struct s_if_node
 {
   ts_ast_node		*cond;
   ts_ast_node		*cond_true;
@@ -32,7 +31,7 @@ typedef struct
 /*
 ** For ast node
 */
-typedef struct
+typedef struct s_for_node
 {
   char			*name;
   ts_ast_node		*values;
@@ -42,7 +41,7 @@ typedef struct
 /*
 ** Case ast node
 */
-typedef struct
+typedef struct s_case_node
 {
   char			*word;
   //FIXME
@@ -52,7 +51,7 @@ typedef struct
 /*
 ** While ast node
 */
-typedef struct
+typedef struct s_while_node
 {
   ts_ast_node		*cond;
   ts_ast_node		*exec;
@@ -61,7 +60,7 @@ typedef struct
 /*
 ** Enumerate different type of redirection
 */
-typedef enum
+typedef enum e_redir_type
   {
     R_LESS,		/*  <   */
     R_LESSAND,		/*  <&  */
@@ -77,7 +76,7 @@ typedef enum
 /*
 ** Redirection ast node
 */
-typedef struct
+typedef struct s_redir_node
 {
   te_redir_type		type;
   int			fd;
@@ -87,7 +86,7 @@ typedef struct
 /*
 ** Command ast node
 */
-typedef struct
+typedef struct s_cmd_node
 {
   char			**argv;
   ts_redir_node		**redirs;
@@ -100,16 +99,16 @@ typedef struct
 ** T_PIPE, T_SEP_* , T_AND, T_OR : binary operator
 ** T_BANG : unary operator but ts_bin_op with right pointer is always NULL
 */
-typedef struct
+typedef struct s_bin_node
 {
-  ts_ast_node		*left;
-  ts_ast_node		*right;
+  ts_ast_node		*lhs;
+  ts_ast_node		*rhs;
 } ts_bin_node;
 
 /*
 ** Subshell ast node
 */
-typedef struct
+typedef struct s_subshell_node
 {
   ts_ast_node		*head;
 } ts_subshell_node;
@@ -117,7 +116,7 @@ typedef struct
 /*
 ** Funcdec node
 */
-typedef struct
+typedef struct s_funcdec_node
 {
   char			*name;
   ts_ast_node		*body;
@@ -126,7 +125,7 @@ typedef struct
 /*
 ** Enumerate all node type
 */
-typedef enum
+typedef enum e_node_type
   {
     T_IF,
     T_FOR,
@@ -140,7 +139,7 @@ typedef enum
     T_BANG,
     T_PIPE,
     T_SEP_AND,
-    T_SEP_SEMICOMMA,
+    T_SEP,
     T_CASE,
 
     T_CASE_LIST,
@@ -156,22 +155,22 @@ typedef enum
 /*
 ** This is a type for a node item
 */
-typedef union
+typedef union u_node_item
 {
-  ts_if_node		node_if;
-  ts_for_node		node_for;
-  ts_case_node		node_case;
-  ts_while_node		node_while;
-  ts_while_node		node_until;
-  ts_cmd_node		node_cmd;
-  ts_bin_node		node_and;
-  ts_bin_node		node_or;
-  ts_subshell_node	node_subshell;
-  ts_funcdec_node	node_funcdec;
-  ts_bin_node		node_bang;
-  ts_bin_node		node_pipe;
-  ts_bin_node		node_sep_semicomma;
-  ts_bin_node		node_sep_and;
+  ts_if_node		child_if;
+  ts_for_node		child_for;
+  ts_case_node		child_case;
+  ts_while_node		child_while;
+  ts_while_node		child_until;
+  ts_cmd_node		child_cmd;
+  ts_bin_node		child_and;
+  ts_bin_node		child_or;
+  ts_subshell_node	child_subshell;
+  ts_funcdec_node	child_funcdec;
+  ts_bin_node		child_bang;
+  ts_bin_node		child_pipe;
+  ts_bin_node		child_sep;
+  ts_bin_node		child_sep_and;
 
 
 /*   ts_case_item	node_case_item; */
@@ -185,12 +184,14 @@ typedef union
 struct s_ast
 {
   te_node_type		type;
-  tu_node_item		node;
+  tu_node_item		body;
 };
 
 
+void		ast_destruct(ts_ast_node *ast);
 
-
+ts_ast_node	*ast_create_sep(ts_ast_node *lhs, ts_ast_node *rhs);
+void		ast_destruct_sep(ts_ast_node *node);
 
 /* /\** */
 /* ** structure wordlist ex : for var in wordlist do */
@@ -310,7 +311,7 @@ struct s_ast
 /* ** create shell structure */
 /* *\/ */
 /* struct s_42sh		*ast_create_ast(struct s_42sh	*shell, */
-/* 					struct s_ast   	*ast); */
+/* 					struct s_ast   	*ast; */
 
 /* struct s_ast		*ast_create_patterns(char *word, struct s_ast *case_item); */
 /* struct s_ast		*ast_create_case_list(struct s_ast	*item, */

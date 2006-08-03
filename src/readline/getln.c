@@ -5,9 +5,12 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Wed Aug  2 01:25:01 2006 Seblu
-** Last update Wed Aug  2 01:38:22 2006 Seblu
+** Last update Thu Aug  3 11:44:30 2006 Seblu
 */
 
+#include <string.h>
+#include <stdlib.h>
+#include <unistd.h>
 #include "readline.h"
 
 /*!
@@ -17,7 +20,7 @@
 **
 ** @return lenght of the string
 */
-inline static size_t         sstrlen(const char *s)
+static size_t         sstrlen(const char *s)
 {
   if (s == NULL)
     return 0;
@@ -27,13 +30,13 @@ inline static size_t         sstrlen(const char *s)
 /*
 ** Append a string to the buffer string
 */
-inline static void     buf_str(char **str, char *append, unsigned n)
+static void     buf_str(char **str, char *append, unsigned n)
 {
   unsigned      ln;
   unsigned      i;
   unsigned      j;
 
-  ln = len(*str);
+  ln = sstrlen(*str);
   if ((*str = realloc(*str, (ln + n + 1) * sizeof (char))) == NULL)
     exit(1);
   for (i = ln, j = 0; i < ln + n; i++, j++)
@@ -82,13 +85,13 @@ char            *getln(struct s_getln *buf)
       {
         if (buf->data[i] == '\n')
           {
-            buf_str(&(string), buf->data + buf->offset, i - buf->offset);
+            buf_str(&string, buf->data + buf->offset, i - buf->offset + 1);
             buf->offset = i + 1;
             return string;
           }
       }
     if (buf->size - buf->offset > 0)
-      buf_str(&(string), buf->data + buf->offset, buf->size - buf->offset);
+      buf_str(&string, buf->data + buf->offset, buf->size - buf->offset);
     buf->offset = 0;
     buf->size = read(buf->fd, buf->data, GETLN_BUF_SIZE);
     if (buf->size < 0)

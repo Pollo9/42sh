@@ -5,22 +5,13 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Tue May 16 21:23:02 2006 Seblu
-** Last update Sun Jul 30 04:15:36 2006 Seblu
+** Last update Thu Aug  3 05:29:21 2006 Seblu
 */
 
 #include <stdarg.h>
 #include <string.h>
-#include "macro.h"
+#include "mem.h"
 
-/*!
-** Merge strings
-**
-** @param n number of string to merge
-** @param s1 First string to merge
-**
-** @return malloced string merged
-** @warning the returned string must be freed by the caller
-*/
 char            *strmerge(int n, const char *s1, ...)
 {
   va_list       param;

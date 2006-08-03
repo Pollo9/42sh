@@ -1,15 +1,19 @@
 /*
-** main.c for 42sh in /home/seblu/devel/c/42sh/src/execution
+** main.c for 42sh
 **
 ** Made by Seblu
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Mon Apr 10 23:57:28 2006 Seblu
-** Last update Sun Jul 30 03:15:49 2006 Seblu
+** Last update Thu Aug  3 07:01:52 2006 Seblu
 */
 
 #include <stdio.h>
+#include <libgen.h>
 #include "shell.h"
+#include "../ast/ast.h"
+#include "../parser/parser.h"
+#include "../exec/exec.h"
 
 /*
 ** Global shell structure
@@ -26,16 +30,23 @@ ts_shell *shell = NULL;
 */
 int		main(int argc, char *argv[])
 {
-  int		ret;
+  ts_ast_node	*ast;
+  ts_parser	*parser;
 
-  /* shell initialization */
-  shell = shell_init();
-  /* parse arg line */
+  // shell initialization
+  shell = shell_init(argv[0]);
+  // parse argv
   opt_parser(argc, argv, shell->opt);
-  //open_parse(argc, argv, shell);
-  /*   if (shell->ast) */
-  /*      exec_start(shell); */
-  ret = shell->last_status;
-  shell_destroy(shell);
-  return ret;
+  // shell parser init
+  parser = parser_init(stdin);
+  // parse and execute stdin stream
+  do
+  {
+    ast = parse(parser);
+    if (parser->status == PARSE_OK)
+      exec_ast(ast);
+    ast_destruct(ast);
+  }
+  while (parser->status != PARSE_END);
+  return shell->status;
 }

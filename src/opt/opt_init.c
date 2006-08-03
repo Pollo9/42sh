@@ -5,11 +5,11 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sun Jul 30 03:33:09 2006 Seblu
-** Last update Sun Jul 30 03:57:27 2006 Seblu
+** Last update Thu Aug  3 02:45:51 2006 Seblu
 */
 
 #include "opt.h"
-#include "../common/macro.h"
+#include "../common/mem.h"
 
 /*!
 ** Create a new option structure

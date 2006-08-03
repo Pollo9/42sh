@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sun Jul 16 20:11:09 2006 Seblu
-** Last update Sun Jul 30 03:39:46 2006 Seblu
+** Last update Thu Aug  3 05:28:33 2006 Seblu
 */
 
 #include <stdlib.h>
@@ -16,7 +16,8 @@
 #include <stdlib.h>
 #include "shell.h"
 #include "../opt/opt.h"
-#include "../common/macro.h"
+#include "../common/mem.h"
+#include "../common/common.h"
 
 
 /* static int		pwd_isgood(); */
@@ -27,14 +28,12 @@
 **
 ** @return the new shell structure
 */
-ts_shell		*shell_init(void)
+ts_shell		*shell_init(const char *argv0)
 {
-  ts_shell	*new;
-/*   char			*tmp; */
+  ts_shell		*new;
 
   secmalloc(new, sizeof (ts_shell));
-/*   new->ast = NULL; */
-/*   new->vars = var_create(); */
+/*   new->vars = NULL; */
 /*   new->funcs = NULL; */
 /*   new->history = NULL; */
   new->opt = opt_init();
@@ -44,7 +43,8 @@ ts_shell		*shell_init(void)
 /*      free(tmp); */
 /*   } */
 /*   var_unsetenv("OLDPWD"); */
-  new->last_status = 0;
+  new->name = basename(argv0);
+  new->status = 0;
   return new;
 }
 

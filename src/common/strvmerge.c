@@ -5,19 +5,12 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sun Jul 30 04:03:35 2006 Seblu
-** Last update Sun Jul 30 04:36:05 2006 Seblu
+** Last update Thu Aug  3 05:29:38 2006 Seblu
 */
 
 #include <string.h>
-#include "macro.h"
+#include "mem.h"
 
-/*!
-** Merge a vector of string
-**
-** @param vtable strings to merge
-**
-** @return a string merged from @arg vtable
-*/
 char			*strvmerge(const char *const *vtable)
 {
   size_t		string_sz = 0;
