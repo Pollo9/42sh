@@ -5,8 +5,20 @@ bin_PROGRAMS=42sh
 
 
 42sh_SOURCES=	ast/ast.h			\
+		ast/ast_and.c			\
+		ast/ast_bang.c			\
+		ast/ast_case.c			\
 		ast/ast_destruct.c		\
+		ast/ast_for.c			\
+		ast/ast_funcdec.c		\
+		ast/ast_if.c			\
+		ast/ast_or.c			\
+		ast/ast_pipe.c			\
 		ast/ast_sep.c			\
+		ast/ast_sepand.c		\
+		ast/ast_subshell.c		\
+		ast/ast_until.c			\
+		ast/ast_while.c			\
 		common/common.h			\
 		common/mem.h			\
 		common/strmerge.c		\

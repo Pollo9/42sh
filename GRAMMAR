@@ -5,7 +5,7 @@ input:	  	list '\n'
 
 list:		and_or ((';'|'&') and_or)* ['&'|';']
 
-and_or:	pipeline (('&&'|'||') ('\n')* pipeline)*
+and_or:		pipeline (('&&'|'||') ('\n')* pipeline)*
 
 pipeline:	['!'] command ('|' ('\n')* command)*
 
@@ -58,7 +58,7 @@ else_clause:  'else' compound_list
 
 do_group:	'do' compound_list 'done'
 
-case_clause:	pattern (';;' (\n)* pattern)* [;;]
+case_clause:	case_item (';;' (\n)* case_item)* [;;]
 
-pattern:	['('] WORD ('|' WORD)* ')' ( ('\n')* | compound_list )
+case_item:	['('] WORD ('|' WORD)* ')' ( ('\n')* | compound_list )
 

@@ -10,6 +10,7 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include "mem.h"
 
 char            *strndup(const char *str, size_t n)
 {
@@ -21,8 +22,7 @@ char            *strndup(const char *str, size_t n)
   max_length = n;
   if ((length = strlen(str)) > max_length)
     length = max_length;
-  if ((new = malloc((length + 1) * sizeof (char))) == NULL)
-    return NULL;
+  secmalloc(new, (length + 1) * sizeof (char));
   for (i = 0; i < length; ++i)
     new[i] = str[i];
   new[length] = 0;

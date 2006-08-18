@@ -14,63 +14,69 @@
 #ifndef PARSER_H_
 # define PARSER_H_
 
-# define TOK_AND 1
-# define TOK_OR 2
-# define TOK_DSEMI 3
-# define TOK_DLESS 4
-# define TOK_DGREAT 5
-# define TOK_LESSAND 6
-# define TOK_GREATAND 7
-# define TOK_LESSGREAT 8
-# define TOK_DLESSDASH 9
-# define TOK_CLOBBER 10
-# define TOK_IF 11
-# define TOK_THEN 12
-# define TOK_ELSE 13
-# define TOK_FI 14
-# define TOK_ELIF 15
-# define TOK_DO 16
-# define TOK_DONE 17
-# define TOK_CASE 18
-# define TOK_ESAC 19
-# define TOK_WHILE 20
-# define TOK_UNTIL 21
-# define TOK_FOR 22
-# define TOK_IN 23
-# define TOK_LBRACE 24
-# define TOK_RBRACE 25
-# define TOK_BANG 26
-# define TOK_NEWLINE 27
-# define TOK_SEP 28
-# define TOK_SEPAND 29
-# define TOK_EOF 30
-# define TOK_NONE 31
-
-typedef int t_token;
+typedef enum e_token
+  {
+    TOK_AND,
+    TOK_OR,
+    TOK_DSEMI,
+    TOK_DLESS,
+    TOK_DGREAT,
+    TOK_LESSAND,
+    TOK_GREATAND,
+    TOK_LESSGREAT,
+    TOK_DLESSDASH,
+    TOK_CLOBBER,
+    TOK_IF,
+    TOK_THEN,
+    TOK_ELSE,
+    TOK_FI,
+    TOK_ELIF,
+    TOK_DO,
+    TOK_DONE,
+    TOK_CASE,
+    TOK_ESAC,
+    TOK_WHILE,
+    TOK_UNTIL,
+    TOK_FOR,
+    TOK_IN,
+    TOK_LBRACE,
+    TOK_RBRACE,
+    TOK_BANG,
+    TOK_NEWLINE,
+    TOK_SEP,
+    TOK_SEPAND,
+    TOK_WORD,
+    TOK_EOF,
+    TOK_BEGIN
+  } te_tokenid;
 
 typedef struct s_token
 {
-  t_token id;
+  te_tokenid id;
   const char *str;
 } ts_token;
 
-
-typedef enum e_parse_status
+typedef enum e_parser_status
   {
     PARSE_OK,
     PARSE_ERROR,
     PARSE_END
-  } te_parse_status;
+  } te_parser_status;
 
 typedef struct		s_parser
 {
-  te_parse_status	status;
+  te_parser_status	status;
   ts_token		current;
   FILE			*fs;
   char			*buf;
   size_t		buf_size;
   size_t		buf_pos;
+  size_t		tok_start;
 } ts_parser;
+
+/*
+** FILE: parser.c
+*/
 
 /*!
 ** Parser initialization
@@ -80,7 +86,6 @@ typedef struct		s_parser
 ** @return the new struct
 */
 ts_parser		*parser_init(FILE *fs);
-
 
 /*!
 ** Notify a parse error
@@ -98,6 +103,10 @@ void			parse_error(ts_parser *parser, ts_token t);
 ** @return ast_to_execute
 */
 ts_ast_node		*parse(ts_parser *parser);
+
+/*
+** FILE: lexer.c
+*/
 
 /*!
 ** Set (or reset) the lexer
@@ -125,6 +134,6 @@ void			lexer_eat(ts_parser *lex);
 **
 ** @return token string representation
 */
-const char		*get_token_string(t_token t);
+const char		*get_token_string(te_tokenid t);
 
 #endif

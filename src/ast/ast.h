@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sun Jul 30 04:40:03 2006 Seblu
-** Last update Thu Aug  3 03:03:42 2006 Seblu
+** Last update Fri Aug 18 15:56:25 2006 Seblu
 */
 
 #ifndef AST_H_
@@ -33,10 +33,21 @@ typedef struct s_if_node
 */
 typedef struct s_for_node
 {
-  char			*name;
-  ts_ast_node		*values;
+  char			*varname;
+  char			**values;
   ts_ast_node		*exec;
 } ts_for_node;
+
+/*
+** Case item (not an ast node)
+*/
+typedef struct s_case_item ts_case_item;
+struct s_case_item
+{
+  char			**pattern;
+  ts_ast_node		*list;
+  ts_case_item		*next;
+};
 
 /*
 ** Case ast node
@@ -44,8 +55,7 @@ typedef struct s_for_node
 typedef struct s_case_node
 {
   char			*word;
-  //FIXME
-  struct s_case_item	**items;
+  ts_case_item		*items;
 } ts_case_node;
 
 /*
@@ -106,14 +116,6 @@ typedef struct s_bin_node
 } ts_bin_node;
 
 /*
-** Subshell ast node
-*/
-typedef struct s_subshell_node
-{
-  ts_ast_node		*head;
-} ts_subshell_node;
-
-/*
 ** Funcdec node
 */
 typedef struct s_funcdec_node
@@ -138,18 +140,9 @@ typedef enum e_node_type
     T_FUNCDEC,
     T_BANG,
     T_PIPE,
-    T_SEP_AND,
+    T_SEPAND,
     T_SEP,
     T_CASE,
-
-    T_CASE_LIST,
-    T_LIST,
-    T_CL,
-    T_CASE_ITEM,
-    T_ITEM,
-    T_LINE,
-    T_WL,
-    T_END
   } te_node_type;
 
 /*
@@ -159,23 +152,18 @@ typedef union u_node_item
 {
   ts_if_node		child_if;
   ts_for_node		child_for;
-  ts_case_node		child_case;
+  ts_case_node		child_case; //todo
   ts_while_node		child_while;
   ts_while_node		child_until;
-  ts_cmd_node		child_cmd;
+  ts_cmd_node		child_cmd; //todo
   ts_bin_node		child_and;
   ts_bin_node		child_or;
-  ts_subshell_node	child_subshell;
+  ts_bin_node		child_subshell;
   ts_funcdec_node	child_funcdec;
   ts_bin_node		child_bang;
   ts_bin_node		child_pipe;
   ts_bin_node		child_sep;
-  ts_bin_node		child_sep_and;
-
-
-/*   ts_case_item	node_case_item; */
-/*   ts_wordlist	node_wl; */
-/*   ts_case_list	node_case_list; */
+  ts_bin_node		child_sepand;
 } tu_node_item;
 
 /*
@@ -187,172 +175,221 @@ struct s_ast
   tu_node_item		body;
 };
 
-
+/*!
+** Destroy node and all its childs
+**
+** @param ast mother node to destroy
+**
+*/
 void		ast_destruct(ts_ast_node *ast);
 
+/*!
+** Create an if ast node
+**
+** @param cond if condition
+** @param cond_true tree if condition is true
+** @param cond_false tree if condition is false
+**
+** @return the node
+*/
+ts_ast_node	*ast_create_if(ts_ast_node *cond,
+			       ts_ast_node *cond_true,
+			       ts_ast_node *cond_false);
+
+/*!
+** Destruct an if ast node
+**
+** @param node node to destroy
+*/
+void		ast_destruct_if(ts_ast_node *node);
+
+/*!
+** Create a for ast node
+**
+** @param varname variable name
+** @param values word list that var @value varname will take.
+** @warning values is a NULL termined list of string
+** @param exec tree to execute with @value varname correctly set
+**
+** @return the node
+*/
+ts_ast_node	*ast_create_for(char		*varname,
+				char		**values, 
+				ts_ast_node	*exec);
+
+/*!
+** Destruct a for ast node
+**
+** @param node node to destroy
+*/
+void		ast_destruct_for(ts_ast_node *node);
+
+/*!
+** Create a while ast node
+**
+** @param cond poursuit condition
+** @param exec tree to execute if cond is true
+**
+** @return the node
+*/
+ts_ast_node	*ast_create_while(ts_ast_node *cond, ts_ast_node *exec);
+
+/*!
+** Destruct a while ast node
+**
+** @param node node to destroy
+*/
+void		ast_destruct_while(ts_ast_node *node);
+
+/*!
+** Create a until ast node
+**
+** @param cond poursuit condition
+** @param exec tree to execute if cond is false
+**
+** @return the node
+*/
+ts_ast_node	*ast_create_until(ts_ast_node *cond, ts_ast_node *exec);
+
+/*!
+** Destruct a until ast node
+**
+** @param node node to destroy
+*/
+void		ast_destruct_until(ts_ast_node *node);
+
+/*!
+** Create an and (&&) ast node
+**
+** @param lhs left child
+** @param rhs right child
+**
+** @return the node
+*/
+ts_ast_node	*ast_create_and(ts_ast_node *lhs, ts_ast_node *rhs);
+
+/*!
+** Destruct an and (&&) node
+**
+** @param node node to destroy
+*/
+void		ast_destruct_and(ts_ast_node *node);
+
+/*!
+** Create an or (||) ast node
+**
+** @param lhs left child
+** @param rhs right child
+**
+** @return the node
+*/
+ts_ast_node	*ast_create_or(ts_ast_node *lhs, ts_ast_node *rhs);
+
+/*!
+** Destruct an or (||) node
+**
+** @param node node to destroy
+*/
+void		ast_destruct_or(ts_ast_node *node);
+
+/*!
+** Create a subshell ($()) ast node
+**
+** @param child subshell tree
+**
+** @return the node
+*/
+ts_ast_node	*ast_create_subshell(ts_ast_node *child);
+
+/*!
+** Destruct a subshell ($()) node
+**
+** @param node node to destroy
+*/
+void		ast_destruct_subshell(ts_ast_node *node);
+
+/*!
+** Create a funcdec (function declaration) ast node
+**
+** @param name function name
+** @param body function body
+**
+** @return the node
+*/
+ts_ast_node	*ast_create_funcdec(char *name, ts_ast_node *body);
+
+/*!
+** Destruct a funcdec ast node
+**
+** @param node node to destroy
+*/
+void		ast_destruct_funcdec(ts_ast_node *node);
+
+/*!
+** Create a bang (!) ast node
+**
+** @param child under bang tree
+**
+** @return the node
+*/
+ts_ast_node	*ast_create_bang(ts_ast_node *child);
+
+/*!
+** Destruct a bang (!) node
+**
+** @param node node to destroy
+*/
+void		ast_destruct_bang(ts_ast_node *node);
+
+/*!
+** Create a pipe (|) ast node
+**
+** @param lhs left child
+** @param rhs right child
+**
+** @return the node
+*/
+ts_ast_node	*ast_create_pipe(ts_ast_node *lhs, ts_ast_node *rhs);
+
+/*!
+** Destruct a pipe (|) node
+**
+** @param node node to destroy
+*/
+void		ast_destruct_pipe(ts_ast_node *node);
+
+/*!
+** Create a separtor (;) ast node
+**
+** @param lhs left child
+** @param rhs right child
+**
+** @return the node
+*/
 ts_ast_node	*ast_create_sep(ts_ast_node *lhs, ts_ast_node *rhs);
+
+/*!
+** Destruct a sep (;) node
+**
+** @param node node to destroy
+*/
 void		ast_destruct_sep(ts_ast_node *node);
 
-/* /\** */
-/* ** structure wordlist ex : for var in wordlist do */
-/* ** word : word */
-/* ** next : next word finally Sexy NULL */
-/* *\/ */
-/* struct			s_wordlist */
-/* { */
-/*   char			*word; */
-/*   struct s_wordlist	*next; */
-/* }; */
+/*!
+** Create a sepand (&) ast node
+**
+** @param lhs left child
+** @param rhs right child
+**
+** @return the node
+*/
+ts_ast_node	*ast_create_sepand(ts_ast_node *lhs, ts_ast_node *rhs);
 
-/* struct			s_case_item */
-/* { */
-/*   char			**patterns; */
-/*   int			allocated; */
-/*   int			pos; */
-/* }; */
-
-/* struct			s_item */
-/* { */
-/*   struct s_wordlist	*pl; */
-/*   struct s_ast		*cmd_list; */
-/* }; */
-
-
-
-/* /\** */
-/* ** temporary structure */
-/* ** which contains prefix and */
-/* ** suffix command informations */
-/* ** argv word or assigment words terminated by NULL */
-/* ** redirs redirection pointer */
-/* ** pos position in argv array */
-/* ** nb_arg_alloc positions allocated */
-/* *\/ */
-/* struct			s_cmd_opt */
-/* { */
-/*   char			**argv; */
-/*   struct s_redir	*redirs; */
-/*   int			pos; */
-/*   int			nb_arg_alloc; */
-/* }; */
-/* /\** */
-/* ** create temporary structure */
-/* ** in order to get prefix and */
-/* ** suffix informations */
-/* *\/ */
-/* struct s_cmd_opt	*tmp_create_cmdopt(struct s_cmd_opt    	*opt, */
-/* 					   struct s_redir      	*redir, */
-/* 					   char			*arg); */
-/* /\** */
-/* ** add redirection to temporary */
-/* ** structure s_redir */
-/* *\/ */
-/* struct s_redir          *tmp_add_redir(struct s_redir *base, struct s_redir *nelt); */
-/* /\** */
-/* ** create temporary structure s_redir */
-/* *\/ */
-/* struct s_redir          *tmp_create_redir(enum e_redir      type, */
-/* 					  char              *filename, */
-/* 					  int               fd, */
-/* 					  struct s_redir    *redir); */
-/* /\* */
-/* ** PLEASE NOTE */
-/* ** Every time, any argument given so this functions must be on the heap, */
-/* ** they are not copied. Don't forget to dup string, for function create_cmd, */
-/* ** function add_redir and function create_for */
-/* *\/ */
-
-/* /\*! */
-/* ** Create an and node */
-/* ** */
-/* ** @param lhs left hand side */
-/* ** @param rhs right hand side */
-/* ** */
-/* ** @return new ast node */
-/* *\/ */
-/* struct s_ast		*ast_create_and(struct s_ast *lhs, struct s_ast *rhs); */
-/* /\*! */
-/* ** Create an or node */
-/* ** */
-/* ** @param lhs left hand side */
-/* ** @param rhs right hand side */
-/* ** */
-/* ** @return new ast node */
-/* *\/ */
-/* struct s_ast		*ast_create_or(struct s_ast *lhs, struct s_ast *rhs); */
-/* struct s_ast		*ast_create_case_clause(char		*word, */
-/* 						struct s_ast	*case_list); */
-/* struct s_ast		*ast_create_if(struct s_ast *cond, */
-/* 				       struct s_ast *positive, */
-/* 				       struct s_ast *negative); */
-/* struct s_ast		*ast_create_funcdec(char *name, struct s_ast *body); */
-/* struct s_ast		*ast_create_subshell(struct s_ast *cmd); */
-/* struct s_ast		*ast_create_for(char		*varname, */
-/* 					struct s_ast	*value, */
-/* 					struct s_ast	*exec); */
-/* /\** */
-/* ** create cmd node */
-/* *\/ */
-/* struct s_ast		*ast_create_cmd(struct s_cmd_opt     	*prefix, */
-/* 					 char		       	*cmd, */
-/* 					 struct s_cmd_opt     	*suffix); */
-
-/* /\* struct s_ast		*ast_create_list(struct s_ast **item); *\/ */
-/* struct s_ast		*ast_create_until(struct s_ast *cond, */
-/* 					  struct s_ast *exec); */
-/* struct s_ast		*ast_create_while(struct s_ast *cond, */
-/* 					  struct s_ast *exec); */
-/* /\** */
-/* ** create pipe node */
-/* *\/ */
-/* struct s_ast		*ast_create_pipe(struct s_ast		*cmd1, */
-/* 					 struct s_ast		*cmd2); */
-/* /\** */
-/* ** create shell structure */
-/* *\/ */
-/* struct s_42sh		*ast_create_ast(struct s_42sh	*shell, */
-/* 					struct s_ast   	*ast; */
-
-/* struct s_ast		*ast_create_patterns(char *word, struct s_ast *case_item); */
-/* struct s_ast		*ast_create_case_list(struct s_ast	*item, */
-/* 					      struct s_ast	*case_list); */
-/* struct s_ast      	*ast_create_wordlist(struct s_ast	*wl, */
-/* 					     char		*w); */
-/* /\** */
-/* ** change ast type : PIPE -> BANG_PIPE and CMD -> BANG_CMD */
-/* *\/ */
-/* struct s_ast		*ast_create_bang(struct s_ast *ast); */
-/* struct s_ast		*ast_create_sep_op(struct s_ast		*cmd1, */
-/* 					   enum e_type		sep_op, */
-/* 					   struct s_ast		*cmd2); */
-
-/* /\* void			ast_destruct_list(struct s_ast *node); *\/ */
-/* void			ast_destruct_cmd(struct s_ast *node); */
-/* void			ast_destruct_pipe(struct s_ast *node); */
-/* void			ast_destruct_redir(struct s_redir *red); */
-
-/* /\* void			ast_print(struct s_ast *ast); *\/ */
-/* void			ast_destruct_sep_op(struct s_ast *node); */
-/* void			ast_destruct_for(struct s_ast *node); */
-/* void			ast_destruct_until(struct s_ast *node); */
-/* void			ast_destruct_while(struct s_ast *node); */
-/* void			ast_destruct_if(struct s_ast *node); */
-/* void			ast_destruct(struct s_ast *node); */
-/* void			ast_destruct_bang(struct s_ast *node); */
-/* void			ast_destruct_wordlist(struct s_ast *node); */
-/* void			ast_destruct_case(struct s_ast *node); */
-/* /\*! */
-/* ** Destruct an and node */
-/* ** */
-/* ** @param node head of node to destruct */
-/* *\/ */
-/* void			ast_destruct_and(struct s_ast *node); */
-/* /\*! */
-/* ** Destruct an or node */
-/* ** */
-/* ** @param node head of node to destruct */
-/* *\/ */
-/* void			ast_destruct_or(struct s_ast *node); */
-/* void			ast_destruct_subshell(struct s_ast *node); */
+/*!
+** Destruct a sepand (&) node
+**
+** @param node node to destroy
+*/
+void		ast_destruct_sep(ts_ast_node *node);
 
 #endif /* !AST_H_ */
