@@ -5,13 +5,13 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Thu Aug  3 02:41:37 2006 Seblu
-** Last update Thu Aug  3 03:03:31 2006 Seblu
+** Last update Fri Aug 18 20:37:47 2006 Seblu
 */
 
 #include "../common/mem.h"
 #include "ast.h"
 
-ts_ast_node	*ast_create_if(ts_ast_node *cond,
+ts_ast_node	*ast_if_create(ts_ast_node *cond,
 			       ts_ast_node *cond_true,
 			       ts_ast_node *cond_false)
 {
@@ -25,7 +25,7 @@ ts_ast_node	*ast_create_if(ts_ast_node *cond,
   return node;
 }
 
-void		ast_destruct_if(ts_ast_node *node)
+void		ast_if_destruct(ts_ast_node *node)
 {
   if (node->type != T_IF) {
     ast_destruct(node);

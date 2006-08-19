@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sun Jul 30 04:40:03 2006 Seblu
-** Last update Fri Aug 18 15:56:25 2006 Seblu
+** Last update Fri Aug 18 22:38:00 2006 Seblu
 */
 
 #ifndef AST_H_
@@ -16,7 +16,7 @@
 # include <stdlib.h>
 # include <assert.h>
 
-typedef struct s_ast  ts_ast_node;
+typedef struct s_ast_node  ts_ast_node;
 
 /*
 ** If ast node
@@ -45,7 +45,7 @@ typedef struct s_case_item ts_case_item;
 struct s_case_item
 {
   char			**pattern;
-  ts_ast_node		*list;
+  ts_ast_node		*exec;
   ts_case_item		*next;
 };
 
@@ -86,12 +86,14 @@ typedef enum e_redir_type
 /*
 ** Redirection ast node
 */
-typedef struct s_redir_node
+typedef struct s_redir ts_redir;
+struct s_redir
 {
   te_redir_type		type;
   int			fd;
-  char			*string;
-} ts_redir_node;
+  char			*word;
+  ts_redir		*next;
+};
 
 /*
 ** Command ast node
@@ -99,14 +101,14 @@ typedef struct s_redir_node
 typedef struct s_cmd_node
 {
   char			**argv;
-  ts_redir_node		**redirs;
+  ts_redir		*redirs;
   char			**prefix;
 } ts_cmd_node;
 
 /*
 ** Binary ast node
-** Generic type, it's a contener !
-** T_PIPE, T_SEP_* , T_AND, T_OR : binary operator
+** Generic node, it's a contener !
+** T_PIPE, T_SEP* , T_AND, T_OR : binary operator
 ** T_BANG : unary operator but ts_bin_op with right pointer is always NULL
 */
 typedef struct s_bin_node
@@ -152,7 +154,7 @@ typedef union u_node_item
 {
   ts_if_node		child_if;
   ts_for_node		child_for;
-  ts_case_node		child_case; //todo
+  ts_case_node		child_case;
   ts_while_node		child_while;
   ts_while_node		child_until;
   ts_cmd_node		child_cmd; //todo
@@ -169,7 +171,7 @@ typedef union u_node_item
 /*
 ** Generic ast node type
 */
-struct s_ast
+struct s_ast_node
 {
   te_node_type		type;
   tu_node_item		body;
@@ -192,7 +194,7 @@ void		ast_destruct(ts_ast_node *ast);
 **
 ** @return the node
 */
-ts_ast_node	*ast_create_if(ts_ast_node *cond,
+ts_ast_node	*ast_if_create(ts_ast_node *cond,
 			       ts_ast_node *cond_true,
 			       ts_ast_node *cond_false);
 
@@ -201,7 +203,7 @@ ts_ast_node	*ast_create_if(ts_ast_node *cond,
 **
 ** @param node node to destroy
 */
-void		ast_destruct_if(ts_ast_node *node);
+void		ast_if_destruct(ts_ast_node *node);
 
 /*!
 ** Create a for ast node
@@ -213,8 +215,8 @@ void		ast_destruct_if(ts_ast_node *node);
 **
 ** @return the node
 */
-ts_ast_node	*ast_create_for(char		*varname,
-				char		**values, 
+ts_ast_node	*ast_for_create(char		*varname,
+				char		**values,
 				ts_ast_node	*exec);
 
 /*!
@@ -222,7 +224,35 @@ ts_ast_node	*ast_create_for(char		*varname,
 **
 ** @param node node to destroy
 */
-void		ast_destruct_for(ts_ast_node *node);
+void		ast_for_destruct(ts_ast_node *node);
+
+/*!
+** Create a case ast node
+**
+** @param word reference word
+**
+** @return the node
+*/
+ts_ast_node	*ast_case_create(char *word);
+
+/*!
+** Add a case item into a case node. An item is counpound of a set of word
+** which match with reference word an case node and the corresponding
+**
+** @param node node where item will be added
+** @param pattern list of word that can match to reference
+** @param exec exec corresponding with match
+*/
+void		ast_case_add_item(ts_ast_node	*node,
+				  char		**pattern,
+				  ts_ast_node	*exec);
+
+/*!
+** Destruct a case ast node
+**
+** @param node node to destroy
+*/
+void		ast_case_destruct(ts_ast_node *node);
 
 /*!
 ** Create a while ast node
@@ -232,14 +262,14 @@ void		ast_destruct_for(ts_ast_node *node);
 **
 ** @return the node
 */
-ts_ast_node	*ast_create_while(ts_ast_node *cond, ts_ast_node *exec);
+ts_ast_node	*ast_while_create(ts_ast_node *cond, ts_ast_node *exec);
 
 /*!
 ** Destruct a while ast node
 **
 ** @param node node to destroy
 */
-void		ast_destruct_while(ts_ast_node *node);
+void		ast_while_destruct(ts_ast_node *node);
 
 /*!
 ** Create a until ast node
@@ -249,14 +279,14 @@ void		ast_destruct_while(ts_ast_node *node);
 **
 ** @return the node
 */
-ts_ast_node	*ast_create_until(ts_ast_node *cond, ts_ast_node *exec);
+ts_ast_node	*ast_until_create(ts_ast_node *cond, ts_ast_node *exec);
 
 /*!
 ** Destruct a until ast node
 **
 ** @param node node to destroy
 */
-void		ast_destruct_until(ts_ast_node *node);
+void		ast_until_destruct(ts_ast_node *node);
 
 /*!
 ** Create an and (&&) ast node
@@ -266,14 +296,14 @@ void		ast_destruct_until(ts_ast_node *node);
 **
 ** @return the node
 */
-ts_ast_node	*ast_create_and(ts_ast_node *lhs, ts_ast_node *rhs);
+ts_ast_node	*ast_and_create(ts_ast_node *lhs, ts_ast_node *rhs);
 
 /*!
 ** Destruct an and (&&) node
 **
 ** @param node node to destroy
 */
-void		ast_destruct_and(ts_ast_node *node);
+void		ast_and_destruct(ts_ast_node *node);
 
 /*!
 ** Create an or (||) ast node
@@ -283,14 +313,14 @@ void		ast_destruct_and(ts_ast_node *node);
 **
 ** @return the node
 */
-ts_ast_node	*ast_create_or(ts_ast_node *lhs, ts_ast_node *rhs);
+ts_ast_node	*ast_or_create(ts_ast_node *lhs, ts_ast_node *rhs);
 
 /*!
 ** Destruct an or (||) node
 **
 ** @param node node to destroy
 */
-void		ast_destruct_or(ts_ast_node *node);
+void		ast_or_destruct(ts_ast_node *node);
 
 /*!
 ** Create a subshell ($()) ast node
@@ -299,14 +329,14 @@ void		ast_destruct_or(ts_ast_node *node);
 **
 ** @return the node
 */
-ts_ast_node	*ast_create_subshell(ts_ast_node *child);
+ts_ast_node	*ast_subshell_create(ts_ast_node *child);
 
 /*!
 ** Destruct a subshell ($()) node
 **
 ** @param node node to destroy
 */
-void		ast_destruct_subshell(ts_ast_node *node);
+void		ast_subshell_destruct(ts_ast_node *node);
 
 /*!
 ** Create a funcdec (function declaration) ast node
@@ -316,14 +346,14 @@ void		ast_destruct_subshell(ts_ast_node *node);
 **
 ** @return the node
 */
-ts_ast_node	*ast_create_funcdec(char *name, ts_ast_node *body);
+ts_ast_node	*ast_fundec_create(char *name, ts_ast_node *body);
 
 /*!
 ** Destruct a funcdec ast node
 **
 ** @param node node to destroy
 */
-void		ast_destruct_funcdec(ts_ast_node *node);
+void		ast_funcdec_destruct(ts_ast_node *node);
 
 /*!
 ** Create a bang (!) ast node
@@ -332,14 +362,14 @@ void		ast_destruct_funcdec(ts_ast_node *node);
 **
 ** @return the node
 */
-ts_ast_node	*ast_create_bang(ts_ast_node *child);
+ts_ast_node	*ast_bang_create(ts_ast_node *child);
 
 /*!
 ** Destruct a bang (!) node
 **
 ** @param node node to destroy
 */
-void		ast_destruct_bang(ts_ast_node *node);
+void		ast_bang_destruct(ts_ast_node *node);
 
 /*!
 ** Create a pipe (|) ast node
@@ -349,14 +379,14 @@ void		ast_destruct_bang(ts_ast_node *node);
 **
 ** @return the node
 */
-ts_ast_node	*ast_create_pipe(ts_ast_node *lhs, ts_ast_node *rhs);
+ts_ast_node	*ast_pipe_create(ts_ast_node *lhs, ts_ast_node *rhs);
 
 /*!
 ** Destruct a pipe (|) node
 **
 ** @param node node to destroy
 */
-void		ast_destruct_pipe(ts_ast_node *node);
+void		ast_pipe_destruct(ts_ast_node *node);
 
 /*!
 ** Create a separtor (;) ast node
@@ -366,14 +396,14 @@ void		ast_destruct_pipe(ts_ast_node *node);
 **
 ** @return the node
 */
-ts_ast_node	*ast_create_sep(ts_ast_node *lhs, ts_ast_node *rhs);
+ts_ast_node	*ast_sep_create(ts_ast_node *lhs, ts_ast_node *rhs);
 
 /*!
 ** Destruct a sep (;) node
 **
 ** @param node node to destroy
 */
-void		ast_destruct_sep(ts_ast_node *node);
+void		ast_sep_destruct(ts_ast_node *node);
 
 /*!
 ** Create a sepand (&) ast node
@@ -383,13 +413,13 @@ void		ast_destruct_sep(ts_ast_node *node);
 **
 ** @return the node
 */
-ts_ast_node	*ast_create_sepand(ts_ast_node *lhs, ts_ast_node *rhs);
+ts_ast_node	*ast_sepand_create(ts_ast_node *lhs, ts_ast_node *rhs);
 
 /*!
 ** Destruct a sepand (&) node
 **
 ** @param node node to destroy
 */
-void		ast_destruct_sep(ts_ast_node *node);
+void		ast_sepand_destruct(ts_ast_node *node);
 
 #endif /* !AST_H_ */

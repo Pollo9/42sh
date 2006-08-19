@@ -5,13 +5,13 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Thu Aug  3 02:41:37 2006 Seblu
-** Last update Thu Aug  3 03:03:31 2006 Seblu
+** Last update Fri Aug 18 20:38:08 2006 Seblu
 */
 
 #include "../common/mem.h"
 #include "ast.h"
 
-ts_ast_node	*ast_create_for(char		*varname,
+ts_ast_node	*ast_for_create(char		*varname,
 				char		**values, 
 				ts_ast_node	*exec)
 {
@@ -25,7 +25,7 @@ ts_ast_node	*ast_create_for(char		*varname,
   return node;
 }
 
-void		ast_destruct_for(ts_ast_node *node)
+void		ast_for_destruct(ts_ast_node *node)
 {
   if (node->type != T_FOR) {
     ast_destruct(node);

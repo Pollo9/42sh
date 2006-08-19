@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sun Jul 16 20:03:53 2006 Seblu
-** Last update Thu Aug  3 07:01:26 2006 Seblu
+** Last update Sat Aug 19 01:45:54 2006 Seblu
 */
 
 #ifndef SHELL_H_
@@ -29,7 +29,7 @@ typedef struct s_shell
 {
 /*   struct s_var		*vars; */
 /*   struct s_func		*funcs; */
-/*   struct s_history	*history; */
+/*   struct s_history		*history; */
   ts_opt		*opt;
   char			*name;
   int			status;

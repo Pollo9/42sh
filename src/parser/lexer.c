@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sun Jul 30 04:36:53 2006 Seblu
-** Last update Thu Aug  3 12:39:34 2006 Seblu
+** Last update Sat Aug 19 01:41:32 2006 Seblu
 */
 
 #include <stdio.h>
@@ -21,18 +21,13 @@
 
 static int	lexer_reconize(ts_parser *parser);
 
-/*!
-** Set the current token for a parser
-**
-** @param p the parser
-** @param t new token id
-** @param s new token str
-**
-** @return token string representation
-*/
-static void	set_current_token(ts_parser *p, te_tokenid t, const char *s);
+static void	lexer_eat(ts_parser *lex);
 
-ts_token tokens[] =
+static ts_token	token_create(te_tokenid id, const char *string);
+
+static void	token_set(ts_token *token, te_tokenid id, const char *s);
+
+ts_token operators[] =
   {
     {TOK_AND, "&&"},
     {TOK_OR, "||"},
@@ -44,6 +39,14 @@ ts_token tokens[] =
     {TOK_LESSGREAT, "<>"},
     {TOK_DLESSDASH, "<<-"},
     {TOK_CLOBBER, ">|"},
+    {TOK_SEP, ";"},
+    {TOK_SEPAND, "&"},
+    {TOK_NEWLINE, "\n"},
+    {0, NULL}
+  };
+
+ts_token keywords[] =
+  {
     {TOK_IF, "if"},
     {TOK_THEN, "then"},
     {TOK_ELSE, "else"},
@@ -60,34 +63,52 @@ ts_token tokens[] =
     {TOK_LBRACE, "{"},
     {TOK_RBRACE, "}"},
     {TOK_BANG, "!"},
-    {TOK_SEP, ";"},
-    {TOK_SEPAND, "&"},
-    {TOK_NEWLINE, "\n"},
-    {0,0}
+    {0, NULL}
   };
 
 void		lexer_reset(ts_parser *parser)
 {
-  set_current_token(parser, TOK_BEGIN, "begin");
-  if (parser->buf != NULL)
-    free(parser->buf);
+  token_set(&parser->token, TOK_NONE, NULL);
+  if (parser->buf) free(parser->buf);
   parser->buf = NULL;
   parser->buf_size = parser->buf_pos = 0;
 }
 
-const char	*get_token_string(te_tokenid t)
+ts_token	lexer_lookahead(ts_parser *parser)
 {
-  for (register int i = 0; tokens[i].str; ++i)
-    if (tokens[i].id == t)
-      return tokens[i].str;
-  return NULL;
+  if (parser->status != PARSE_OK)
+    return token_create(TOK_ERR, NULL);
+  if (parser->token.id == TOK_NONE)
+    lexer_eat(parser);
+  return parser->token;
 }
 
-ts_token	lexer_get(ts_parser *parser)
+ts_token	lexer_gettoken(ts_parser *parser)
 {
-  if (parser->current.id == TOK_BEGIN)
+  ts_token	buf;
+
+  if (parser->status != PARSE_OK)
+    return token_create(TOK_ERR, NULL);
+  if (parser->token.id == TOK_NONE)
     lexer_eat(parser);
-  return parser->current;
+  buf = parser->token;
+  parser->token = token_create(TOK_NONE, NULL);
+  return buf;
+}
+
+static ts_token	token_create(te_tokenid id, const char *string)
+{
+  ts_token	new = { id, string };
+
+  return new;
+}
+
+static void	token_set(ts_token *token, te_tokenid id, const char *s)
+{
+  if (token->id == TOK_WORD && token->str)
+    free((char*) token->str);
+  token->id = id;
+  token->str = s;
 }
 
 void		lexer_eat(ts_parser *parser)
@@ -100,7 +121,7 @@ void		lexer_eat(ts_parser *parser)
   //if line is void, start readding
   if (parser->buf_size == 0) {
     if ((parser->buf = readline(get_prompt(TYPE_PS1))) == NULL) {
-      set_current_token(parser, TOK_EOF, "eof");
+      token_set(&parser->token, TOK_EOF, "eof");
       parser->status = PARSE_END;
       return;
     }
@@ -110,7 +131,7 @@ void		lexer_eat(ts_parser *parser)
   //read line while a token will not be reconized
   while (!lexer_reconize(parser)) {
     if ((lbuf2 = readline(get_prompt(TYPE_PS2))) == NULL) {
-      set_current_token(parser, TOK_EOF, "eof");
+      token_set(&parser->token, TOK_EOF, "eof");
       parser->status = PARSE_END;
       return;
     }
@@ -119,14 +140,6 @@ void		lexer_eat(ts_parser *parser)
     parser->buf_size = strlen(parser->buf);
     free(lbuf), free(lbuf2);
   }
-}
-
-static void	set_current_token(ts_parser *p, te_tokenid t, const char *s)
-{
-  if (p->current.id == TOK_WORD)
-    free((char*)p->current.str);
-  p->current.id = t;
-  p->current.str = s;
 }
 
 static int	lexer_reconize(ts_parser *parser)
@@ -147,7 +160,7 @@ static int	lexer_reconize(ts_parser *parser)
   //check for leading \n token
   if (buf[*buf_pos] == '\n') {
     ++*buf_pos;
-    set_current_token(parser, TOK_NEWLINE, "\n");
+    token_set(&parser->token, TOK_NEWLINE, "\n");
     return 1;
   }
   //cut a token
@@ -165,20 +178,21 @@ static int	lexer_reconize(ts_parser *parser)
       backed = 1;
   if (!end_found) return 0;
   parser->buf_pos = token_pos;
-  printf("cutted token: '%s'\n", 
+  printf("cutted token: '%s'\n",
 	 strndup(buf + token_start, token_pos - token_start));
   //check if it's a registered keyword
-  for (register int i = 0; tokens[i].str; ++i)
-    if (!strncmp(tokens[i].str, buf + token_start,
+  for (register int i = 0; keywords[i].str; ++i)
+    if (!strncmp(keywords[i].str, buf + token_start,
 		 token_pos - token_start)) {
-      set_current_token(parser, tokens[i].id, tokens[i].str);
-      printf("reconized token: %d (%s)\n", tokens[i].id, tokens[i].str);
+      token_set(&parser->token, keywords[i].id, keywords[i].str);
+      printf("reconized token: %d (%s)\n", keywords[i].id, keywords[i].str);
       return 1;
     }
   //althought this token is a word
-  set_current_token(parser, TOK_WORD, 
+  token_set(&parser->token, TOK_WORD,
 		    strndup(buf + token_start, token_pos - token_start));
   printf("reconized token (WORD): %d (%s)\n",
-	 parser->current.id, parser->current.str);
+	 parser->token.id, parser->token.str);
   return 1;
 }
+

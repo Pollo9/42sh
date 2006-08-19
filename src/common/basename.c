@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Thu Aug  3 05:29:46 2006 Seblu
-** Last update Thu Aug  3 10:36:04 2006 Seblu
+** Last update Sat Aug 19 01:57:49 2006 Seblu
 */
 
 #include <string.h>
@@ -18,7 +18,7 @@ char		*basename(const char *path)
 
   if ((len = strlen(path)) == 0)
     return strdup("");
-  //search first char without '/' from end string
+  //search first char WITHOUT '/' start at end string
   for (i = len - 1; ; --i) {
     if (path[i] != '/') {
       end = i;
@@ -38,5 +38,5 @@ char		*basename(const char *path)
     if (i == 0)
       break;
   }
-  return strndup(path + start, (start >= end) ? 0 : end - start);
+  return strndup(path + start, (start > end) ? 0 : end - start + 1);
 }

@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Wed Aug  2 00:56:07 2006 Seblu
-** Last update Fri Aug 18 15:46:11 2006 Seblu
+** Last update Sat Aug 19 01:30:25 2006 Seblu
 */
 
 #include <stdio.h>
@@ -28,7 +28,6 @@
 ** @return
 */
 static ts_ast_node	*parse_input(ts_parser *parser);
-
 
 static ts_ast_node	*parse_list(ts_parser *parser);
 
@@ -62,17 +61,16 @@ ts_ast_node		*parse(ts_parser *parser)
   lexer_reset(parser);
   parser->status = PARSE_OK;
   //test lexer mode
-/*   while (1) */
-/*     { */
-/*       ts_token tok; */
+  while (1)
+    {
+      ts_token tok;
 
-/*       tok = lexer_get(parser); */
-/*       if (tok.id == TOK_EOF) */
-/* 	exit(42); */
-/*       if (tok.id == TOK_NEWLINE) */
-/* 	lexer_reset(parser); */
-/*       lexer_eat(parser); */
-/*     } */
+      tok = lexer_gettoken(parser);
+      if (tok.id == TOK_EOF)
+	exit(42);
+      if (tok.id == TOK_NEWLINE)
+	lexer_reset(parser);
+    }
   return parse_input(parser);
 }
 
@@ -81,15 +79,13 @@ static ts_ast_node	*parse_input(ts_parser *parser)
   ts_token cur_token;
   ts_ast_node *buf;
 
-  lexer_eat(parser);
-  cur_token = lexer_get(parser);
+  cur_token = lexer_gettoken(parser);
   if (cur_token.id == TOK_EOF)
     return NULL;
   if (cur_token.id == TOK_NEWLINE)
-    return ast_create_sep(NULL, NULL);
+    return ast_sep_create(NULL, NULL);
   buf = parse_list(parser);
-  lexer_eat(parser);
-  cur_token = lexer_get(parser);
+  cur_token = lexer_gettoken(parser);
   if (cur_token.id != TOK_EOF || cur_token.id != TOK_NEWLINE)
     parse_error(parser, cur_token);
   return buf;
@@ -102,8 +98,7 @@ static ts_ast_node	*parse_list(ts_parser *parser)
 /*   ts_ast_node *rhs; */
 
   lhs = parse_andor(parser);
-  lexer_eat(parser);
-  next_token = lexer_get(parser);
+  next_token = lexer_gettoken(parser);
 /*   if (next_token.id == TOK_SEP) { */
 /*     lhs = parse_andor(parser); */
 /*   } */

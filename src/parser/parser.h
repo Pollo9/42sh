@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Wed Aug  2 00:49:50 2006 Seblu
-** Last update Thu Aug  3 12:28:14 2006 Seblu
+** Last update Sat Aug 19 01:35:31 2006 Seblu
 */
 
 #include <stdio.h>
@@ -47,7 +47,9 @@ typedef enum e_token
     TOK_SEPAND,
     TOK_WORD,
     TOK_EOF,
-    TOK_BEGIN
+    TOK_BEGIN,
+    TOK_NONE,
+    TOK_ERR
   } te_tokenid;
 
 typedef struct s_token
@@ -66,7 +68,7 @@ typedef enum e_parser_status
 typedef struct		s_parser
 {
   te_parser_status	status;
-  ts_token		current;
+  ts_token		token;
   FILE			*fs;
   char			*buf;
   size_t		buf_size;
@@ -75,7 +77,9 @@ typedef struct		s_parser
 } ts_parser;
 
 /*
+** ==============
 ** FILE: parser.c
+** ==============
 */
 
 /*!
@@ -105,35 +109,38 @@ void			parse_error(ts_parser *parser, ts_token t);
 ts_ast_node		*parse(ts_parser *parser);
 
 /*
+** =============
 ** FILE: lexer.c
+** =============
 */
 
 /*!
 ** Set (or reset) the lexer
+** This must be call by parser before each parse start
+** This function is necessarity to correctly show the prompt
 **
 ** @param parser lexer to reset
 */
 void			lexer_reset(ts_parser *parser);
 
 /*!
-** Return the current token
+** Return the next token and destroy it
+** @warning The token MUST be freed !
 **
-** @return the current token
+** @param parser parser/lexer structure
+**
+** @return the next token
 */
-ts_token		lexer_get(ts_parser *lex);
+ts_token		lexer_gettoken(ts_parser *parser);
 
 /*!
-** Eat a token (miam miam)
-*/
-void			lexer_eat(ts_parser *lex);
-
-/*!
-** Return a token string. Transform a t_token into string
+** Return the next token without destruction of it.
+** @warning The token string MUST NOT be freed !
 **
-** @param t token id to transform
+** @param parser parser/lexer structure
 **
-** @return token string representation
+** @return the look ahead token
 */
-const char		*get_token_string(te_tokenid t);
+ts_token		lexer_lookahead(ts_parser *parser);
 
 #endif

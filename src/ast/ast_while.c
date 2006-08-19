@@ -5,13 +5,13 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Thu Aug  3 02:41:37 2006 Seblu
-** Last update Thu Aug  3 03:03:31 2006 Seblu
+** Last update Fri Aug 18 20:39:02 2006 Seblu
 */
 
 #include "../common/mem.h"
 #include "ast.h"
 
-ts_ast_node	*ast_create_while(ts_ast_node *cond, ts_ast_node *exec)
+ts_ast_node	*ast_while_create(ts_ast_node *cond, ts_ast_node *exec)
 {
   ts_ast_node	*node;
 
@@ -22,7 +22,7 @@ ts_ast_node	*ast_create_while(ts_ast_node *cond, ts_ast_node *exec)
   return node;
 }
 
-void		ast_destruct_while(ts_ast_node *node)
+void		ast_while_destruct(ts_ast_node *node)
 {
   if (node->type != T_WHILE) {
     ast_destruct(node);

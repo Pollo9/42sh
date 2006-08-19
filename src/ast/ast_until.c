@@ -5,13 +5,13 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Thu Aug  3 02:41:37 2006 Seblu
-** Last update Thu Aug  3 03:03:31 2006 Seblu
+** Last update Fri Aug 18 20:39:25 2006 Seblu
 */
 
 #include "../common/mem.h"
 #include "ast.h"
 
-ts_ast_node	*ast_create_until(ts_ast_node *cond, ts_ast_node *exec)
+ts_ast_node	*ast_until_create(ts_ast_node *cond, ts_ast_node *exec)
 {
   ts_ast_node	*node;
 
@@ -22,7 +22,7 @@ ts_ast_node	*ast_create_until(ts_ast_node *cond, ts_ast_node *exec)
   return node;
 }
 
-void		ast_destruct_until(ts_ast_node *node)
+void		ast_until_destruct(ts_ast_node *node)
 {
   if (node->type != T_UNTIL) {
     ast_destruct(node);

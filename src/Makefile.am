@@ -8,6 +8,7 @@ bin_PROGRAMS=42sh
 		ast/ast_and.c			\
 		ast/ast_bang.c			\
 		ast/ast_case.c			\
+		ast/ast_cmd.c			\
 		ast/ast_destruct.c		\
 		ast/ast_for.c			\
 		ast/ast_funcdec.c		\
