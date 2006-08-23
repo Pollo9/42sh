@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sun Jul 16 20:11:09 2006 Seblu
-** Last update Thu Aug  3 05:28:33 2006 Seblu
+** Last update Wed Aug 23 18:41:10 2006 Seblu
 */
 
 #include <stdlib.h>
@@ -15,7 +15,7 @@
 #include <sys/stat.h>
 #include <stdlib.h>
 #include "shell.h"
-#include "../opt/opt.h"
+#include "../option/option.h"
 #include "../common/mem.h"
 #include "../common/common.h"
 
@@ -36,7 +36,8 @@ ts_shell		*shell_init(const char *argv0)
 /*   new->vars = NULL; */
 /*   new->funcs = NULL; */
 /*   new->history = NULL; */
-  new->opt = opt_init();
+  new->aliases = alias_init();
+  new->options = option_init();
 /*   if (!pwd_isgood()) */
 /*   { */
 /*      var_setenv("PWD", (tmp = var_getcwd()), 1); */

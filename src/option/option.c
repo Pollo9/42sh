@@ -5,14 +5,21 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Tue Mar 21 19:00:38 2006 Seblu
-** Last update Sun Jul 30 03:41:36 2006 Seblu
+** Last update Wed Aug 23 18:37:38 2006 Seblu
+*/
+
+/*
+** ============
+** DECLARATIONS
+** ============
 */
 
 #include <string.h>
+#include "option.h"
 #include "../shell/shell.h"
-#include "opt.h"
+#include "../common/mem.h"
 
-static const char *opts_table[NBR_OPT] =
+static const char *opts_table[NBR_OPTION] =
   {
     "xpg_echo",
     "dotglob",
@@ -22,15 +29,22 @@ static const char *opts_table[NBR_OPT] =
     "expand_aliases",
   };
 
-/*!
-** Set a shell option
-**
-** @param name name of the option to set
-** @param shopt structure to apply
-**
-** @return 0 on failure, else 1
+/*
+** ===========
+** DEFINITIONS
+** ===========
 */
-int		opt_set(const char *name, ts_opt *shopt)
+
+ts_options	*option_init(void)
+{
+  ts_options	*new;
+
+  secmalloc(new, sizeof (ts_options));
+  new->command = NULL;
+  return new;
+}
+
+int		option_set(ts_options *shopt, const char *name)
 {
   register int	i;
 
@@ -43,15 +57,7 @@ int		opt_set(const char *name, ts_opt *shopt)
   return 0;
 }
 
-/*!
-** Unset a shell option
-**
-** @param name name of the option to unset
-** @param shopt structure to apply
-**
-** @return 0 on failure, else 1
-*/
-int		opt_unset(const char *name, ts_opt *shopt)
+int		option_unset(ts_options *shopt, const char *name)
 {
   register int	i;
 
@@ -64,16 +70,7 @@ int		opt_unset(const char *name, ts_opt *shopt)
   return 0;
 }
 
-
-/*!
-** Tell if an option is set. if option nane is not set return -1
-**
-** @param name name to find
-** @param shopt structure where find
-**
-** @return 0 if unset, 1 if set and -1 if not exist
-*/
-int		opt_isset(const char *name, const ts_opt *shopt)
+int		option_isset(const ts_options *shopt, const char *name)
 {
   register int	i;
 
@@ -83,11 +80,6 @@ int		opt_isset(const char *name, const ts_opt *shopt)
   return -1;
 }
 
-/*!
-** Return a list of know opt
-**
-** @return list of opt
-*/
 const char	**opt_get()
 {
   return opts_table;

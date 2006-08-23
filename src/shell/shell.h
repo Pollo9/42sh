@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sun Jul 16 20:03:53 2006 Seblu
-** Last update Sat Aug 19 01:45:54 2006 Seblu
+** Last update Wed Aug 23 18:38:11 2006 Seblu
 */
 
 #ifndef SHELL_H_
@@ -13,7 +13,8 @@
 
 # include <errno.h>
 # include <stdlib.h>
-# include "../opt/opt.h"
+# include "../alias/alias.h"
+# include "../option/option.h"
 
 static const int ERROR_PARSE = 258;
 static const int ERROR_FORK = 128;
@@ -30,7 +31,8 @@ typedef struct s_shell
 /*   struct s_var		*vars; */
 /*   struct s_func		*funcs; */
 /*   struct s_history		*history; */
-  ts_opt		*opt;
+  ts_aliases		*aliases;
+  ts_options		*options;
   char			*name;
   int			status;
 } ts_shell;
@@ -40,6 +42,6 @@ void			shell_destroy(ts_shell *sh);
 
 const char		*get_prompt(te_prompt_type pty);
 
-ts_shell		*shell;
+extern ts_shell		*shell;
 
 #endif /* !SHELL_H_ */

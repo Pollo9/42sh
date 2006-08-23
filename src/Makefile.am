@@ -4,7 +4,9 @@ bin_PROGRAMS=42sh
 #42sh_LDADD  = parser/libparse.a ../check/leaktrack/libmem.a evalexpr/libevalexpr.a
 
 
-42sh_SOURCES=	ast/ast.h			\
+42sh_SOURCES=	alias/alias.h			\
+		alias/alias.c			\
+		ast/ast.h			\
 		ast/ast_and.c			\
 		ast/ast_bang.c			\
 		ast/ast_case.c			\
@@ -21,6 +23,7 @@ bin_PROGRAMS=42sh
 		ast/ast_until.c			\
 		ast/ast_while.c			\
 		common/common.h			\
+		common/isdigitstr.c		\
 		common/mem.h			\
 		common/strmerge.c		\
 		common/strvmerge.c		\
@@ -28,10 +31,9 @@ bin_PROGRAMS=42sh
 		common/basename.c		\
 		exec/exec.h			\
 		exec/exec_ast.c			\
-		opt/opt.h			\
-		opt/opt.c			\
-		opt/opt_init.c			\
-		opt/opt_parser.c		\
+		option/option.h			\
+		option/option.c			\
+		option/option_parser.c		\
 		parser/parser.h			\
 		parser/parser.c			\
 		parser/lexer.c			\

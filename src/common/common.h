@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sun Jul 30 03:59:48 2006 Seblu
-** Last update Thu Aug  3 06:01:23 2006 Seblu
+** Last update Tue Aug 22 22:41:29 2006 Seblu
 */
 
 #ifndef COMMON_H_
@@ -51,5 +51,14 @@ char		*basename(const char *path);
 ** @return a new malloced string
 */
 char            *strndup(const char *str, size_t n);
+
+/*!
+** Compute if string is composed only by digit
+**
+** @param str string to test
+**
+** @return boolean result
+*/
+int		isdigitstr(const char *str);
 
 #endif

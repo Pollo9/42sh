@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Mon Apr 10 23:57:28 2006 Seblu
-** Last update Thu Aug  3 07:01:52 2006 Seblu
+** Last update Wed Aug 23 18:40:08 2006 Seblu
 */
 
 #include <stdio.h>
@@ -36,17 +36,17 @@ int		main(int argc, char *argv[])
   // shell initialization
   shell = shell_init(argv[0]);
   // parse argv
-  opt_parser(argc, argv, shell->opt);
+  option_parser(shell->options, argc, argv);
   // shell parser init
   parser = parser_init(stdin);
   // parse and execute stdin stream
   do
   {
     ast = parse(parser);
-    if (parser->status == PARSE_OK)
+    if (!parser->error)
       exec_ast(ast);
     ast_destruct(ast);
   }
-  while (parser->status != PARSE_END);
+  while (parser->lexer->status != LEXER_END);
   return shell->status;
 }

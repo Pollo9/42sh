@@ -5,20 +5,27 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Wed Aug  2 00:49:50 2006 Seblu
-** Last update Sat Aug 19 01:35:31 2006 Seblu
+** Last update Wed Aug 23 02:33:38 2006 Seblu
 */
 
-#include <stdio.h>
+#include <setjmp.h>
 #include "../ast/ast.h"
 
 #ifndef PARSER_H_
 # define PARSER_H_
 
-typedef enum e_token
+typedef enum		e_token
   {
+    //token free-context recognition
+    TOK_NONE,
+    TOK_NEWLINE,
+    TOK_NUMBER,
+    TOK_EOF,
     TOK_AND,
     TOK_OR,
     TOK_DSEMI,
+    TOK_LESS,
+    TOK_GREAT,
     TOK_DLESS,
     TOK_DGREAT,
     TOK_LESSAND,
@@ -26,6 +33,10 @@ typedef enum e_token
     TOK_LESSGREAT,
     TOK_DLESSDASH,
     TOK_CLOBBER,
+    TOK_CONTEXT,
+    TOK_WORD,
+    //token context-sensitive recognition
+    TOK_ASSIGNMENT,
     TOK_IF,
     TOK_THEN,
     TOK_ELSE,
@@ -42,39 +53,50 @@ typedef enum e_token
     TOK_LBRACE,
     TOK_RBRACE,
     TOK_BANG,
-    TOK_NEWLINE,
     TOK_SEP,
     TOK_SEPAND,
-    TOK_WORD,
-    TOK_EOF,
-    TOK_BEGIN,
-    TOK_NONE,
-    TOK_ERR
   } te_tokenid;
 
-typedef struct s_token
+typedef struct		s_token
 {
   te_tokenid id;
   const char *str;
 } ts_token;
 
-typedef enum e_parser_status
+typedef enum		e_lexer_status
   {
-    PARSE_OK,
-    PARSE_ERROR,
-    PARSE_END
-  } te_parser_status;
+    LEXER_READY = 1,
+    LEXER_END = 2,
+  } te_lexer_status;
 
-typedef struct		s_parser
+typedef struct		s_lexer
 {
-  te_parser_status	status;
+  te_lexer_status	status;
   ts_token		token;
   FILE			*fs;
   char			*buf;
   size_t		buf_size;
   size_t		buf_pos;
-  size_t		tok_start;
+} ts_lexer;
+
+typedef struct		s_parser
+{
+  int			error;
+  ts_lexer		*lexer;
+  jmp_buf		stack;
+  ts_ast_node		**regnodes;
+  size_t		regsize;
+  size_t		regpos;
 } ts_parser;
+
+
+/*!
+** Free the string of a token if is a word (dynamically allocated)
+**
+** @param token a token struct type (not a pointer)
+*/
+#define token_free(token) if ((token).id == TOK_WORD && (token).str) \
+ free((char*)(token).str)
 
 /*
 ** ==============
@@ -92,14 +114,6 @@ typedef struct		s_parser
 ts_parser		*parser_init(FILE *fs);
 
 /*!
-** Notify a parse error
-**
-** @param parser parser where error appear
-** @param t token near of the error
-*/
-void			parse_error(ts_parser *parser, ts_token t);
-
-/*!
 ** Do a parse pass
 **
 ** @param parser the parser where we do this parse
@@ -115,32 +129,43 @@ ts_ast_node		*parse(ts_parser *parser);
 */
 
 /*!
-** Set (or reset) the lexer
+** Lexer initialization
+**
+** @param fs file stream to read
+**
+** @return the new struct
+*/
+ts_lexer		*lexer_init(FILE *fs);
+
+/*!
+** Start a new lexical recognition
 ** This must be call by parser before each parse start
 ** This function is necessarity to correctly show the prompt
 **
-** @param parser lexer to reset
+** @param lexer lexer to set in starting block
+**
+** @return return if lexer is ready to start or not
 */
-void			lexer_reset(ts_parser *parser);
+int			lexer_start(ts_lexer *lexer);
 
 /*!
 ** Return the next token and destroy it
 ** @warning The token MUST be freed !
 **
-** @param parser parser/lexer structure
+** @param lexer lexer structure
 **
 ** @return the next token
 */
-ts_token		lexer_gettoken(ts_parser *parser);
+ts_token		lexer_gettoken(ts_lexer *lexer);
 
 /*!
 ** Return the next token without destruction of it.
 ** @warning The token string MUST NOT be freed !
 **
-** @param parser parser/lexer structure
+** @param lexer lexer structure
 **
 ** @return the look ahead token
 */
-ts_token		lexer_lookahead(ts_parser *parser);
+ts_token		lexer_lookahead(ts_lexer *lexer);
 
 #endif
