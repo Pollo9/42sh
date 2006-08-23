@@ -13,7 +13,7 @@ command:	  simple_command
 		| shell_command  (redirection)*
 		| funcdec
 
-simple_command:	(cmp_prefix)* (element)+
+simple_command:  (prefix)* (element)+
 
 shell_command:	'{' compound_list '}'
                 | '(' compound_list ')'
@@ -35,7 +35,7 @@ redirection:  [NUMBER] '>' WORD
 		| [NUMBER] '>|' WORD
 		| [NUMBER] '<>' WORD
 
-cmd_prefix:	  ASSIGMENT_WORD
+prefix:		  ASSIGMENT_WORD
 		| redirection
 
 element:	  WORD

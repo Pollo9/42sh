@@ -26,6 +26,7 @@ case $host_os in
 	;;
   *linux*)
 	AC_SUBST([CFLAGS], ['-Wall -Werror -W -std=c99 -pedantic -D_XOPEN_SOURCE=600'])
+	AC_SUBST([LDFLAGS], ['-static'])
 	;;
   *)
 	pl="`uname -s`"
@@ -89,7 +90,7 @@ AC_ARG_WITH([debug],
   [AS_HELP_STRING([--with-debug], [use -g and don't use -DNDEBUG -O3])],
   [dnl action-if-given: --with-debug => -g || --without-debug => -DNDEBUG
     if test x$withval = xyes; then
-      CFLAGS="$CFLAGS -g -DDEBUG42"
+      CFLAGS="$CFLAGS -g"
     else
       CFLAGS="$CFLAGS -DNDEBUG -O3"
     fi

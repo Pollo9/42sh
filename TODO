@@ -1,0 +1,1 @@
+lexer: verifier si un EOF apparait si le dernier token est bien pris en compte
