@@ -1,11 +1,11 @@
 /*
-** shell_prompt.c for 42sh in /home/seblu
+** prompt.c for 42sh in /home/seblu
 **
 ** Made by Seblu
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sun Jul 30 02:27:59 2006 Seblu
-** Last update Fri Aug 25 08:18:07 2006 Seblu
+** Last update Tue Aug 29 00:47:41 2006 Seblu
 */
 
 #include <stdio.h>
@@ -20,9 +20,9 @@
 **
 ** @return
 */
-const char *get_prompt(te_prompt pty)
+const char	*get_prompt(e_prompt pty)
 {
-  static char prompt[80];
+  static char	prompt[80];
   //fixme
   if (pty == PROMPT_PS1) {
     strncpy(prompt, shell->name, 78);
@@ -36,11 +36,12 @@ const char *get_prompt(te_prompt pty)
 }
 
 //todo gestion des variables !
-void show_prompt(te_prompt pty)
+void		show_prompt(e_prompt pty)
 {
+  char		*prompt;
+
   if (!isinteractive())
     return;
-  char *prompt;
   switch (pty) {
   case PROMPT_PS1:
     prompt = "42sh ";

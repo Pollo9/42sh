@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Mon Apr 10 23:57:28 2006 Seblu
-** Last update Fri Aug 25 12:24:50 2006 Seblu
+** Last update Tue Aug 29 00:53:31 2006 Seblu
 */
 
 #include <stdio.h>
@@ -19,7 +19,7 @@
 /*
 ** Global shell structure
 */
-ts_shell *shell = NULL;
+s_shell *shell = NULL;
 
 /*!
 ** Program entry point
@@ -31,21 +31,21 @@ ts_shell *shell = NULL;
 */
 int		main(int argc, char *argv[])
 {
-  ts_ast_node	*ast;
-  ts_parser	*parser;
+  s_ast_node	*ast;
+  s_parser	*parser;
 
   // shell initialization
   shell = shell_init(argv[0]);
   // parse argv
-  option_parser(shell->options, argc, argv);
+  getoptions(shell->options, argc, argv);
   // shell parser init
-  parser = parser_init(stdin);
+  parser = parser_init(STDIN_FILENO);
   // parse and execute stdin stream
   do
   {
     ast = parse(parser);
     if (!parser->error)
-      exec_ast(ast);
+      exec_node(ast);
     ast_destruct(ast);
   }
   while (!parser->lexer->eof);

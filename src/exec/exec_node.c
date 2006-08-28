@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sat Mar 25 14:51:09 2006 Seblu
-** Last update Sat Apr 15 09:12:38 2006 Seblu
+** Last update Tue Aug 29 00:19:35 2006 Seblu
 */
 
 #include "exec.h"
@@ -16,7 +16,7 @@
 ** @param node node to execute
 ** @param sh shell struct
 */
-void		exec_ast(ts_ast_node *node)
+void		exec_node(s_ast_node *node)
 {
   node = node;
 }

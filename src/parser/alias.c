@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Wed Aug 23 00:39:17 2006 Seblu
-** Last update Fri Aug 25 03:44:03 2006 Seblu
+** Last update Mon Aug 28 23:08:31 2006 Seblu
 */
 
 #include <string.h>
@@ -14,20 +14,20 @@
 
 static size_t step = 5;
 
-ts_aliases	*alias_init(void)
+s_aliases	*alias_init(void)
 {
-  ts_aliases	*new;
+  s_aliases	*new;
 
-  secmalloc(new, sizeof (ts_aliases));
+  secmalloc(new, sizeof (s_aliases));
   new->size = step;
   new->pos = 0;
   new->db = NULL;
   return new;
 }
 
-void		alias_add(ts_aliases *aliases, const char *name, const char *value)
+void		alias_add(s_aliases *aliases, const char *name, const char *value)
 {
-  ts_alias	*new;
+  s_alias	*new;
   int		freeplace = 0;
   size_t	index;
 
@@ -47,19 +47,19 @@ void		alias_add(ts_aliases *aliases, const char *name, const char *value)
     return;
   }
   //create a new one
-  secmalloc(new, sizeof (ts_alias));
+  secmalloc(new, sizeof (s_alias));
   new->name = strdup(name);
   new->value = strdup(value);
   //add a new alias if not find
   if (aliases->pos >= aliases->size) {
     aliases->size += step;
-    secrealloc(aliases->db, aliases->db, aliases->size * sizeof (ts_alias));
+    secrealloc(aliases->db, aliases->db, aliases->size * sizeof (s_alias));
   }
   aliases->db[aliases->pos] = new;
   ++aliases->pos;
 }
 
-int		alias_remove(ts_aliases *aliases, const char *name)
+int		alias_remove(s_aliases *aliases, const char *name)
 {
   //find alias index
   for (register int i = 0; aliases && aliases->db[i]; ++i)

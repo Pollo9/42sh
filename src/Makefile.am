@@ -4,9 +4,7 @@ bin_PROGRAMS=42sh
 #42sh_LDADD  = parser/libparse.a ../check/leaktrack/libmem.a evalexpr/libevalexpr.a
 
 
-42sh_SOURCES=	alias/alias.h			\
-		alias/alias.c			\
-		ast/ast.h			\
+42sh_SOURCES=	ast/ast.h			\
 		ast/ast_and.c			\
 		ast/ast_bang.c			\
 		ast/ast_case.c			\
@@ -31,20 +29,21 @@ bin_PROGRAMS=42sh
 		common/strndup.c		\
 		common/basename.c		\
 		exec/exec.h			\
-		exec/exec_ast.c			\
-		option/option.h			\
-		option/option.c			\
-		option/option_parser.c		\
+		exec/exec_node.c		\
+		parser/alias.h			\
+		parser/alias.c			\
+		parser/getln.h			\
+		parser/getln.c			\
 		parser/parser.h			\
 		parser/parser.c			\
 		parser/lexer.c			\
-		readline/readline.h		\
-		readline/readline.c		\
-		readline/getln.c		\
+		shell/getoptions.c		\
+		shell/option.h			\
+		shell/option.c			\
 		shell/shell.h			\
 		shell/shell_entry.c		\
 		shell/shell_init.c		\
 		shell/shell_destroy.c		\
-		shell/shell_prompt.c
+		shell/prompt.c
 
 CLEANFILES= *~ '\#*'

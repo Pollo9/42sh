@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Wed Aug  2 00:56:07 2006 Seblu
-** Last update Fri Aug 25 15:13:58 2006 Seblu
+** Last update Tue Aug 29 01:02:02 2006 Seblu
 */
 
 #include <stdio.h>
@@ -15,7 +15,7 @@
 #include "parser.h"
 #include "../common/macro.h"
 #include "../shell/shell.h"
-#include "../readline/readline.h"
+#include "getln.h"
 
 /*
 ** ============
@@ -46,7 +46,7 @@
 /*   }; */
 
 
-static ts_ast_node	*regnode(ts_parser *parser, ts_ast_node *node);
+static s_ast_node	*regnode(s_parser *parser, s_ast_node *node);
 
 /*!
 ** Parse an input, following the Grammar rule input
@@ -59,15 +59,15 @@ static ts_ast_node	*regnode(ts_parser *parser, ts_ast_node *node);
 **
 ** @return parent ast node, for execution
 */
-static ts_ast_node	*parse_input(ts_parser *parser);
+static s_ast_node	*parse_input(s_parser *parser);
 
-static ts_ast_node	*parse_list(ts_parser *parser);
+static s_ast_node	*parse_list(s_parser *parser);
 
-static ts_ast_node	*parse_andor(ts_parser *parser);
+static s_ast_node	*parse_andor(s_parser *parser);
 
-static ts_ast_node	*parse_pipeline(ts_parser *parser);
+static s_ast_node	*parse_pipeline(s_parser *parser);
 
-static ts_ast_node	*parse_command(ts_parser *parser);
+static s_ast_node	*parse_command(s_parser *parser);
 
 /*!
 ** Notify a parse error
@@ -75,7 +75,7 @@ static ts_ast_node	*parse_command(ts_parser *parser);
 ** @param parser parser where error appear
 ** @param t token near of the error
 */
-static void		parse_error(ts_parser *parser, ts_token t);
+static void		parse_error(s_parser *parser, s_token t);
 
 #if DEBUG_PARSER==1
 # define debugmsg(msg) fprintf(stderr, "debug: %s\n", (msg))
@@ -89,33 +89,33 @@ static void		parse_error(ts_parser *parser, ts_token t);
 ** ===========
 */
 
-ts_parser		*parser_init(FILE *fs)
+s_parser		*parser_init(int fd)
 {
-  ts_parser		*new;
+  s_parser		*new;
 
-  secmalloc(new, sizeof (ts_parser));
-  new->lexer = lexer_init(fs);
+  secmalloc(new, sizeof (s_parser));
+  new->lexer = lexer_init(fd);
   new->error = 0;
   new->regnodes = NULL;
   new->regsize = new->regpos = 0;
   return new;
 }
 
-static ts_ast_node	*regnode(ts_parser *parser, ts_ast_node *node)
+static s_ast_node	*regnode(s_parser *parser, s_ast_node *node)
 {
   if (!node)
     return node;
   if (parser->regpos >= parser->regsize) {
     parser->regsize += 50;
     secrealloc(parser->regnodes, parser->regnodes,
-	       parser->regsize * sizeof (ts_ast_node));
+	       parser->regsize * sizeof (s_ast_node));
   }
   parser->regnodes[parser->regpos] = node;
   ++parser->regpos;
   return node;
 }
 
-static void		parse_error(ts_parser *parser, ts_token t)
+static void		parse_error(s_parser *parser, s_token t)
 {
   debugmsg("parse_error");
   fprintf(stderr, "%s: syntax error near unexpected token `%s'\n",
@@ -128,14 +128,14 @@ static void		parse_error(ts_parser *parser, ts_token t)
   longjmp(parser->stack, 1);
 }
 
-ts_ast_node		*parse(ts_parser *parser)
+s_ast_node		*parse(s_parser *parser)
 {
   parser->regpos = 0;
   parser->error = 0;
   // prevent of too big register ast size
   if (parser->regsize >= 200)
     secrealloc(parser->regnodes, parser->regnodes,
-	       (parser->regsize = 50) * sizeof (ts_ast_node));
+	       (parser->regsize = 50) * sizeof (s_ast_node));
   if (setjmp(parser->stack))
     return NULL;
   show_prompt(PROMPT_PS1);
@@ -143,7 +143,7 @@ ts_ast_node		*parse(ts_parser *parser)
   //test lexer mode
   while (1)
     {
-      ts_token tok = lexer_gettoken(parser->lexer);
+      s_token tok = lexer_gettoken(parser->lexer);
       if (tok.id == TOK_EOF)
 	exit(69);
       printf("Returned token: %d [%s]\n", tok.id,
@@ -155,10 +155,10 @@ ts_ast_node		*parse(ts_parser *parser)
   return parse_input(parser);
 }
 
-static ts_ast_node	*parse_input(ts_parser *parser)
+static s_ast_node	*parse_input(s_parser *parser)
 {
-  ts_token		token;
-  ts_ast_node		*buf;
+  s_token		token;
+  s_ast_node		*buf;
 
   debugmsg("parse_input");
   token = lexer_lookahead(parser->lexer);
@@ -175,11 +175,11 @@ static ts_ast_node	*parse_input(ts_parser *parser)
   return buf;
 }
 
-static ts_ast_node	*parse_list(ts_parser *parser)
+static s_ast_node	*parse_list(s_parser *parser)
 {
-  ts_token		token;
-  ts_ast_node		*lhs;
-  ts_ast_node		*rhs;
+  s_token		token;
+  s_ast_node		*lhs;
+  s_ast_node		*rhs;
 
   debugmsg("parse_list");
   lhs = parse_andor(parser);
@@ -195,11 +195,11 @@ static ts_ast_node	*parse_list(ts_parser *parser)
   return lhs;
 }
 
-static ts_ast_node	*parse_andor(ts_parser *parser)
+static s_ast_node	*parse_andor(s_parser *parser)
 {
-  ts_token		token;
-  ts_ast_node		*lhs;
-  ts_ast_node		*rhs;
+  s_token		token;
+  s_ast_node		*lhs;
+  s_ast_node		*rhs;
 
   debugmsg("parse_andor");
   lhs = parse_pipeline(parser);
@@ -215,10 +215,10 @@ static ts_ast_node	*parse_andor(ts_parser *parser)
   return lhs;
 }
 
-static ts_ast_node	*parse_pipeline(ts_parser *parser)
+static s_ast_node	*parse_pipeline(s_parser *parser)
 {
-  ts_token		token;
-  ts_ast_node		*lhs;
+  s_token		token;
+  s_ast_node		*lhs;
   int			banged = 0;
 
   debugmsg("parse_pipeline");
@@ -231,9 +231,9 @@ static ts_ast_node	*parse_pipeline(ts_parser *parser)
   return lhs;
 }
 
-static ts_ast_node	*parse_command(ts_parser *parser)
+static s_ast_node	*parse_command(s_parser *parser)
 {
-  ts_token		token;
+  s_token		token;
 
 
   token = lexer_lookahead(parser->lexer);
@@ -241,97 +241,97 @@ static ts_ast_node	*parse_command(ts_parser *parser)
   return NULL;
 }
 
-/* static ts_ast_node	*parse_simplecommand(ts_parser *parser) */
+/* static s_ast_node	*parse_simplecommand(s_parser *parser) */
 /* { */
 /*   parser=parser; */
 /*   return NULL; */
 /* } */
 
-/* static ts_ast_node	*parse_shellcommand(ts_parser *parser) */
+/* static s_ast_node	*parse_shellcommand(s_parser *parser) */
 /* { */
 /*   parser=parser; */
 /*   return NULL; */
 /* } */
 
-/* static ts_ast_node	*parse_funcdec(ts_parser *parser) */
+/* static s_ast_node	*parse_funcdec(s_parser *parser) */
 /* { */
 /*   parser=parser; */
 /*   return NULL; */
 /* } */
 
-/* static ts_ast_node	*parse_cmdprefix(ts_parser *parser) */
+/* static s_ast_node	*parse_cmdprefix(s_parser *parser) */
 /* { */
 /*   parser=parser; */
 /*   return NULL; */
 /* } */
 
-/* static ts_ast_node	*parse_redirection(ts_parser *parser) */
+/* static s_ast_node	*parse_redirection(s_parser *parser) */
 /* { */
 /*   parser=parser; */
 /*   return NULL; */
 /* } */
 
-/* static ts_ast_node	*parse_element(ts_parser *parser) */
+/* static s_ast_node	*parse_element(s_parser *parser) */
 /* { */
 /*   parser=parser; */
 /*   return NULL; */
 /* } */
 
-/* static ts_ast_node	*parse_compound_list(ts_parser *parser) */
+/* static s_ast_node	*parse_compound_list(s_parser *parser) */
 /* { */
 /*   parser=parser; */
 /*   return NULL; */
 /* } */
 
-/* static ts_ast_node	*parse_rulefor(ts_parser *parser) */
+/* static s_ast_node	*parse_rulefor(s_parser *parser) */
 /* { */
 /*   parser=parser; */
 /*   return NULL; */
 /* } */
 
-/* static ts_ast_node	*parse_rulewhile(ts_parser *parser) */
+/* static s_ast_node	*parse_rulewhile(s_parser *parser) */
 /* { */
 /*   parser=parser; */
 /*   return NULL; */
 /* } */
 
-/* static ts_ast_node	*parse_ruleuntil(ts_parser *parser) */
+/* static s_ast_node	*parse_ruleuntil(s_parser *parser) */
 /* { */
 /*   parser=parser; */
 /*   return NULL; */
 /* } */
 
-/* static ts_ast_node	*parse_rulecase(ts_parser *parser) */
+/* static s_ast_node	*parse_rulecase(s_parser *parser) */
 /* { */
 /*   parser=parser; */
 /*   return NULL; */
 /* } */
 
-/* static ts_ast_node	*parse_ruleif(ts_parser *parser) */
+/* static s_ast_node	*parse_ruleif(s_parser *parser) */
 /* { */
 /*   parser=parser; */
 /*   return NULL; */
 /* } */
 
-/* static ts_ast_node	*parse_elseclause(ts_parser *parser) */
+/* static s_ast_node	*parse_elseclause(s_parser *parser) */
 /* { */
 /*   parser=parser; */
 /*   return NULL; */
 /* } */
 
-/* static ts_ast_node	*parse_dogroup(ts_parser *parser) */
+/* static s_ast_node	*parse_dogroup(s_parser *parser) */
 /* { */
 /*   parser=parser; */
 /*   return NULL; */
 /* } */
 
-/* static ts_ast_node	*parse_caseclause(ts_parser *parser) */
+/* static s_ast_node	*parse_caseclause(s_parser *parser) */
 /* { */
 /*   parser=parser; */
 /*   return NULL; */
 /* } */
 
-/* static ts_ast_node	*parse_pattern(ts_parser *parser) */
+/* static s_ast_node	*parse_pattern(s_parser *parser) */
 /* { */
 /*   parser=parser; */
 /*   return NULL; */

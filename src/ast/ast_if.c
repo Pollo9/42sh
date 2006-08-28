@@ -5,18 +5,18 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Thu Aug  3 02:41:37 2006 Seblu
-** Last update Fri Aug 25 03:46:10 2006 Seblu
+** Last update Mon Aug 28 23:59:17 2006 Seblu
 */
 
 #include "ast.h"
 
-ts_ast_node	*ast_if_create(ts_ast_node *cond,
-			       ts_ast_node *cond_true,
-			       ts_ast_node *cond_false)
+s_ast_node	*ast_if_create(s_ast_node *cond,
+			       s_ast_node *cond_true,
+			       s_ast_node *cond_false)
 {
-  ts_ast_node	*node;
+  s_ast_node	*node;
 
-  secmalloc(node, sizeof (ts_ast_node));
+  secmalloc(node, sizeof (s_ast_node));
   node->type = T_IF;
   node->body.child_if.cond = cond;
   node->body.child_if.cond_true = cond_true;
@@ -24,12 +24,10 @@ ts_ast_node	*ast_if_create(ts_ast_node *cond,
   return node;
 }
 
-void		ast_if_destruct(ts_ast_node *node)
+void		ast_if_destruct(s_ast_node *node)
 {
-  if (node->type != T_IF) {
-    ast_destruct(node);
+  if (node->type != T_IF)
     return;
-  }
   ast_destruct(node->body.child_if.cond);
   ast_destruct(node->body.child_if.cond_true);
   ast_destruct(node->body.child_if.cond_false);

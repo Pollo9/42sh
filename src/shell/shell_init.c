@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sun Jul 16 20:11:09 2006 Seblu
-** Last update Fri Aug 25 03:50:14 2006 Seblu
+** Last update Tue Aug 29 00:55:19 2006 Seblu
 */
 
 #include <stdlib.h>
@@ -15,7 +15,7 @@
 #include <sys/stat.h>
 #include <stdlib.h>
 #include "shell.h"
-#include "../option/option.h"
+#include "option.h"
 #include "../common/macro.h"
 #include "../common/common.h"
 
@@ -28,11 +28,11 @@
 **
 ** @return the new shell structure
 */
-ts_shell		*shell_init(const char *argv0)
+s_shell			*shell_init(const char *argv0)
 {
-  ts_shell		*new;
+  s_shell		*new;
 
-  secmalloc(new, sizeof (ts_shell));
+  secmalloc(new, sizeof (s_shell));
 /*   new->vars = NULL; */
 /*   new->funcs = NULL; */
 /*   new->history = NULL; */

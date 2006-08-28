@@ -5,28 +5,26 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Thu Aug  3 02:41:37 2006 Seblu
-** Last update Fri Aug 25 03:46:54 2006 Seblu
+** Last update Mon Aug 28 23:59:05 2006 Seblu
 */
 
 #include "ast.h"
 
-ts_ast_node	*ast_funcdec_create(char *name, ts_ast_node *body)
+s_ast_node	*ast_funcdec_create(char *name, s_ast_node *body)
 {
-  ts_ast_node	*node;
+  s_ast_node	*node;
 
-  secmalloc(node, sizeof (ts_ast_node));
+  secmalloc(node, sizeof (s_ast_node));
   node->type = T_FUNCDEC;
   node->body.child_funcdec.name = name;
   node->body.child_funcdec.body = body;
   return node;
 }
 
-void		ast_funcdec_destruct(ts_ast_node *node)
+void		ast_funcdec_destruct(s_ast_node *node)
 {
-  if (node->type != T_FUNCDEC) {
-    ast_destruct(node);
+  if (node->type != T_FUNCDEC)
     return;
-  }
   free(node->body.child_funcdec.name);
   ast_destruct(node->body.child_funcdec.body);
   free(node);

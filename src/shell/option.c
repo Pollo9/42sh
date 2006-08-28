@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Tue Mar 21 19:00:38 2006 Seblu
-** Last update Fri Aug 25 03:49:21 2006 Seblu
+** Last update Tue Aug 29 00:22:20 2006 Seblu
 */
 
 /*
@@ -35,16 +35,16 @@ static const char *opts_table[NBR_OPTION] =
 ** ===========
 */
 
-ts_options	*option_init(void)
+s_options	*option_init(void)
 {
-  ts_options	*new;
+  s_options	*new;
 
-  secmalloc(new, sizeof (ts_options));
+  secmalloc(new, sizeof (s_options));
   new->command = NULL;
   return new;
 }
 
-int		option_set(ts_options *shopt, const char *name)
+int		option_set(s_options *shopt, const char *name)
 {
   register int	i;
 
@@ -57,7 +57,7 @@ int		option_set(ts_options *shopt, const char *name)
   return 0;
 }
 
-int		option_unset(ts_options *shopt, const char *name)
+int		option_unset(s_options *shopt, const char *name)
 {
   register int	i;
 
@@ -70,7 +70,7 @@ int		option_unset(ts_options *shopt, const char *name)
   return 0;
 }
 
-int		option_isset(const ts_options *shopt, const char *name)
+int		option_isset(const s_options *shopt, const char *name)
 {
   register int	i;
 

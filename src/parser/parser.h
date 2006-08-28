@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Wed Aug  2 00:49:50 2006 Seblu
-** Last update Fri Aug 25 15:17:29 2006 Seblu
+** Last update Tue Aug 29 00:24:16 2006 Seblu
 */
 
 #include <setjmp.h>
@@ -14,12 +14,13 @@
 #ifndef PARSER_H_
 # define PARSER_H_
 
+# include "getln.h"
 
 // Define is parser or lexer is run for DEBBUGING
 #define DEBUG_PARSER 1
 #define DEBUG_LEXER 0
 
-typedef enum		e_tokenid
+typedef enum		tokenid
   {
     //token free-context recognition (lexer time)
     TOK_NONE,
@@ -60,35 +61,35 @@ typedef enum		e_tokenid
     TOK_NUMBER,
     TOK_ASSIGNMENT,
     TOK_BANG
-  } te_tokenid;
+  } e_tokenid;
 
-typedef struct		s_token
+typedef struct		token
 {
-  te_tokenid		id;
+  e_tokenid		id;
   const char		*str;
   size_t		len;
-} ts_token;
+} s_token;
 
-typedef struct		s_lexer
+typedef struct		lexer
 {
-  ts_token		token;
+  s_token		token;
   FILE			*fs;
   char			eof;
   char			*buf;
   size_t		buf_size; //without \0
   size_t		buf_pos;
-} ts_lexer;
+  s_getln		*stream;
+} s_lexer;
 
-typedef struct		s_parser
+typedef struct		parser
 {
   int			error;
-  ts_lexer		*lexer;
+  s_lexer		*lexer;
   jmp_buf		stack;
-  ts_ast_node		**regnodes;
+  s_ast_node		**regnodes;
   size_t		regsize;
   size_t		regpos;
-} ts_parser;
-
+} s_parser;
 
 /*
 ** ==============
@@ -103,7 +104,7 @@ typedef struct		s_parser
 **
 ** @return the new struct
 */
-ts_parser		*parser_init(FILE *fs);
+s_parser		*parser_init(int fd);
 
 /*!
 ** Do a parse pass
@@ -112,7 +113,7 @@ ts_parser		*parser_init(FILE *fs);
 **
 ** @return ast_to_execute
 */
-ts_ast_node		*parse(ts_parser *parser);
+s_ast_node		*parse(s_parser *parser);
 
 /*
 ** =============
@@ -127,7 +128,7 @@ ts_ast_node		*parse(ts_parser *parser);
 **
 ** @return the new struct
 */
-ts_lexer		*lexer_init(FILE *fs);
+s_lexer			*lexer_init(int fd);
 
 /*!
 ** Start a new lexical recognition
@@ -138,7 +139,7 @@ ts_lexer		*lexer_init(FILE *fs);
 **
 ** @return return if lexer is ready to start or not
 */
-int			lexer_start(ts_lexer *lexer);
+int			lexer_start(s_lexer *lexer);
 
 /*!
 ** Return the next token and destroy it
@@ -148,7 +149,7 @@ int			lexer_start(ts_lexer *lexer);
 **
 ** @return the next token
 */
-ts_token		lexer_gettoken(ts_lexer *lexer);
+s_token			lexer_gettoken(s_lexer *lexer);
 
 /*!
 ** Return the next token without destruction of it.
@@ -158,13 +159,13 @@ ts_token		lexer_gettoken(ts_lexer *lexer);
 **
 ** @return the look ahead token
 */
-ts_token		lexer_lookahead(ts_lexer *lexer);
+s_token			lexer_lookahead(s_lexer *lexer);
 
 /*!
 ** Parse input as a here-document (describe is XSI)
 **
 ** @param lexer current lexer
 */
-void			lexer_heredocument(ts_lexer *lexer);
+s_token			lexer_getheredoc(s_lexer *lexer, const char *delim);
 
 #endif

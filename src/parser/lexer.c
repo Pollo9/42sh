@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sun Jul 30 04:36:53 2006 Seblu
-** Last update Fri Aug 25 15:16:23 2006 Seblu
+** Last update Tue Aug 29 00:29:37 2006 Seblu
 */
 
 #include <stdio.h>
@@ -14,7 +14,7 @@
 #include <assert.h>
 #include "parser.h"
 #include "../shell/shell.h"
-#include "../readline/readline.h"
+#include "getln.h"
 #include "../common/common.h"
 #include "../common/macro.h"
 
@@ -33,7 +33,7 @@
 */
 
 // Order is very important for correct recognition !
-static const ts_token operators[] =
+static const s_token operators[] =
   {
     {TOK_NEWLINE, "\n", 1},
     {TOK_AND, "&&", 2},
@@ -106,7 +106,7 @@ static int	is_quote_stop(const char *buf, size_t *buf_pos, const ts_quote *quote
 **
 ** @return true if c is a separator
 */
-#define		is_sep(c) ((c) == ' ' || (c) == '\t' || (c) == '\v')
+#define		is_sep(c) ((c) == ' ' || (c) == '\t')
 
 /*!
 ** Check if the buffer point to an operator. Il it's true and buf_pos is
@@ -119,14 +119,14 @@ static int	is_quote_stop(const char *buf, size_t *buf_pos, const ts_quote *quote
 **
 ** @return true (!0) if find, else false (0)
 */
-static int	is_operator(const char *buf, size_t *buf_pos, ts_token *token);
+static int	is_operator(const char *buf, size_t *buf_pos, s_token *token);
 
 /*!
 ** Read lexer's stream, and return the next token.
 **
 ** @param lex lexer struct
 */
-static void	lexer_eattoken(ts_lexer *lex);
+static void	lexer_eattoken(s_lexer *lex);
 
 /*!
 ** This function is only call when the end of a line occur in
@@ -136,7 +136,7 @@ static void	lexer_eattoken(ts_lexer *lex);
 **
 ** @return 1 if can read a line, 0 if eof
 */
-static int	lexer_eatline(ts_lexer *lexer);
+static int	lexer_eatline(s_lexer *lexer);
 
 /*!
 ** Cut a token in one or more line.
@@ -144,7 +144,7 @@ static int	lexer_eatline(ts_lexer *lexer);
 ** @param lexer lexer struct
 **
 */
-static int	lexer_cut(ts_lexer *lexer);
+static int	lexer_cut(s_lexer *lexer);
 
 /*!
 ** Correctly set a token. In first, it call macro token_free to
@@ -154,7 +154,7 @@ static int	lexer_cut(ts_lexer *lexer);
 ** @param id new token id
 ** @param s new token string
 */
-static void	token_set(ts_token *token, te_tokenid id, const char *s);
+static void	token_set(s_token *token, e_tokenid id, const char *s);
 
 
 /*
@@ -163,13 +163,12 @@ static void	token_set(ts_token *token, te_tokenid id, const char *s);
 ** ===========
 */
 
-ts_lexer	*lexer_init(FILE *fs)
+s_lexer	*lexer_init(int fd)
 {
-  ts_lexer	*new;
+  s_lexer	*new;
 
-  secmalloc(new, sizeof (ts_lexer));
-  fflush(fs);
-  new->fs = fs;
+  secmalloc(new, sizeof (s_lexer));
+  new->stream = getln_open(fd);
   new->buf = NULL;
   new->buf_size = new->buf_pos = 0;
   new->token.id = TOK_NONE;
@@ -179,16 +178,16 @@ ts_lexer	*lexer_init(FILE *fs)
   return new;
 }
 
-ts_token	lexer_lookahead(ts_lexer *lexer)
+s_token	lexer_lookahead(s_lexer *lexer)
 {
   if (lexer->token.id == TOK_NONE)
     lexer_eattoken(lexer);
   return lexer->token;
 }
 
-ts_token	lexer_gettoken(ts_lexer *lexer)
+s_token	lexer_gettoken(s_lexer *lexer)
 {
-  ts_token	buf = { TOK_EOF, "EOF", 3 };
+  s_token	buf;
 
   if (lexer->token.id == TOK_NONE)
     lexer_eattoken(lexer);
@@ -198,12 +197,31 @@ ts_token	lexer_gettoken(ts_lexer *lexer)
   return buf;
 }
 
-void		lexer_heredocument(ts_lexer *lexer)
+s_token	lexer_getheredoc(s_lexer *lexer, const char *delim)
 {
-  lexer = lexer;
+  s_token	token;
+  char		*buf = NULL;
+  char		*line;
+
+  if (lexer->eof) {
+    token_set(&token, TOK_EOF, "EOF");
+    return token;
+  }
+  show_prompt(PROMPT_PS2);
+  do {
+    line = getln(lexer->stream);
+    if (line == NULL) {
+      lexer->eof = 1;
+      break;
+    }
+    buf = strmerge(2, buf, line);
+  }
+  while (strcmp(line, delim));
+  token_set(&token, TOK_WORD, buf);
+  return token;
 }
 
-static void	token_set(ts_token *token, te_tokenid id, const char *s)
+static void	token_set(s_token *token, e_tokenid id, const char *s)
 {
   if (token->id == TOK_WORD)
     free((char*) token->str);
@@ -213,26 +231,21 @@ static void	token_set(ts_token *token, te_tokenid id, const char *s)
   else token->len = 0;
 }
 
-static void	lexer_eattoken(ts_lexer *lexer)
+static void	lexer_eattoken(s_lexer *lexer)
 {
-  //if eof, set token EOF
-  if (lexer->eof) {
-    token_set(&lexer->token, TOK_EOF, "EOF");
-    return;
-  }
   //if last char was read free buffer
-  if (lexer->buf_size > 0 && lexer->buf_pos == lexer->buf_size) {
+  if (lexer->buf && lexer->buf_pos == lexer->buf_size) {
     free(lexer->buf);
     lexer->buf = NULL;
     lexer->buf_size = 0;
   }
   //read a line if buf is empty
-  if (!lexer->buf_size && ((lexer->buf = readline(NULL)) != NULL)) {
+  if (!lexer->buf_size && !lexer->eof && (lexer->buf = getln(lexer->stream))) {
     lexer->buf_size = strlen(lexer->buf);
     lexer->buf_pos = 0;
   }
   //if eof is read, bye bye
-  if (lexer->buf == NULL) {
+  if (!lexer->buf) {
     lexer->eof = 1;
     token_set(&lexer->token, TOK_EOF, "EOF");
     return;
@@ -242,12 +255,12 @@ static void	lexer_eattoken(ts_lexer *lexer)
     ;; //retry again
 }
 
-static int	lexer_eatline(ts_lexer *lexer)
+static int	lexer_eatline(s_lexer *lexer)
 {
   char		*buf, *buf2;
 
+  assert(lexer->buf);
   buf = lexer->buf;
-  assert(buf);
   if (lexer->buf_size > 0 && buf[lexer->buf_size - 1] == '\n')
     buf[lexer->buf_size - 1] = 0;
   if (lexer->buf_size > 1 && buf[lexer->buf_size - 2] == '\\')
@@ -255,7 +268,7 @@ static int	lexer_eatline(ts_lexer *lexer)
   //show incomplet recognition prompt
   show_prompt(PROMPT_PS2);
   //retrieve a new line
-  if (!(buf2 = readline(NULL))) {
+  if (!(buf2 = getln(lexer->stream))) {
     lexer->eof = 1;
     return 0;
   }
@@ -266,7 +279,7 @@ static int	lexer_eatline(ts_lexer *lexer)
   return 1;
 }
 
-static int	lexer_cut(ts_lexer *lexer)
+static int	lexer_cut(s_lexer *lexer)
 {
   const char	*buf = lexer->buf;
   size_t	*buf_pos = &lexer->buf_pos, token_start, token_pos;
@@ -313,7 +326,7 @@ static int	lexer_cut(ts_lexer *lexer)
   return 1;
 }
 
-static int	is_operator(const char *buf, size_t *buf_pos, ts_token *token)
+static int	is_operator(const char *buf, size_t *buf_pos, s_token *token)
 {
   for (register int i = 0; operators[i].id != TOK_NONE; ++i)
     if (!strncmp(buf, operators[i].str, operators[i].len)) {

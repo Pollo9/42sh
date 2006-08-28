@@ -1,11 +1,11 @@
 /*
-** option_parser.c for 42sh
+** getoptions.c for 42sh
 **
 ** Made by Seblu
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sun Jul 30 03:28:26 2006 Seblu
-** Last update Wed Aug 23 18:39:19 2006 Seblu
+** Last update Tue Aug 29 00:54:37 2006 Seblu
 */
 
 #include <stdio.h>
@@ -19,7 +19,7 @@
 ** @param argv program argv
 ** @param opt shell opt structure to set with options
 */
-void option_parser(ts_options *opt, int argc, char **argv)
+void getoptions(s_options *opt, int argc, char **argv)
 {
 #if DEBUG_OPTION == 1
   printf("* Option Parser\n");

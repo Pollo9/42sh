@@ -5,7 +5,7 @@
 ** Login  <seblu@epita.fr>
 **
 ** Started on  Tue Mar 21 18:50:03 2006 Seblu
-** Last update Wed Aug 23 18:39:43 2006 Seblu
+** Last update Tue Aug 29 00:54:50 2006 Seblu
 */
 
 #ifndef OPTION_H_
@@ -15,11 +15,11 @@
 
 #define DEBUG_OPTION 0
 
-typedef struct s_options
+typedef struct options
 {
   signed char	item[NBR_OPTION];
   char		*command;
-} ts_options;
+} s_options;
 
 /*
 ** ==============
@@ -32,7 +32,7 @@ typedef struct s_options
 **
 ** @return A new options structure
 */
-ts_options	*option_init(void);
+s_options	*option_init(void);
 
 /*!
 ** Set a shell option
@@ -42,7 +42,7 @@ ts_options	*option_init(void);
 **
 ** @return 0 on failure, else 1
 */
-int		option_set(ts_options *shopt, const char *name);
+int		option_set(s_options *shopt, const char *name);
 
 /*!
 ** Unset a shell option
@@ -52,7 +52,7 @@ int		option_set(ts_options *shopt, const char *name);
 **
 ** @return 0 on failure, else 1
 */
-int		option_unset(ts_options *shopt, const char *name);
+int		option_unset(s_options *shopt, const char *name);
 
 /*!
 ** Tell if an option is set. if option nane is not set return -1
@@ -62,7 +62,7 @@ int		option_unset(ts_options *shopt, const char *name);
 **
 ** @return 0 if unset, 1 if set and -1 if not exist
 */
-int		option_isset(const ts_options *shopt, const char *name);
+int		option_isset(const s_options *shopt, const char *name);
 
 /*!
 ** Return a list of know opt
@@ -73,17 +73,17 @@ const char	**opt_get();
 
 /*
 ** =====================
-** FILE: option_parser.c
+** FILE: getoption.c
 ** =====================
 */
 
 /*!
-** Parse the command line
+** Parse the command line and set options
 **
 ** @param opt shell opt structure to set with options
 ** @param argc program argc
 ** @param argv program argv
 */
-void option_parser(ts_options *opt, int argc, char **argv);
+void		getoptions(s_options *opt, int argc, char **argv);
 
 #endif

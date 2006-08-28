@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sun Mar 30 16:02:07 2006 Seblu
-** Last update Thu Aug  3 01:20:18 2006 Seblu
+** Last update Tue Aug 29 00:15:59 2006 Seblu
 */
 
 #ifndef EXEC_H_
@@ -15,7 +15,7 @@
 # include <stdio.h>
 # include "../ast/ast.h"
 
-void exec_ast(ts_ast_node *node);
+void	exec_node(s_ast_node *node);
 
 /* void exec_node(struct s_ast *node, struct s_42sh *sh); */
 /* void exec_list(struct s_list *node, struct s_42sh *sh); */

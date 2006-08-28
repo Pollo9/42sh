@@ -5,13 +5,14 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Wed Aug  2 01:25:01 2006 Seblu
-** Last update Thu Aug  3 11:44:30 2006 Seblu
+** Last update Mon Aug 28 22:55:18 2006 Seblu
 */
 
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include "readline.h"
+#include "../common/macro.h"
+#include "getln.h"
 
 /*!
 ** Secure layer over strlen
@@ -20,12 +21,7 @@
 **
 ** @return lenght of the string
 */
-static size_t         sstrlen(const char *s)
-{
-  if (s == NULL)
-    return 0;
-  return strlen(s);
-}
+#define sstrlen(s) ((s) == NULL ? 0 : strlen(s))
 
 /*
 ** Append a string to the buffer string
@@ -44,37 +40,25 @@ static void     buf_str(char **str, char *append, unsigned n)
   (*str)[ln + n] = 0;
 }
 
-
-/*
-** Memory allocation of getln buffer
-*/
-struct s_getln          *getln_open(const int fd)
+s_getln		*getln_open(int fd)
 {
-  struct s_getln        *new_buf;
+  s_getln		*new_buf;
 
-  if ((new_buf = malloc(sizeof (struct s_getln))) == NULL)
-    exit(1);
+  secmalloc(new_buf, sizeof (s_getln));
   new_buf->fd = fd;
   new_buf->size = 0;
   new_buf->offset = 0;
   return new_buf;
 }
 
-/*
-** Free a getln struct
-*/
-void            getln_close(struct s_getln *buf, const int closefd)
+void            getln_close(s_getln *buf, int closefd)
 {
   if (closefd)
     close(buf->fd);
   free(buf);
 }
 
-/*
-** Get next line in a file
-** Return NULL when nothing to read
-*/
-char            *getln(struct s_getln *buf)
+char            *getln(s_getln *buf)
 {
   char          *string = NULL;
   int           i;

@@ -28,8 +28,8 @@ funcdec:	['function'] WORD '(' ')' ('\n')* shell_command (redirection)*
 redirection:  [NUMBER] '>' WORD
 		| [NUMBER] '<' WORD
 		| [NUMBER] '>>' WORD
-		| [NUMBER] '<<' WORD
-		| [NUMBER] '<<-' WORD
+		| [NUMBER] '<<' HEREDOC
+		| [NUMBER] '<<-' HEREDOC
 		| [NUMBER] '>&' WORD
 		| [NUMBER] '<&' WORD
 		| [NUMBER] '>|' WORD
