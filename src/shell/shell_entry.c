@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Mon Apr 10 23:57:28 2006 Seblu
-** Last update Wed Aug 23 18:40:08 2006 Seblu
+** Last update Fri Aug 25 12:24:50 2006 Seblu
 */
 
 #include <stdio.h>
@@ -14,6 +14,7 @@
 #include "../ast/ast.h"
 #include "../parser/parser.h"
 #include "../exec/exec.h"
+#include "../common/macro.h"
 
 /*
 ** Global shell structure
@@ -47,6 +48,8 @@ int		main(int argc, char *argv[])
       exec_ast(ast);
     ast_destruct(ast);
   }
-  while (parser->lexer->status != LEXER_END);
+  while (!parser->lexer->eof);
+  if (!isinteractive())
+    fprintf(stderr, "exit\n");
   return shell->status;
 }

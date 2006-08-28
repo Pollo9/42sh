@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Wed Aug  2 00:49:50 2006 Seblu
-** Last update Wed Aug 23 02:33:38 2006 Seblu
+** Last update Fri Aug 25 15:17:29 2006 Seblu
 */
 
 #include <setjmp.h>
@@ -14,29 +14,34 @@
 #ifndef PARSER_H_
 # define PARSER_H_
 
-typedef enum		e_token
+
+// Define is parser or lexer is run for DEBBUGING
+#define DEBUG_PARSER 1
+#define DEBUG_LEXER 0
+
+typedef enum		e_tokenid
   {
-    //token free-context recognition
+    //token free-context recognition (lexer time)
     TOK_NONE,
-    TOK_NEWLINE,
-    TOK_NUMBER,
-    TOK_EOF,
-    TOK_AND,
-    TOK_OR,
-    TOK_DSEMI,
-    TOK_LESS,
-    TOK_GREAT,
-    TOK_DLESS,
-    TOK_DGREAT,
-    TOK_LESSAND,
-    TOK_GREATAND,
-    TOK_LESSGREAT,
-    TOK_DLESSDASH,
-    TOK_CLOBBER,
-    TOK_CONTEXT,
-    TOK_WORD,
-    //token context-sensitive recognition
-    TOK_ASSIGNMENT,
+    TOK_NEWLINE,	// \n
+    TOK_EOF,		// EOF
+    TOK_AND,		// &&
+    TOK_SEPAND,		// &
+    TOK_OR,		// ||
+    TOK_PIPE,		// |
+    TOK_DSEMI,		// ;;
+    TOK_SEP,		// ;
+    TOK_DLESSDASH,	// <<-
+    TOK_DLESS,		// <<
+    TOK_LESSGREAT,	// <>
+    TOK_LESSAND,	// <&
+    TOK_LESS,		// <
+    TOK_DGREAT,		// >>
+    TOK_GREATAND,	// >&
+    TOK_CLOBBER,	// >|
+    TOK_GREAT,		// >
+    TOK_WORD,		// all others
+    //token context-sensitive recognition (parser time)
     TOK_IF,
     TOK_THEN,
     TOK_ELSE,
@@ -52,30 +57,25 @@ typedef enum		e_token
     TOK_IN,
     TOK_LBRACE,
     TOK_RBRACE,
-    TOK_BANG,
-    TOK_SEP,
-    TOK_SEPAND,
+    TOK_NUMBER,
+    TOK_ASSIGNMENT,
+    TOK_BANG
   } te_tokenid;
 
 typedef struct		s_token
 {
-  te_tokenid id;
-  const char *str;
+  te_tokenid		id;
+  const char		*str;
+  size_t		len;
 } ts_token;
-
-typedef enum		e_lexer_status
-  {
-    LEXER_READY = 1,
-    LEXER_END = 2,
-  } te_lexer_status;
 
 typedef struct		s_lexer
 {
-  te_lexer_status	status;
   ts_token		token;
   FILE			*fs;
+  char			eof;
   char			*buf;
-  size_t		buf_size;
+  size_t		buf_size; //without \0
   size_t		buf_pos;
 } ts_lexer;
 
@@ -89,14 +89,6 @@ typedef struct		s_parser
   size_t		regpos;
 } ts_parser;
 
-
-/*!
-** Free the string of a token if is a word (dynamically allocated)
-**
-** @param token a token struct type (not a pointer)
-*/
-#define token_free(token) if ((token).id == TOK_WORD && (token).str) \
- free((char*)(token).str)
 
 /*
 ** ==============
@@ -167,5 +159,12 @@ ts_token		lexer_gettoken(ts_lexer *lexer);
 ** @return the look ahead token
 */
 ts_token		lexer_lookahead(ts_lexer *lexer);
+
+/*!
+** Parse input as a here-document (describe is XSI)
+**
+** @param lexer current lexer
+*/
+void			lexer_heredocument(ts_lexer *lexer);
 
 #endif

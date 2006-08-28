@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Tue Mar 21 19:00:38 2006 Seblu
-** Last update Wed Aug 23 18:37:38 2006 Seblu
+** Last update Fri Aug 25 03:49:21 2006 Seblu
 */
 
 /*
@@ -17,7 +17,7 @@
 #include <string.h>
 #include "option.h"
 #include "../shell/shell.h"
-#include "../common/mem.h"
+#include "../common/macro.h"
 
 static const char *opts_table[NBR_OPTION] =
   {

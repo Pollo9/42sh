@@ -5,12 +5,12 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Tue May 16 21:23:02 2006 Seblu
-** Last update Thu Aug  3 05:29:21 2006 Seblu
+** Last update Fri Aug 25 03:48:39 2006 Seblu
 */
 
 #include <stdarg.h>
 #include <string.h>
-#include "mem.h"
+#include "macro.h"
 
 char            *strmerge(int n, const char *s1, ...)
 {

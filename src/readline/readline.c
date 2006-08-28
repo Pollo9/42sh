@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Wed Aug  2 01:13:56 2006 Seblu
-** Last update Thu Aug  3 11:18:11 2006 Seblu
+** Last update Fri Aug 25 07:52:48 2006 Seblu
 */
 
 #include <string.h>
@@ -17,7 +17,7 @@ struct s_getln getln_stdin;
 
 char	*readline(const char *prompt)
 {
-  if (isatty(STDOUT_FILENO) && isatty(STDERR_FILENO))
+  if (prompt && isatty(STDOUT_FILENO) && isatty(STDERR_FILENO))
     write(STDERR_FILENO, prompt, strlen(prompt));
   return getln(&getln_stdin);
 }

@@ -5,10 +5,9 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Thu Aug  3 02:41:37 2006 Seblu
-** Last update Fri Aug 18 20:43:15 2006 Seblu
+** Last update Fri Aug 25 03:46:54 2006 Seblu
 */
 
-#include "../common/mem.h"
 #include "ast.h"
 
 ts_ast_node	*ast_funcdec_create(char *name, ts_ast_node *body)

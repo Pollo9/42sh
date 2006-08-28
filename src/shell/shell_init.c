@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sun Jul 16 20:11:09 2006 Seblu
-** Last update Wed Aug 23 18:41:10 2006 Seblu
+** Last update Fri Aug 25 03:50:14 2006 Seblu
 */
 
 #include <stdlib.h>
@@ -16,7 +16,7 @@
 #include <stdlib.h>
 #include "shell.h"
 #include "../option/option.h"
-#include "../common/mem.h"
+#include "../common/macro.h"
 #include "../common/common.h"
 
 

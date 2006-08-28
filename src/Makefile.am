@@ -23,8 +23,9 @@ bin_PROGRAMS=42sh
 		ast/ast_until.c			\
 		ast/ast_while.c			\
 		common/common.h			\
+		common/constant.h		\
 		common/isdigitstr.c		\
-		common/mem.h			\
+		common/macro.h			\
 		common/strmerge.c		\
 		common/strvmerge.c		\
 		common/strndup.c		\

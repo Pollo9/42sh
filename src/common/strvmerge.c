@@ -5,11 +5,11 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sun Jul 30 04:03:35 2006 Seblu
-** Last update Thu Aug  3 05:29:38 2006 Seblu
+** Last update Fri Aug 25 03:48:47 2006 Seblu
 */
 
 #include <string.h>
-#include "mem.h"
+#include "macro.h"
 
 char			*strvmerge(const char *const *vtable)
 {

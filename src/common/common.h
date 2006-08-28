@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sun Jul 30 03:59:48 2006 Seblu
-** Last update Tue Aug 22 22:41:29 2006 Seblu
+** Last update Fri Aug 25 03:31:29 2006 Seblu
 */
 
 #ifndef COMMON_H_

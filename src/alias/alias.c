@@ -5,12 +5,12 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Wed Aug 23 00:39:17 2006 Seblu
-** Last update Wed Aug 23 18:47:59 2006 Seblu
+** Last update Fri Aug 25 03:44:03 2006 Seblu
 */
 
 #include <string.h>
 #include "alias.h"
-#include "../common/mem.h"
+#include "../common/macro.h"
 
 static size_t step = 5;
 

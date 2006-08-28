@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sun Jul 16 20:03:53 2006 Seblu
-** Last update Wed Aug 23 18:38:11 2006 Seblu
+** Last update Fri Aug 25 07:45:07 2006 Seblu
 */
 
 #ifndef SHELL_H_
@@ -13,18 +13,9 @@
 
 # include <errno.h>
 # include <stdlib.h>
+# include "../common/constant.h"
 # include "../alias/alias.h"
 # include "../option/option.h"
-
-static const int ERROR_PARSE = 258;
-static const int ERROR_FORK = 128;
-static const int ERROR_REDIR = 1;
-
-typedef enum e_prompt_type {
-  TYPE_PS1 = 1,
-  TYPE_PS2 = 2,
-  TYPE_PS4 = 4
-} te_prompt_type;
 
 typedef struct s_shell
 {
@@ -40,7 +31,14 @@ typedef struct s_shell
 ts_shell		*shell_init(const char *argv0);
 void			shell_destroy(ts_shell *sh);
 
-const char		*get_prompt(te_prompt_type pty);
+const char		*get_prompt(te_prompt pty);
+
+/*!
+** Show a prompt on stderr is current shell is a plug on a tty
+**
+** @param pty prompt type (PS1, PS2, PS4)
+*/
+void			show_prompt(te_prompt pty);
 
 extern ts_shell		*shell;
 

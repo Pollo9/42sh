@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Wed Aug  2 00:56:07 2006 Seblu
-** Last update Tue Aug 22 19:10:23 2006 Seblu
+** Last update Fri Aug 25 15:13:58 2006 Seblu
 */
 
 #include <stdio.h>
@@ -13,7 +13,7 @@
 #include <unistd.h>
 #include <setjmp.h>
 #include "parser.h"
-#include "../common/mem.h"
+#include "../common/macro.h"
 #include "../shell/shell.h"
 #include "../readline/readline.h"
 
@@ -23,10 +23,28 @@
 ** ============
 */
 
-/*
-** Define is parser is run for DEBBUGING
-*/
-#define DEBUG_PARSER 1
+
+/* static ts_token keywords[] = */
+/*   { */
+/*     {TOK_IF, "if"}, */
+/*     {TOK_THEN, "then"}, */
+/*     {TOK_ELSE, "else"}, */
+/*     {TOK_FI, "fi"}, */
+/*     {TOK_ELIF, "elif"}, */
+/*     {TOK_DO, "do"}, */
+/*     {TOK_DONE, "done"}, */
+/*     {TOK_CASE, "case"}, */
+/*     {TOK_ESAC, "esac"}, */
+/*     {TOK_WHILE, "while"}, */
+/*     {TOK_UNTIL, "until"}, */
+/*     {TOK_FOR, "for"}, */
+/*     {TOK_IN, "in"}, */
+/*     {TOK_LBRACE, "{"}, */
+/*     {TOK_RBRACE, "}"}, */
+/*     {TOK_BANG, "!"}, */
+/*     {TOK_NONE, NULL} */
+/*   }; */
+
 
 static ts_ast_node	*regnode(ts_parser *parser, ts_ast_node *node);
 
@@ -112,7 +130,6 @@ static void		parse_error(ts_parser *parser, ts_token t)
 
 ts_ast_node		*parse(ts_parser *parser)
 {
-  lexer_start(parser->lexer);
   parser->regpos = 0;
   parser->error = 0;
   // prevent of too big register ast size
@@ -121,18 +138,20 @@ ts_ast_node		*parse(ts_parser *parser)
 	       (parser->regsize = 50) * sizeof (ts_ast_node));
   if (setjmp(parser->stack))
     return NULL;
+  show_prompt(PROMPT_PS1);
+#if DEBUG_LEXER == 1
   //test lexer mode
   while (1)
     {
-      ts_token tok;
-
-      tok = lexer_gettoken(parser->lexer);
+      ts_token tok = lexer_gettoken(parser->lexer);
       if (tok.id == TOK_EOF)
-	exit(42);
+	exit(69);
+      printf("Returned token: %d [%s]\n", tok.id,
+	     (*tok.str == '\n') ? "\\n" : tok.str);
       if (tok.id == TOK_NEWLINE)
-	lexer_start(parser->lexer);
-      printf("Returned token: %d [%s]\n", tok.id, tok.str);
+	show_prompt(PROMPT_PS1);
     }
+#endif
   return parse_input(parser);
 }
 

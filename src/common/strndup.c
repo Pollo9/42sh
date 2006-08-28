@@ -5,12 +5,12 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Thu Aug  3 05:56:28 2006 Seblu
-** Last update Thu Aug  3 05:58:42 2006 Seblu
+** Last update Fri Aug 25 03:49:08 2006 Seblu
 */
 
 #include <string.h>
 #include <stdlib.h>
-#include "mem.h"
+#include "macro.h"
 
 char            *strndup(const char *str, size_t n)
 {

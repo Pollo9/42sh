@@ -5,23 +5,24 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sun Jul 30 04:36:53 2006 Seblu
-** Last update Wed Aug 23 18:05:56 2006 Seblu
+** Last update Fri Aug 25 15:16:23 2006 Seblu
 */
 
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#include <assert.h>
 #include "parser.h"
 #include "../shell/shell.h"
 #include "../readline/readline.h"
 #include "../common/common.h"
-#include "../common/mem.h"
+#include "../common/macro.h"
 
 /*
 ** Token recognition rationale:
 ** - Separator are chars which used to cut token but which are deleted.
 ** - Operators are chars which used to cut token and which are returned as token.
-** - Keywords are chars which are collapsed by tokens and are reserved.
+** - Quotes are chars which must be return entierrely.
 ** - Others are chars considered like words.
 */
 
@@ -31,55 +32,72 @@
 ** ============
 */
 
-static ts_token operators[] =
+// Order is very important for correct recognition !
+static const ts_token operators[] =
   {
-    {TOK_NEWLINE, "\n"},
-    {TOK_AND, "&&"},
-    {TOK_OR, "||"},
-    {TOK_DSEMI, ";;"},
-    {TOK_LESS, "<"},
-    {TOK_GREAT, ">"},
-    {TOK_DLESS, "<<"},
-    {TOK_DGREAT, ">>"},
-    {TOK_LESSAND, "<&"},
-    {TOK_GREATAND, ">&"},
-    {TOK_LESSGREAT, "<>"},
-    {TOK_DLESSDASH, "<<-"},
-    {TOK_CLOBBER, ">|"},
-    {TOK_SEP, ";"},
-    {TOK_SEPAND, "&"},
-    {TOK_NONE, NULL}
+    {TOK_NEWLINE, "\n", 1},
+    {TOK_AND, "&&", 2},
+    {TOK_SEPAND, "&", 1},
+    {TOK_OR, "||", 2},
+    {TOK_PIPE, "|", 1},
+    {TOK_DSEMI, ";;", 2},
+    {TOK_SEP, ";", 1},
+    {TOK_DLESSDASH, "<<-", 3},
+    {TOK_DLESS, "<<", 2},
+    {TOK_LESSGREAT, "<>", 2},
+    {TOK_LESSAND, "<&", 2},
+    {TOK_LESS, "<", 1},
+    {TOK_DGREAT, ">>", 2},
+    {TOK_GREATAND, ">&", 2},
+    {TOK_CLOBBER, ">|", 2},
+    {TOK_GREAT, ">", 1},
+    {TOK_NONE, NULL, 0}
   };
 
-/* static ts_token keywords[] = */
-/*   { */
-/*     {TOK_IF, "if"}, */
-/*     {TOK_THEN, "then"}, */
-/*     {TOK_ELSE, "else"}, */
-/*     {TOK_FI, "fi"}, */
-/*     {TOK_ELIF, "elif"}, */
-/*     {TOK_DO, "do"}, */
-/*     {TOK_DONE, "done"}, */
-/*     {TOK_CASE, "case"}, */
-/*     {TOK_ESAC, "esac"}, */
-/*     {TOK_WHILE, "while"}, */
-/*     {TOK_UNTIL, "until"}, */
-/*     {TOK_FOR, "for"}, */
-/*     {TOK_IN, "in"}, */
-/*     {TOK_LBRACE, "{"}, */
-/*     {TOK_RBRACE, "}"}, */
-/*     {TOK_BANG, "!"}, */
-/*     {TOK_NONE, NULL} */
-/*   }; */
+typedef struct		s_quote
+{
+  const char		*start;
+  const size_t		lenstart;
+  const char		*stop;
+  const size_t		lenstop;
+} ts_quote;
+
+static const ts_quote quotes[] =
+  {
+    {"\"", 1, "\"", 1},
+    {"'", 1, "'", 1},
+    {"`", 1, "`", 1},
+    {"${", 2, "}", 1},
+    {"$(", 2, ")", 1},
+    {"$((", 2, "))", 2},
+    {NULL, 0, NULL, 0},
+  };
 
 /*!
-** Return a predicat about c is a quote
+** Check if @arg buf + *buf_pos point on the start of quote sequence.
+** @warning Recognition start at buf + *buf_pos !
 **
-** @param c Must be a character
+** @param buf a string buffer
+** @param buf_pos position in the buffer, which is incremented if found to point on
+** the last char of the quote !
+** @param quote quote type found
 **
-** @return true if c is a quote
+** @return true (!0) if a quote is found, else false (0)
 */
-#define		is_quote(c) ((c) == '"' || (c) == '\'' || (c) == '`')
+static int	is_quote_start(const char *buf, size_t *buf_pos, const ts_quote **quote);
+
+/*!
+** Check if @arg buf + *buf_pos point on the stop of quote sequence.
+** @warning Recognition start at buf + *buf_pos !
+**
+** @param buf a string buffer
+** @param buf_pos position in the buffer, which is incremented if found to point on
+** the last char of the quote !
+** @param quote quote type to found
+**
+** @return true (!0) if a quote is found, else false (0)
+*/
+static int	is_quote_stop(const char *buf, size_t *buf_pos, const ts_quote *quote);
 
 /*!
 ** Return a predicat about c is a separator
@@ -91,20 +109,42 @@ static ts_token operators[] =
 #define		is_sep(c) ((c) == ' ' || (c) == '\t' || (c) == '\v')
 
 /*!
-** Call readline while it's necessary to reconize a token.
+** Check if the buffer point to an operator. Il it's true and buf_pos is
+** not NULL, *buf_pos is correctly incremented to point on the next token
+** @warning Recgnition start at buf !
+**
+** @param buf a string buffer where recognition start
+** @param buf_pos buffer position to increment correctly if operator is found
+** @param token reconized token operator
+**
+** @return true (!0) if find, else false (0)
+*/
+static int	is_operator(const char *buf, size_t *buf_pos, ts_token *token);
+
+/*!
+** Read lexer's stream, and return the next token.
 **
 ** @param lex lexer struct
 */
-static void	lexer_eat(ts_lexer *lex);
+static void	lexer_eattoken(ts_lexer *lex);
 
 /*!
-** Cut and reconize a token.
+** This function is only call when the end of a line occur in
+** a quote or after a backslash
 **
 ** @param lexer lexer struct
 **
-** @return 1, if someting is reconized, else 0
+** @return 1 if can read a line, 0 if eof
 */
-static int	lexer_reconize(ts_lexer *lexer);
+static int	lexer_eatline(ts_lexer *lexer);
+
+/*!
+** Cut a token in one or more line.
+**
+** @param lexer lexer struct
+**
+*/
+static int	lexer_cut(ts_lexer *lexer);
 
 /*!
 ** Correctly set a token. In first, it call macro token_free to
@@ -132,156 +172,177 @@ ts_lexer	*lexer_init(FILE *fs)
   new->fs = fs;
   new->buf = NULL;
   new->buf_size = new->buf_pos = 0;
-  new->status = LEXER_READY;
+  new->token.id = TOK_NONE;
+  new->token.str = NULL;
+  new->token.len = 0;
+  new->eof = 0;
   return new;
-}
-
-int		lexer_start(ts_lexer *lexer)
-{
-  if (lexer->status == LEXER_END)
-    return 0;
-  token_set(&lexer->token, TOK_NONE, NULL);
-  if (lexer->buf) free(lexer->buf);
-  lexer->buf = NULL;
-  lexer->buf_size = lexer->buf_pos = 0;
-  return 1;
 }
 
 ts_token	lexer_lookahead(ts_lexer *lexer)
 {
   if (lexer->token.id == TOK_NONE)
-    lexer_eat(lexer);
+    lexer_eattoken(lexer);
   return lexer->token;
 }
 
 ts_token	lexer_gettoken(ts_lexer *lexer)
 {
-  ts_token	buf;
+  ts_token	buf = { TOK_EOF, "EOF", 3 };
 
-  if (lexer->token.id == TOK_EOF)
-    return lexer->token;
   if (lexer->token.id == TOK_NONE)
-    lexer_eat(lexer);
+    lexer_eattoken(lexer);
   buf = lexer->token;
   lexer->token.id = TOK_NONE;
   lexer->token.str = NULL;
   return buf;
 }
 
+void		lexer_heredocument(ts_lexer *lexer)
+{
+  lexer = lexer;
+}
+
 static void	token_set(ts_token *token, te_tokenid id, const char *s)
 {
-  token_free(*token);
+  if (token->id == TOK_WORD)
+    free((char*) token->str);
   token->id = id;
   token->str = s;
+  if (s) token->len = strlen(s);
+  else token->len = 0;
 }
 
-static void	lexer_eat(ts_lexer *lexer)
+static void	lexer_eattoken(ts_lexer *lexer)
 {
-  char		*lbuf, *lbuf2;
-
-  //if line is void, start readding with good prompt
-  if (lexer->buf_size == 0) {
-    if ((lexer->buf = readline(get_prompt(TYPE_PS1))) == NULL) {
-      token_set(&lexer->token, TOK_EOF, "EOF");
-      lexer->status = LEXER_END;
-      return;
-    }
-    lexer->buf_pos = 0;
+  //if eof, set token EOF
+  if (lexer->eof) {
+    token_set(&lexer->token, TOK_EOF, "EOF");
+    return;
+  }
+  //if last char was read free buffer
+  if (lexer->buf_size > 0 && lexer->buf_pos == lexer->buf_size) {
+    free(lexer->buf);
+    lexer->buf = NULL;
+    lexer->buf_size = 0;
+  }
+  //read a line if buf is empty
+  if (!lexer->buf_size && ((lexer->buf = readline(NULL)) != NULL)) {
     lexer->buf_size = strlen(lexer->buf);
+    lexer->buf_pos = 0;
   }
-  //read line while a token will not be reconized
-  while (!lexer_reconize(lexer)) {
-    //change last \n by ;
-    if (lexer->buf[lexer->buf_size - 1] == '\n')
-      lexer->buf[lexer->buf_size - 1] = ';';
-    if ((lbuf2 = readline(get_prompt(TYPE_PS2))) == NULL)
-      lexer->status = LEXER_END;
-    else {
-      lbuf = lexer->buf;
-      lexer->buf = strmerge(2, lbuf, lbuf2);
-      lexer->buf_size = strlen(lexer->buf);
-      free(lbuf), free(lbuf2);
-    }
+  //if eof is read, bye bye
+  if (lexer->buf == NULL) {
+    lexer->eof = 1;
+    token_set(&lexer->token, TOK_EOF, "EOF");
+    return;
   }
+  //cut a slice of stream
+  while (!lexer_cut(lexer))
+    ;; //retry again
 }
 
-/* static int	lexer_cutter(ts_lexer *lexer) */
-/* { */
-/*   const char	*buf = lexer->buf; */
-/*   const size_t	buf_size = lexer->buf_size; */
-/*   //  size_t	*buf_pos = &lexer->buf_pos; */
-/*   size_t	token_start, token_pos; */
-/*   int		end_found = 0; */
-/*   char		backed = 0, quoted = 0, commented = 0; */
+static int	lexer_eatline(ts_lexer *lexer)
+{
+  char		*buf, *buf2;
 
-/*   token_start = token_pos = lexer->buf_pos; */
+  buf = lexer->buf;
+  assert(buf);
+  if (lexer->buf_size > 0 && buf[lexer->buf_size - 1] == '\n')
+    buf[lexer->buf_size - 1] = 0;
+  if (lexer->buf_size > 1 && buf[lexer->buf_size - 2] == '\\')
+    buf[lexer->buf_size - 2] = 0;
+  //show incomplet recognition prompt
+  show_prompt(PROMPT_PS2);
+  //retrieve a new line
+  if (!(buf2 = readline(NULL))) {
+    lexer->eof = 1;
+    return 0;
+  }
+  lexer->buf = strmerge(2, buf, buf2);
+  lexer->buf_size = strlen(lexer->buf);
+  free(buf);
+  free(buf2);
+  return 1;
+}
 
-/* } */
-
-static int	lexer_reconize(ts_lexer *lexer)
+static int	lexer_cut(ts_lexer *lexer)
 {
   const char	*buf = lexer->buf;
-  const size_t	buf_size = lexer->buf_size;
-  size_t	*buf_pos = &lexer->buf_pos;
-  size_t	token_start, token_pos;
+  size_t	*buf_pos = &lexer->buf_pos, token_start, token_pos;
   int		end_found = 0;
-  char		backed = 0, quoted = 0, commented = 0;
+  char		backed = 0, quoted = 0;
+  const ts_quote*quote;
 
-  //eat separators (" ",\t, \v) and comment
-  for (; *buf_pos < buf_size; ++*buf_pos) {
-    if (commented && buf[*buf_pos] == '#')
-      ;
-    else if (is_sep(buf[*buf_pos])) continue;
-    else if (buf[*buf_pos] == '#') commented = 1;
-    else break;
-  }
+  // Rationale: Search begin of token
+  //eat separators (" ",\t, \v)
+  while (buf[*buf_pos] && is_sep(buf[*buf_pos]))
+    ++*buf_pos;
   //eat comment
-  while (*buf_pos < buf_size && buf[*buf_pos] == '#')
-    while (*buf_pos < buf_size && buf[*buf_pos] == '\n')
+  if (buf[*buf_pos] == '#')
+    while (buf[*buf_pos] && buf[*buf_pos] != '\n')
       ++*buf_pos;
   //check if first chars is an operator
-  for (register int i = 0; operators[i].id != TOK_NONE; ++i)
-    if (!strncmp(buf + *buf_pos, operators[i].str, strlen(operators[i].str))) {
-      *buf_pos +=  strlen(operators[i].str);
-      token_set(&lexer->token, operators[i].id, operators[i].str);
-      return 1;
-  }
-  // Rationale: Search end of token
-  //cut a token
+  if (is_operator(buf + *buf_pos, buf_pos, &lexer->token))
+    return 1;
   token_start = token_pos = *buf_pos;
-  for (; !end_found && token_pos < buf_size; ++token_pos) {
-    if (backed) backed = 0;
-    else if (commented && buf[token_pos] == '\n') commented = 0;
-    else if (commented) continue;
-    else if (buf[token_pos] == '#') commented = 1;
-    else if (is_sep(buf[token_pos])) end_found = 1;
-    else if (!quoted && is_quote(buf[token_pos]))  quoted = buf[token_pos];
-    else if (quoted && buf[token_pos] == quoted)  quoted = 0;
+  // Rationale: Search end of token
+  for (; buf[token_pos]; ++token_pos) {
+    // backslah newline => eatline
+    if ((backed || quoted) && buf[token_pos] == '\n' && lexer_eatline(lexer))
+      return 0; //new line added, you can try again
+    // backed, go to next char
+    else if (backed) backed = 0;
+    // check end of quoting
+    else if (quoted && is_quote_stop(buf, &token_pos, quote)) quoted = 0;
+    // quotin not ended !
+    else if (quoted) continue;
+    // if backslash go in state backed
     else if (!backed && buf[token_pos] == '\\') backed = 1;
-    else for (register int i = 0; operators[i].id != TOK_NONE; ++i)
-      if (!strncmp(buf + token_pos, operators[i].str, strlen(operators[i].str)))
-	{ end_found = 1; break; }
+    // if sep, a token was found !
+    else if (is_sep(buf[token_pos])) end_found = 1;
+    // if it's an operator cut
+    else if (is_operator(buf + token_pos, NULL, NULL)) end_found = 1;
+    // check to start quoting
+    else if (!quoted && is_quote_start(buf, &token_pos, &quote)) quoted = 1;
     if (end_found) break;
   }
-  if (!end_found) return 0;
-  lexer->buf_pos = token_pos; //update real lexer buffer
-  token_set(&lexer->token, TOK_CONTEXT,
+  lexer->buf_pos = token_pos; //update real lexer position buffer
+  token_set(&lexer->token, TOK_WORD,
 	    strndup(buf + token_start, token_pos - token_start));
   return 1;
 }
 
-/* int			parser_reconition() */
-/* { */
-/*   //check if it's a registered keyword */
-/*   for (register int i = 0; keywords[i].str; ++i) */
-/*     if (!strncmp(keywords[i].str, buf + token_start, */
-/* 		 token_pos - token_start)) { */
-/*       token_set(&lexer->token, keywords[i].id, keywords[i].str); */
-/* /\*       printf("reconized token: %d (%s)\n", keywords[i].id, keywords[i].str); *\/ */
-/*       return 1; */
-/*     } */
-/*   return 0; */
-/* } */
-/*   //check if it's a IONUMBER token */
-/*   if (isdigitstr(str)) */
-/*     token_set(&lexer->token, TOK_NUMBER, str); */
+static int	is_operator(const char *buf, size_t *buf_pos, ts_token *token)
+{
+  for (register int i = 0; operators[i].id != TOK_NONE; ++i)
+    if (!strncmp(buf, operators[i].str, operators[i].len)) {
+      if (buf_pos)
+	*buf_pos += operators[i].len;
+      if (token)
+	token_set(token, operators[i].id, operators[i].str);
+      return 1;
+    }
+  return 0;
+}
+
+static int	is_quote_start(const char *buf, size_t *buf_pos, const ts_quote **quote)
+{
+  for (register int i = 0; quotes[i].start; ++i)
+    if (!strncmp(buf + *buf_pos, quotes[i].start, quotes[i].lenstart)) {
+      *buf_pos +=  quotes[i].lenstart - 1;
+      if (quote)
+	*quote = quotes + i;
+      return 1;
+    }
+  return 0;
+}
+
+static int	is_quote_stop(const char *buf, size_t *buf_pos, const ts_quote *quote)
+{
+  if (!strncmp(buf + *buf_pos, quote->stop, quote->lenstop)) {
+    *buf_pos +=  quote->lenstop - 1;
+    return 1;
+  }
+  return 0;
+}

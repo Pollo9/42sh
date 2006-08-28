@@ -5,14 +5,13 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sun Jul 30 02:27:59 2006 Seblu
-** Last update Sat Aug 19 01:44:07 2006 Seblu
+** Last update Fri Aug 25 08:18:07 2006 Seblu
 */
 
 #include <stdio.h>
 #include <string.h>
 #include "shell.h"
-
-static char prompt[80];
+#include "../common/macro.h"
 
 /*!
 ** Return a prompt given by PS1, PS2, PS4 or the default if not set
@@ -21,16 +20,39 @@ static char prompt[80];
 **
 ** @return
 */
-const char *get_prompt(te_prompt_type pty)
+const char *get_prompt(te_prompt pty)
 {
+  static char prompt[80];
   //fixme
-  if (pty == TYPE_PS1) {
+  if (pty == PROMPT_PS1) {
     strncpy(prompt, shell->name, 78);
     strcpy(prompt + strlen(shell->name), "$ ");
   }
-  else if (pty == TYPE_PS2)
+  else if (pty == PROMPT_PS2)
     strcpy(prompt, "> ");
-  else if (pty == TYPE_PS4)
+  else if (pty == PROMPT_PS4)
     return strcpy(prompt, "");
   return prompt;
+}
+
+//todo gestion des variables !
+void show_prompt(te_prompt pty)
+{
+  if (!isinteractive())
+    return;
+  char *prompt;
+  switch (pty) {
+  case PROMPT_PS1:
+    prompt = "42sh ";
+    break;
+  case PROMPT_PS2:
+    prompt = "> ";
+    break;
+  case PROMPT_PS4:
+    prompt = "+";
+    break;
+  }
+  fflush(stderr);
+  fprintf(stderr, "%s", prompt);
+  fflush(stderr);
 }

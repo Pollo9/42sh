@@ -5,16 +5,13 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sun Jul 30 04:40:03 2006 Seblu
-** Last update Fri Aug 18 22:38:00 2006 Seblu
+** Last update Fri Aug 25 03:47:41 2006 Seblu
 */
 
 #ifndef AST_H_
 # define AST_H_
 
-# include <sys/types.h>
-# include <errno.h>
-# include <stdlib.h>
-# include <assert.h>
+# include "../common/macro.h"
 
 typedef struct s_ast_node  ts_ast_node;
 
