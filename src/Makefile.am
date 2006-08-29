@@ -32,8 +32,8 @@ bin_PROGRAMS=42sh
 		exec/exec_node.c		\
 		parser/alias.h			\
 		parser/alias.c			\
-		parser/getln.h			\
-		parser/getln.c			\
+		parser/getline.h		\
+		parser/getline.c		\
 		parser/parser.h			\
 		parser/parser.c			\
 		parser/lexer.c			\

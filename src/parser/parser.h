@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Wed Aug  2 00:49:50 2006 Seblu
-** Last update Tue Aug 29 00:24:16 2006 Seblu
+** Last update Tue Aug 29 02:28:08 2006 Seblu
 */
 
 #include <setjmp.h>
@@ -14,7 +14,7 @@
 #ifndef PARSER_H_
 # define PARSER_H_
 
-# include "getln.h"
+# include "getline.h"
 
 // Define is parser or lexer is run for DEBBUGING
 #define DEBUG_PARSER 1
@@ -78,7 +78,7 @@ typedef struct		lexer
   char			*buf;
   size_t		buf_size; //without \0
   size_t		buf_pos;
-  s_getln		*stream;
+  s_getline		*stream;
 } s_lexer;
 
 typedef struct		parser

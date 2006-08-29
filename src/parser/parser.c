@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Wed Aug  2 00:56:07 2006 Seblu
-** Last update Tue Aug 29 01:02:02 2006 Seblu
+** Last update Tue Aug 29 02:28:28 2006 Seblu
 */
 
 #include <stdio.h>
@@ -15,7 +15,7 @@
 #include "parser.h"
 #include "../common/macro.h"
 #include "../shell/shell.h"
-#include "getln.h"
+#include "getline.h"
 
 /*
 ** ============

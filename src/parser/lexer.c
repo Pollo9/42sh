@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sun Jul 30 04:36:53 2006 Seblu
-** Last update Tue Aug 29 00:29:37 2006 Seblu
+** Last update Tue Aug 29 02:33:06 2006 Seblu
 */
 
 #include <stdio.h>
@@ -14,7 +14,7 @@
 #include <assert.h>
 #include "parser.h"
 #include "../shell/shell.h"
-#include "getln.h"
+#include "getline.h"
 #include "../common/common.h"
 #include "../common/macro.h"
 
@@ -33,7 +33,7 @@
 */
 
 // Order is very important for correct recognition !
-static const s_token operators[] =
+static const s_token	operators[] =
   {
     {TOK_NEWLINE, "\n", 1},
     {TOK_AND, "&&", 2},
@@ -54,15 +54,15 @@ static const s_token operators[] =
     {TOK_NONE, NULL, 0}
   };
 
-typedef struct		s_quote
+typedef struct		quote
 {
   const char		*start;
   const size_t		lenstart;
   const char		*stop;
   const size_t		lenstop;
-} ts_quote;
+} s_quote;
 
-static const ts_quote quotes[] =
+static const s_quote	quotes[] =
   {
     {"\"", 1, "\"", 1},
     {"'", 1, "'", 1},
@@ -84,7 +84,7 @@ static const ts_quote quotes[] =
 **
 ** @return true (!0) if a quote is found, else false (0)
 */
-static int	is_quote_start(const char *buf, size_t *buf_pos, const ts_quote **quote);
+static int	is_quote_start(const char *buf, size_t *buf_pos, const s_quote **quote);
 
 /*!
 ** Check if @arg buf + *buf_pos point on the stop of quote sequence.
@@ -97,7 +97,7 @@ static int	is_quote_start(const char *buf, size_t *buf_pos, const ts_quote **quo
 **
 ** @return true (!0) if a quote is found, else false (0)
 */
-static int	is_quote_stop(const char *buf, size_t *buf_pos, const ts_quote *quote);
+static int	is_quote_stop(const char *buf, size_t *buf_pos, const s_quote *quote);
 
 /*!
 ** Return a predicat about c is a separator
@@ -163,12 +163,12 @@ static void	token_set(s_token *token, e_tokenid id, const char *s);
 ** ===========
 */
 
-s_lexer	*lexer_init(int fd)
+s_lexer		*lexer_init(int fd)
 {
   s_lexer	*new;
 
   secmalloc(new, sizeof (s_lexer));
-  new->stream = getln_open(fd);
+  new->stream = getline_open(fd);
   new->buf = NULL;
   new->buf_size = new->buf_pos = 0;
   new->token.id = TOK_NONE;
@@ -178,14 +178,14 @@ s_lexer	*lexer_init(int fd)
   return new;
 }
 
-s_token	lexer_lookahead(s_lexer *lexer)
+s_token		lexer_lookahead(s_lexer *lexer)
 {
   if (lexer->token.id == TOK_NONE)
     lexer_eattoken(lexer);
   return lexer->token;
 }
 
-s_token	lexer_gettoken(s_lexer *lexer)
+s_token		lexer_gettoken(s_lexer *lexer)
 {
   s_token	buf;
 
@@ -197,7 +197,7 @@ s_token	lexer_gettoken(s_lexer *lexer)
   return buf;
 }
 
-s_token	lexer_getheredoc(s_lexer *lexer, const char *delim)
+s_token		lexer_getheredoc(s_lexer *lexer, const char *delim)
 {
   s_token	token;
   char		*buf = NULL;
@@ -209,7 +209,7 @@ s_token	lexer_getheredoc(s_lexer *lexer, const char *delim)
   }
   show_prompt(PROMPT_PS2);
   do {
-    line = getln(lexer->stream);
+    line = getline(lexer->stream);
     if (line == NULL) {
       lexer->eof = 1;
       break;
@@ -240,7 +240,7 @@ static void	lexer_eattoken(s_lexer *lexer)
     lexer->buf_size = 0;
   }
   //read a line if buf is empty
-  if (!lexer->buf_size && !lexer->eof && (lexer->buf = getln(lexer->stream))) {
+  if (!lexer->buf_size && !lexer->eof && (lexer->buf = getline(lexer->stream))) {
     lexer->buf_size = strlen(lexer->buf);
     lexer->buf_pos = 0;
   }
@@ -268,7 +268,7 @@ static int	lexer_eatline(s_lexer *lexer)
   //show incomplet recognition prompt
   show_prompt(PROMPT_PS2);
   //retrieve a new line
-  if (!(buf2 = getln(lexer->stream))) {
+  if (!(buf2 = getline(lexer->stream))) {
     lexer->eof = 1;
     return 0;
   }
@@ -285,7 +285,7 @@ static int	lexer_cut(s_lexer *lexer)
   size_t	*buf_pos = &lexer->buf_pos, token_start, token_pos;
   int		end_found = 0;
   char		backed = 0, quoted = 0;
-  const ts_quote*quote;
+  const s_quote*quote;
 
   // Rationale: Search begin of token
   //eat separators (" ",\t, \v)
@@ -339,7 +339,7 @@ static int	is_operator(const char *buf, size_t *buf_pos, s_token *token)
   return 0;
 }
 
-static int	is_quote_start(const char *buf, size_t *buf_pos, const ts_quote **quote)
+static int	is_quote_start(const char *buf, size_t *buf_pos, const s_quote **quote)
 {
   for (register int i = 0; quotes[i].start; ++i)
     if (!strncmp(buf + *buf_pos, quotes[i].start, quotes[i].lenstart)) {
@@ -351,7 +351,7 @@ static int	is_quote_start(const char *buf, size_t *buf_pos, const ts_quote **quo
   return 0;
 }
 
-static int	is_quote_stop(const char *buf, size_t *buf_pos, const ts_quote *quote)
+static int	is_quote_stop(const char *buf, size_t *buf_pos, const s_quote *quote)
 {
   if (!strncmp(buf + *buf_pos, quote->stop, quote->lenstop)) {
     *buf_pos +=  quote->lenstop - 1;
