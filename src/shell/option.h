@@ -5,13 +5,13 @@
 ** Login  <seblu@epita.fr>
 **
 ** Started on  Tue Mar 21 18:50:03 2006 Seblu
-** Last update Tue Aug 29 00:54:50 2006 Seblu
+** Last update Wed Aug 30 00:19:19 2006 Seblu
 */
 
 #ifndef OPTION_H_
 # define OPTION_H_
 
-#define NBR_OPTION 8
+#define NBR_OPTION 9
 
 #define DEBUG_OPTION 0
 

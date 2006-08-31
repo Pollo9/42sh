@@ -15,11 +15,13 @@ bin_PROGRAMS=42sh
 		ast/ast_if.c			\
 		ast/ast_or.c			\
 		ast/ast_pipe.c			\
+		ast/ast_print.c			\
 		ast/ast_sep.c			\
 		ast/ast_sepand.c		\
 		ast/ast_subshell.c		\
 		ast/ast_until.c			\
 		ast/ast_while.c			\
+		common/basename.c		\
 		common/common.h			\
 		common/constant.h		\
 		common/isdigitstr.c		\
@@ -27,7 +29,6 @@ bin_PROGRAMS=42sh
 		common/strmerge.c		\
 		common/strvmerge.c		\
 		common/strndup.c		\
-		common/basename.c		\
 		exec/exec.h			\
 		exec/exec_node.c		\
 		parser/alias.h			\

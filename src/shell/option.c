@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Tue Mar 21 19:00:38 2006 Seblu
-** Last update Tue Aug 29 00:22:20 2006 Seblu
+** Last update Wed Aug 30 00:19:38 2006 Seblu
 */
 
 /*
@@ -27,6 +27,7 @@ static const char *opts_table[NBR_OPTION] =
     "nocaseglob",
     "nullglob",
     "expand_aliases",
+    "ast_print",
   };
 
 /*

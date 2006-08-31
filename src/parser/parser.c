@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Wed Aug  2 00:56:07 2006 Seblu
-** Last update Tue Aug 29 02:28:28 2006 Seblu
+** Last update Fri Sep  1 01:00:42 2006 Seblu
 */
 
 #include <stdio.h>
@@ -24,26 +24,26 @@
 */
 
 
-/* static ts_token keywords[] = */
-/*   { */
-/*     {TOK_IF, "if"}, */
-/*     {TOK_THEN, "then"}, */
-/*     {TOK_ELSE, "else"}, */
-/*     {TOK_FI, "fi"}, */
-/*     {TOK_ELIF, "elif"}, */
-/*     {TOK_DO, "do"}, */
-/*     {TOK_DONE, "done"}, */
-/*     {TOK_CASE, "case"}, */
-/*     {TOK_ESAC, "esac"}, */
-/*     {TOK_WHILE, "while"}, */
-/*     {TOK_UNTIL, "until"}, */
-/*     {TOK_FOR, "for"}, */
-/*     {TOK_IN, "in"}, */
-/*     {TOK_LBRACE, "{"}, */
-/*     {TOK_RBRACE, "}"}, */
-/*     {TOK_BANG, "!"}, */
-/*     {TOK_NONE, NULL} */
-/*   }; */
+static s_token keywords[] =
+  {
+    {TOK_IF, "if", 2},
+    {TOK_THEN, "then", 4},
+    {TOK_ELSE, "else", 4},
+    {TOK_FI, "fi", 2},
+    {TOK_ELIF, "elif", 4},
+    {TOK_DO, "do", 2},
+    {TOK_DONE, "done", 4},
+    {TOK_CASE, "case", 4},
+    {TOK_ESAC, "esac", 4},
+    {TOK_WHILE, "while", 5},
+    {TOK_UNTIL, "until", 5},
+    {TOK_FOR, "for", 3},
+    {TOK_IN, "in", 2},
+    {TOK_LBRACE, "{", 1},
+    {TOK_RBRACE, "}", 1},
+    {TOK_BANG, "!", 1},
+    {TOK_NONE, NULL, 0}
+  };
 
 
 static s_ast_node	*regnode(s_parser *parser, s_ast_node *node);
@@ -68,6 +68,8 @@ static s_ast_node	*parse_andor(s_parser *parser);
 static s_ast_node	*parse_pipeline(s_parser *parser);
 
 static s_ast_node	*parse_command(s_parser *parser);
+
+static s_ast_node	*parse_simplecommand(s_parser *parser);
 
 /*!
 ** Notify a parse error
@@ -128,6 +130,31 @@ static void		parse_error(s_parser *parser, s_token t)
   longjmp(parser->stack, 1);
 }
 
+/* static int		is_keyword(s_token t) */
+/* { */
+/*   for (int i = 0; keywords[i].id != TOK_NONE; ++i) */
+/*     if (!strncmp(t.str, keywords[i].str, keywords[i].len)) { */
+/*       t.id = keywords[i].id; */
+/*       return 1; */
+/*     } */
+/*   return 0; */
+/* } */
+
+static int		is_assignment(s_token t)
+{
+  return strchr(t.str, '=') == NULL ? 0 : 1;
+}
+
+static void		recon(s_token t)
+{
+  //check for keywords
+  for (int i = 0; keywords[i].id != TOK_NONE; ++i)
+    if (!strncmp(t.str, keywords[i].str, keywords[i].len)) {
+      t.id = keywords[i].id;
+    }
+  //check
+}
+
 s_ast_node		*parse(s_parser *parser)
 {
   parser->regpos = 0;
@@ -170,7 +197,7 @@ static s_ast_node	*parse_input(s_parser *parser)
   }
   buf = parse_list(parser);
   token = lexer_gettoken(parser->lexer);
-  if (token.id != TOK_EOF || token.id != TOK_NEWLINE)
+  if (token.id != TOK_EOF && token.id != TOK_NEWLINE)
     parse_error(parser, token);
   return buf;
 }
@@ -235,17 +262,37 @@ static s_ast_node	*parse_command(s_parser *parser)
 {
   s_token		token;
 
-
+  debugmsg("parse_command");
   token = lexer_lookahead(parser->lexer);
-  //if (token.id == TOK_WORD)
+  recon(token);
+  if (token.id == TOK_WORD) {
+    return parse_simplecommand(parser);
+  }
   return NULL;
 }
 
-/* static s_ast_node	*parse_simplecommand(s_parser *parser) */
-/* { */
-/*   parser=parser; */
-/*   return NULL; */
-/* } */
+static s_ast_node	*parse_simplecommand(s_parser *parser)
+{
+  s_token		token;
+  s_ast_node		*cmd;
+
+  debugmsg("parse_simplecommand");
+  cmd = regnode(parser, ast_cmd_create());
+  //get prefix
+  while (is_assignment(lexer_lookahead(parser->lexer)))
+    ast_cmd_add_prefix(cmd, lexer_gettoken(parser->lexer).str);
+  //get element
+  if ((token = lexer_gettoken(parser->lexer)).id == TOK_WORD)
+    ast_cmd_add_argv(cmd, token.str);
+  else
+    parse_error(parser, token);
+  while (recon(token = lexer_lookahead(parser->lexer)),
+	 token.id == TOK_WORD) {
+    ast_cmd_add_argv(cmd, token.str);
+    lexer_gettoken(parser->lexer);
+  }
+  return cmd;
+}
 
 /* static s_ast_node	*parse_shellcommand(s_parser *parser) */
 /* { */

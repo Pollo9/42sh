@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Wed Aug  2 00:49:50 2006 Seblu
-** Last update Tue Aug 29 02:28:08 2006 Seblu
+** Last update Fri Sep  1 00:21:07 2006 Seblu
 */
 
 #include <setjmp.h>
@@ -66,7 +66,7 @@ typedef enum		tokenid
 typedef struct		token
 {
   e_tokenid		id;
-  const char		*str;
+  char			*str;
   size_t		len;
 } s_token;
 

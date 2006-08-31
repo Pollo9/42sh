@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Fri Aug 18 22:13:51 2006 Seblu
-** Last update Mon Aug 28 23:56:46 2006 Seblu
+** Last update Fri Sep  1 00:44:22 2006 Seblu
 */
 
 #include "ast.h"
@@ -42,18 +42,90 @@ void		ast_cmd_add_redir(s_ast_node		*node,
   *this = red;
 }
 
+void		ast_cmd_add_prefix(s_ast_node *node, char *assignment_word)
+{
+  if (node->type != T_CMD)
+    return;
+  size_t	size = 0;
+  if (node->body.child_cmd.prefix)
+    while (node->body.child_cmd.prefix[size])
+      ++size;
+  secrealloc(node->body.child_cmd.prefix, node->body.child_cmd.prefix,
+	     (++size + 1) * sizeof (char *));
+  node->body.child_cmd.prefix[size - 1] = assignment_word;
+  node->body.child_cmd.prefix[size] = NULL;
+}
+
+void		ast_cmd_add_argv(s_ast_node *node, char *argv)
+{
+  if (node->type != T_CMD)
+    return;
+  size_t	size = 0;
+  if (node->body.child_cmd.argv)
+    while (node->body.child_cmd.argv[size])
+      ++size;
+  secrealloc(node->body.child_cmd.argv, node->body.child_cmd.argv,
+	     (++size + 1) * sizeof (char *));
+  node->body.child_cmd.argv[size - 1] = argv;
+  node->body.child_cmd.argv[size] = NULL;
+}
+
+void		ast_cmd_print(s_ast_node *node, FILE *fs, unsigned int *node_id)
+{
+  unsigned	cur_id = *node_id;
+
+  if (node->type != T_CMD)
+    return;
+  fprintf(fs, "%u [label = \"Command\"];\n", *node_id);
+  //prefix
+  char **prefix = node->body.child_cmd.prefix;
+  if (prefix && prefix[0]) {
+    ++*node_id;
+    fprintf(fs, "%u [label = \"", *node_id);
+    for (int i = 0; prefix && prefix[i]; ++i) {
+      fprintf(fs, "prefix[%d]=%s\\n", i, prefix[i]);
+    }
+    fprintf(fs, "\"];\n");
+    fprintf(fs, "%u -> %u\n", cur_id, *node_id);
+  }
+  //arguments
+  char **argv = node->body.child_cmd.argv;
+  if (argv && argv[0]) {
+    ++*node_id;
+    fprintf(fs, "%u [label = \"", *node_id);
+    for (int i = 0; argv && argv[i]; ++i)
+      fprintf(fs, "argv[%d]=%s\\n", i, argv[i]);
+    fprintf(fs, "\"];\n");
+    fprintf(fs, "%u -> %u\n", cur_id, *node_id);
+  }
+  //redirs
+  if (node->body.child_cmd.redirs) {
+    int i = 0;
+    ++*node_id;
+    fprintf(fs, "%u [label = \"", *node_id);
+    for (s_redir *this = node->body.child_cmd.redirs; this; this = this->next, ++i)
+      fprintf(fs, "redirs[%d]: fd=%d, type=%d, word=%s\\n", i, this->fd, this->type, this->word);
+    fprintf(fs, "\"];\n");
+    fprintf(fs, "%u -> %u\n", cur_id, *node_id);
+  }
+}
+
 void		ast_cmd_destruct(s_ast_node *node)
 {
   s_redir	*this, *buf;
 
   if (node->type != T_CMD)
     return;
-  for (register int i = 0; node->body.child_cmd.argv[i]; ++i)
-    free(node->body.child_cmd.argv[i]);
-  for (register int i = 0; node->body.child_cmd.prefix[i]; ++i)
-    free(node->body.child_cmd.prefix[i]);
-  free(node->body.child_cmd.argv);
-  free(node->body.child_cmd.prefix);
+  if (node->body.child_cmd.argv) {
+    for (register int i = 0; node->body.child_cmd.argv[i]; ++i)
+      free(node->body.child_cmd.argv[i]);
+    free(node->body.child_cmd.argv);
+  }
+  if (node->body.child_cmd.prefix) {
+    for (register int i = 0; node->body.child_cmd.prefix[i]; ++i)
+      free(node->body.child_cmd.prefix[i]);
+    free(node->body.child_cmd.prefix);
+  }
   for (this = node->body.child_cmd.redirs; this; this = buf) {
     free(this->word);
     buf = this->next;

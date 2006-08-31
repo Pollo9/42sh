@@ -5,12 +5,13 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Mon Apr 10 23:57:28 2006 Seblu
-** Last update Tue Aug 29 00:53:31 2006 Seblu
+** Last update Wed Aug 30 00:20:33 2006 Seblu
 */
 
 #include <stdio.h>
 #include <libgen.h>
 #include "shell.h"
+#include "option.h"
 #include "../ast/ast.h"
 #include "../parser/parser.h"
 #include "../exec/exec.h"
@@ -44,6 +45,8 @@ int		main(int argc, char *argv[])
   do
   {
     ast = parse(parser);
+    if (!parser->error && option_isset(shell->options, "ast_print"))
+      ast_print(ast, NULL);
     if (!parser->error)
       exec_node(ast);
     ast_destruct(ast);

@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sun Jul 30 04:36:53 2006 Seblu
-** Last update Tue Aug 29 02:33:06 2006 Seblu
+** Last update Tue Aug 29 21:54:23 2006 Seblu
 */
 
 #include <stdio.h>
@@ -154,7 +154,7 @@ static int	lexer_cut(s_lexer *lexer);
 ** @param id new token id
 ** @param s new token string
 */
-static void	token_set(s_token *token, e_tokenid id, const char *s);
+static void	token_set(s_token *token, e_tokenid id, char *s);
 
 
 /*
@@ -221,10 +221,10 @@ s_token		lexer_getheredoc(s_lexer *lexer, const char *delim)
   return token;
 }
 
-static void	token_set(s_token *token, e_tokenid id, const char *s)
+static void	token_set(s_token *token, e_tokenid id, char *s)
 {
   if (token->id == TOK_WORD)
-    free((char*) token->str);
+    free(token->str);
   token->id = id;
   token->str = s;
   if (s) token->len = strlen(s);
