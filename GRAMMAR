@@ -13,7 +13,8 @@ command:	  simple_command
 		| shell_command  (redirection)*
 		| funcdec
 
-simple_command:   (prefix)* (element)+
+simple_command:   (prefix)+
+		| (prefix)* (element)+
 
 shell_command:	  '{' compound_list '}'
                 | '(' compound_list ')'
@@ -25,15 +26,15 @@ shell_command:	  '{' compound_list '}'
 
 funcdec:	['function'] WORD '(' ')' ('\n')* shell_command (redirection)*
 
-redirection:  	  [NUMBER] '>' WORD
-		| [NUMBER] '<' WORD
-		| [NUMBER] '>>' WORD
-		| [NUMBER] '<<' HEREDOC
-		| [NUMBER] '<<-' HEREDOC
-		| [NUMBER] '>&' WORD
-		| [NUMBER] '<&' WORD
-		| [NUMBER] '>|' WORD
-		| [NUMBER] '<>' WORD
+redirection:  	  [IONUMBER] '>' WORD
+		| [IONUMBER] '<' WORD
+		| [IONUMBER] '>>' WORD
+		| [IONUMBER] '<<' HEREDOC
+		| [IONUMBER] '<<-' HEREDOC
+		| [IONUMBER] '>&' WORD
+		| [IONUMBER] '<&' WORD
+		| [IONUMBER] '>|' WORD
+		| [IONUMBER] '<>' WORD
 
 prefix:		  ASSIGMENT_WORD
 		| redirection

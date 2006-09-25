@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Fri Aug 18 22:13:51 2006 Seblu
-** Last update Fri Sep  1 00:44:22 2006 Seblu
+** Last update Mon Sep 25 04:19:18 2006 Seblu
 */
 
 #include "ast.h"
@@ -83,7 +83,13 @@ void		ast_cmd_print(s_ast_node *node, FILE *fs, unsigned int *node_id)
     ++*node_id;
     fprintf(fs, "%u [label = \"", *node_id);
     for (int i = 0; prefix && prefix[i]; ++i) {
-      fprintf(fs, "prefix[%d]=%s\\n", i, prefix[i]);
+      fprintf(fs, "prefix[%d]:", i);
+      size_t last = 0, p = 0;
+      for (; prefix[i][p]; ++p)
+	if (prefix[i][p] == '"')
+	  fprintf(fs, "%.*s\\", p - last, prefix[i] + last), last = p;
+      fprintf(fs, "%*s", p - last, prefix[i] + last), last = p;
+      fprintf(fs, "\\n");
     }
     fprintf(fs, "\"];\n");
     fprintf(fs, "%u -> %u\n", cur_id, *node_id);
@@ -93,8 +99,15 @@ void		ast_cmd_print(s_ast_node *node, FILE *fs, unsigned int *node_id)
   if (argv && argv[0]) {
     ++*node_id;
     fprintf(fs, "%u [label = \"", *node_id);
-    for (int i = 0; argv && argv[i]; ++i)
-      fprintf(fs, "argv[%d]=%s\\n", i, argv[i]);
+    for (int i = 0; argv && argv[i]; ++i) {
+      fprintf(fs, "argv[%d]:", i);
+      size_t last = 0, p = 0;
+      for (; argv[i][p]; ++p)
+	if (argv[i][p] == '"')
+	  fprintf(fs, "%.*s\\", p - last, argv[i] + last), last = p;
+      fprintf(fs, "%*s", p - last, argv[i] + last), last = p;
+      fprintf(fs, "\\n");
+    }
     fprintf(fs, "\"];\n");
     fprintf(fs, "%u -> %u\n", cur_id, *node_id);
   }
@@ -103,8 +116,15 @@ void		ast_cmd_print(s_ast_node *node, FILE *fs, unsigned int *node_id)
     int i = 0;
     ++*node_id;
     fprintf(fs, "%u [label = \"", *node_id);
-    for (s_redir *this = node->body.child_cmd.redirs; this; this = this->next, ++i)
-      fprintf(fs, "redirs[%d]: fd=%d, type=%d, word=%s\\n", i, this->fd, this->type, this->word);
+    for (s_redir *this = node->body.child_cmd.redirs; this; this = this->next, ++i) {
+      fprintf(fs, "redirs[%d]: fd=%d, type=%d, word=", i, this->fd, this->type);
+      size_t last = 0, p = 0;
+      for (; this->word[p]; ++p)
+	if (this->word[p] == '"')
+	  fprintf(fs, "%.*s\\", p - last, this->word + last), last = p;
+      fprintf(fs, "%*s", p - last, this->word + last), last = p;
+      fprintf(fs, "\\n");
+    }
     fprintf(fs, "\"];\n");
     fprintf(fs, "%u -> %u\n", cur_id, *node_id);
   }

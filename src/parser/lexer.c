@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sun Jul 30 04:36:53 2006 Seblu
-** Last update Tue Aug 29 21:54:23 2006 Seblu
+** Last update Fri Sep  1 02:04:21 2006 Seblu
 */
 
 #include <stdio.h>
@@ -282,10 +282,11 @@ static int	lexer_eatline(s_lexer *lexer)
 static int	lexer_cut(s_lexer *lexer)
 {
   const char	*buf = lexer->buf;
+  char		*tokstr;
   size_t	*buf_pos = &lexer->buf_pos, token_start, token_pos;
   int		end_found = 0;
   char		backed = 0, quoted = 0;
-  const s_quote*quote;
+  const s_quote	*quote;
 
   // Rationale: Search begin of token
   //eat separators (" ",\t, \v)
@@ -321,8 +322,9 @@ static int	lexer_cut(s_lexer *lexer)
     if (end_found) break;
   }
   lexer->buf_pos = token_pos; //update real lexer position buffer
-  token_set(&lexer->token, TOK_WORD,
-	    strndup(buf + token_start, token_pos - token_start));
+  tokstr = strndup(buf + token_start, token_pos - token_start);
+  token_set(&lexer->token, ((buf[token_pos] == '>' || buf[token_pos] == '<')
+	    && isdigitstr(tokstr)) ? TOK_IONUMBER : TOK_WORD, tokstr);
   return 1;
 }
 

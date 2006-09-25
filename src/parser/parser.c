@@ -5,13 +5,15 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Wed Aug  2 00:56:07 2006 Seblu
-** Last update Fri Sep  1 01:00:42 2006 Seblu
+** Last update Mon Sep 25 04:44:08 2006 Seblu
 */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <setjmp.h>
+#include <assert.h>
 #include "parser.h"
 #include "../common/macro.h"
 #include "../shell/shell.h"
@@ -23,6 +25,9 @@
 ** ============
 */
 
+enum {
+  FD_MAX = 32765
+};
 
 static s_token keywords[] =
   {
@@ -44,7 +49,6 @@ static s_token keywords[] =
     {TOK_BANG, "!", 1},
     {TOK_NONE, NULL, 0}
   };
-
 
 static s_ast_node	*regnode(s_parser *parser, s_ast_node *node);
 
@@ -68,8 +72,16 @@ static s_ast_node	*parse_andor(s_parser *parser);
 static s_ast_node	*parse_pipeline(s_parser *parser);
 
 static s_ast_node	*parse_command(s_parser *parser);
-
+static int		parse_prefix(s_parser *parser, s_ast_node *cmd);
+static int		parse_element(s_parser *parser, s_ast_node *cmd);
 static s_ast_node	*parse_simplecommand(s_parser *parser);
+static void		parse_redirection(s_parser *parser, s_ast_node *cmd);
+static s_ast_node	*parse_shellcommand(s_parser *parser);
+static s_ast_node	*parse_rulefor(s_parser *parser);
+static s_ast_node	*parse_rulewhile(s_parser *parser);
+static s_ast_node	*parse_ruleuntil(s_parser *parser);
+static s_ast_node	*parse_ruleif(s_parser *parser);
+static s_ast_node	*parse_rulecase(s_parser *parser);
 
 /*!
 ** Notify a parse error
@@ -140,17 +152,17 @@ static void		parse_error(s_parser *parser, s_token t)
 /*   return 0; */
 /* } */
 
-static int		is_assignment(s_token t)
+static int		is_assignment(const s_token t)
 {
   return strchr(t.str, '=') == NULL ? 0 : 1;
 }
 
-static void		recon(s_token t)
+static void		recon(s_token *t)
 {
   //check for keywords
   for (int i = 0; keywords[i].id != TOK_NONE; ++i)
-    if (!strncmp(t.str, keywords[i].str, keywords[i].len)) {
-      t.id = keywords[i].id;
+    if (!strncmp(t->str, keywords[i].str, keywords[i].len)) {
+      t->id = keywords[i].id;
     }
   //check
 }
@@ -250,6 +262,7 @@ static s_ast_node	*parse_pipeline(s_parser *parser)
 
   debugmsg("parse_pipeline");
   token = lexer_lookahead(parser->lexer);
+  recon(&token);
   if (token.id == TOK_BANG) {
     lexer_gettoken(parser->lexer);
     banged = 1;
@@ -264,41 +277,100 @@ static s_ast_node	*parse_command(s_parser *parser)
 
   debugmsg("parse_command");
   token = lexer_lookahead(parser->lexer);
-  recon(token);
-  if (token.id == TOK_WORD) {
+  recon(&token);
+  if (token.id == TOK_FOR || token.id == TOK_WHILE || token.id == TOK_UNTIL ||
+      token.id == TOK_CASE || token.id == TOK_IF ||
+      !strcmp(token.str, "{") || !strcmp(token.str, "("))
+    return parse_shellcommand(parser);
+  // probleme de choix avec function pour l'instant ya pas  defonction !
+  else if (token.id == TOK_WORD) {
     return parse_simplecommand(parser);
   }
+  else
+    parse_error(parser, token);
   return NULL;
+}
+
+static int		parse_element(s_parser *parser, s_ast_node *cmd)
+{
+  s_token		token;
+  int			found = 0;
+
+  debugmsg("parse_element");
+  for (;;) {
+    token = lexer_lookahead(parser->lexer);
+    if (token.id >= TOK_DLESSDASH && token.id <= TOK_IONUMBER) {
+      parse_redirection(parser, cmd);
+      ++found;
+    }
+    else if (token.id == TOK_WORD) {
+      ast_cmd_add_argv(cmd, lexer_gettoken(parser->lexer).str);
+      ++found;
+    }
+    else
+      break;
+  }
+  return found;
+}
+
+static int		parse_prefix(s_parser *parser, s_ast_node *cmd)
+{
+  s_token		token;
+  int			found = 0;
+
+  debugmsg("parse_prefix");
+  for (;;) {
+    token = lexer_lookahead(parser->lexer);
+    if (token.id >= TOK_DLESSDASH && token.id <= TOK_IONUMBER) {
+      parse_redirection(parser, cmd);
+      ++found;
+    }
+    else if (is_assignment(token)) {
+      ast_cmd_add_prefix(cmd, lexer_gettoken(parser->lexer).str);
+      ++found;
+    }
+    else
+      break;
+  }
+  return found;
 }
 
 static s_ast_node	*parse_simplecommand(s_parser *parser)
 {
-  s_token		token;
   s_ast_node		*cmd;
+  int			found = 0;
 
   debugmsg("parse_simplecommand");
   cmd = regnode(parser, ast_cmd_create());
-  //get prefix
-  while (is_assignment(lexer_lookahead(parser->lexer)))
-    ast_cmd_add_prefix(cmd, lexer_gettoken(parser->lexer).str);
-  //get element
-  if ((token = lexer_gettoken(parser->lexer)).id == TOK_WORD)
-    ast_cmd_add_argv(cmd, token.str);
-  else
-    parse_error(parser, token);
-  while (recon(token = lexer_lookahead(parser->lexer)),
-	 token.id == TOK_WORD) {
-    ast_cmd_add_argv(cmd, token.str);
-    lexer_gettoken(parser->lexer);
-  }
+  found += parse_prefix(parser, cmd);
+  found += parse_element(parser, cmd);
+  if (!found)
+    parse_error(parser, lexer_lookahead(parser->lexer));
   return cmd;
 }
 
-/* static s_ast_node	*parse_shellcommand(s_parser *parser) */
-/* { */
-/*   parser=parser; */
-/*   return NULL; */
-/* } */
+static s_ast_node	*parse_shellcommand(s_parser *parser)
+{
+  s_token		token;
+
+  debugmsg("parse_shellcommand");
+  token = lexer_lookahead(parser->lexer);
+  switch (token.id) {
+  case TOK_IF:		parse_ruleif(parser); break;
+  case TOK_FOR:		parse_rulefor(parser); break;
+  case TOK_WHILE:	parse_rulewhile(parser); break;
+  case TOK_UNTIL:	parse_ruleuntil(parser); break;
+  case TOK_CASE:	parse_rulecase(parser); break;
+  case TOK_WORD:
+    //gerer le cas de { et de (
+    assert(0);
+    break;
+  default:
+    parse_error(parser, token);
+  }
+
+  return NULL;
+}
 
 /* static s_ast_node	*parse_funcdec(s_parser *parser) */
 /* { */
@@ -306,23 +378,43 @@ static s_ast_node	*parse_simplecommand(s_parser *parser)
 /*   return NULL; */
 /* } */
 
-/* static s_ast_node	*parse_cmdprefix(s_parser *parser) */
-/* { */
-/*   parser=parser; */
-/*   return NULL; */
-/* } */
+static void		parse_redirection(s_parser *parser, s_ast_node *cmd)
+{
+  s_token		token;
+  long int		fd;
+  e_redir_type		redtype;
 
-/* static s_ast_node	*parse_redirection(s_parser *parser) */
-/* { */
-/*   parser=parser; */
-/*   return NULL; */
-/* } */
-
-/* static s_ast_node	*parse_element(s_parser *parser) */
-/* { */
-/*   parser=parser; */
-/*   return NULL; */
-/* } */
+  debugmsg("parse_redirection");
+  //retrieve redirection fd if exist
+  if ((token = lexer_lookahead(parser->lexer)).id == TOK_IONUMBER) {
+    lexer_gettoken(parser->lexer);
+    errno = 0;
+    fd = strtol(token.str, NULL, 10);
+    if (errno || fd < 0 || fd > FD_MAX)
+      parse_error(parser, token);
+  }
+  //retrieve redirection type
+  token = lexer_gettoken(parser->lexer);
+  switch (token.id) {
+  case TOK_GREAT: redtype = R_GREAT; break;
+  case TOK_DGREAT: redtype = R_DLESS; break;
+  case TOK_DLESSDASH: redtype = R_DLESSDASH; break;
+  case TOK_DLESS: redtype = R_DLESS; break;
+  case TOK_LESSGREAT: redtype = R_LESSGREAT; break;
+  case TOK_LESSAND: redtype = R_LESSAND; break;
+  case TOK_LESS: redtype = R_LESS; break;
+  case TOK_CLOBBER: redtype = R_CLOBBER; break;
+  case TOK_GREATAND: redtype = R_GREATAND; break;
+  default:
+    parse_error(parser, token);
+  }
+  //retrieve redirection word
+  token = lexer_gettoken(parser->lexer);
+  if (token.id == TOK_WORD)
+    ast_cmd_add_redir(cmd, redtype, fd, token.str);
+  else
+    parse_error(parser, token);
+}
 
 /* static s_ast_node	*parse_compound_list(s_parser *parser) */
 /* { */
@@ -330,35 +422,35 @@ static s_ast_node	*parse_simplecommand(s_parser *parser)
 /*   return NULL; */
 /* } */
 
-/* static s_ast_node	*parse_rulefor(s_parser *parser) */
-/* { */
-/*   parser=parser; */
-/*   return NULL; */
-/* } */
+static s_ast_node	*parse_rulefor(s_parser *parser)
+{
+  parser=parser;
+  return NULL;
+}
 
-/* static s_ast_node	*parse_rulewhile(s_parser *parser) */
-/* { */
-/*   parser=parser; */
-/*   return NULL; */
-/* } */
+static s_ast_node	*parse_rulewhile(s_parser *parser)
+{
+  parser=parser;
+  return NULL;
+}
 
-/* static s_ast_node	*parse_ruleuntil(s_parser *parser) */
-/* { */
-/*   parser=parser; */
-/*   return NULL; */
-/* } */
+static s_ast_node	*parse_ruleuntil(s_parser *parser)
+{
+  parser=parser;
+  return NULL;
+}
 
-/* static s_ast_node	*parse_rulecase(s_parser *parser) */
-/* { */
-/*   parser=parser; */
-/*   return NULL; */
-/* } */
+static s_ast_node	*parse_rulecase(s_parser *parser)
+{
+  parser=parser;
+  return NULL;
+}
 
-/* static s_ast_node	*parse_ruleif(s_parser *parser) */
-/* { */
-/*   parser=parser; */
-/*   return NULL; */
-/* } */
+static s_ast_node	*parse_ruleif(s_parser *parser)
+{
+  parser=parser;
+  return NULL;
+}
 
 /* static s_ast_node	*parse_elseclause(s_parser *parser) */
 /* { */

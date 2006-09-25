@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sun Jul 30 03:28:26 2006 Seblu
-** Last update Wed Aug 30 00:27:53 2006 Seblu
+** Last update Mon Sep 25 02:52:45 2006 Seblu
 */
 
 #include <stdio.h>
@@ -42,5 +42,9 @@ void	getoptions(s_options *opt, int argc, char **argv)
     }
     else if (!strcmp(copt, "--ast-print"))
       option_set(shell->options, "ast_print");
+    else {
+      printf("Error: Invalid option %s\n", copt);
+      exit(1);
+    }
   }
 }

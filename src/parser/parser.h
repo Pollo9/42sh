@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Wed Aug  2 00:49:50 2006 Seblu
-** Last update Fri Sep  1 00:21:07 2006 Seblu
+** Last update Mon Sep 25 03:41:31 2006 Seblu
 */
 
 #include <setjmp.h>
@@ -16,7 +16,7 @@
 
 # include "getline.h"
 
-// Define is parser or lexer is run for DEBBUGING
+// Define is parser or lexer is running for DEBBUGING
 #define DEBUG_PARSER 1
 #define DEBUG_LEXER 0
 
@@ -41,6 +41,7 @@ typedef enum		tokenid
     TOK_GREATAND,	// >&
     TOK_CLOBBER,	// >|
     TOK_GREAT,		// >
+    TOK_IONUMBER,	// number juste before '>' or '<'
     TOK_WORD,		// all others
     //token context-sensitive recognition (parser time)
     TOK_IF,
