@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Wed Aug  2 00:49:50 2006 Seblu
-** Last update Mon Sep 25 03:41:31 2006 Seblu
+** Last update Mon Sep 25 05:20:21 2006 Seblu
 */
 
 #include <setjmp.h>
@@ -43,25 +43,24 @@ typedef enum		tokenid
     TOK_GREAT,		// >
     TOK_IONUMBER,	// number juste before '>' or '<'
     TOK_WORD,		// all others
+
     //token context-sensitive recognition (parser time)
-    TOK_IF,
-    TOK_THEN,
-    TOK_ELSE,
-    TOK_FI,
-    TOK_ELIF,
-    TOK_DO,
-    TOK_DONE,
-    TOK_CASE,
-    TOK_ESAC,
-    TOK_WHILE,
-    TOK_UNTIL,
-    TOK_FOR,
-    TOK_IN,
-    TOK_LBRACE,
-    TOK_RBRACE,
-    TOK_NUMBER,
-    TOK_ASSIGNMENT,
-    TOK_BANG
+    TOK_IF,		// if
+    TOK_THEN,		// then
+    TOK_ELSE,		// else
+    TOK_FI,		// fi
+    TOK_ELIF,		// elif
+    TOK_DO,		// do
+    TOK_DONE,		// done
+    TOK_CASE,		// case
+    TOK_ESAC,		// esac
+    TOK_WHILE,		// while
+    TOK_UNTIL,		// until
+    TOK_FOR,		// for
+    TOK_IN,		// in
+    TOK_LBRACE,		// {
+    TOK_RBRACE,		// }
+    TOK_BANG		// !
   } e_tokenid;
 
 typedef struct		token

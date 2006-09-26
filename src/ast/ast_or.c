@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Thu Aug  3 02:41:37 2006 Seblu
-** Last update Mon Aug 28 23:59:55 2006 Seblu
+** Last update Tue Sep 26 17:45:54 2006 Seblu
 */
 
 #include "ast.h"
@@ -19,6 +19,21 @@ s_ast_node	*ast_or_create(s_ast_node *lhs, s_ast_node *rhs)
   node->body.child_or.lhs = lhs;
   node->body.child_or.rhs = rhs;
   return node;
+}
+
+void		ast_or_print(s_ast_node *node, FILE *fs, unsigned int *node_id)
+{
+  unsigned int	lhs_id, rhs_id, cur_id;
+
+  if (node->type != T_OR)
+    return;
+  fprintf(fs, "%u [label = \"||\"];\n", cur_id = *node_id);
+  lhs_id = ++*node_id;
+  ast_print_node(node->body.child_or.lhs, fs, node_id);
+  fprintf(fs, "%u -> %u\n", cur_id, lhs_id);
+  rhs_id = *node_id;
+  ast_print_node(node->body.child_or.rhs, fs, node_id);
+  fprintf(fs, "%u -> %u\n", cur_id, rhs_id);
 }
 
 void		ast_or_destruct(s_ast_node *node)

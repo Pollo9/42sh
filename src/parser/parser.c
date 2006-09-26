@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Wed Aug  2 00:56:07 2006 Seblu
-** Last update Mon Sep 25 04:44:08 2006 Seblu
+** Last update Tue Sep 26 17:59:36 2006 Seblu
 */
 
 #include <stdio.h>
@@ -82,6 +82,7 @@ static s_ast_node	*parse_rulewhile(s_parser *parser);
 static s_ast_node	*parse_ruleuntil(s_parser *parser);
 static s_ast_node	*parse_ruleif(s_parser *parser);
 static s_ast_node	*parse_rulecase(s_parser *parser);
+static s_ast_node	*parse_compound_list(s_parser *parser);
 
 /*!
 ** Notify a parse error
@@ -131,7 +132,6 @@ static s_ast_node	*regnode(s_parser *parser, s_ast_node *node)
 
 static void		parse_error(s_parser *parser, s_token t)
 {
-  debugmsg("parse_error");
   fprintf(stderr, "%s: syntax error near unexpected token `%s'\n",
 	  shell->name, t.str);
   parser->error = 1;
@@ -268,6 +268,14 @@ static s_ast_node	*parse_pipeline(s_parser *parser)
     banged = 1;
   }
   lhs = parse_command(parser);
+/*   if ((token = lexer_lookahead(parser->lexer)) == TOK_PIPE) { */
+/*     lexer_gettoken(parser->lexer); */
+/*     while (lexer_lookahead(parser->lexer) == TOK_NEWLINE) */
+/*       lexer_gettoken(parser->lexer); */
+/*     parse_pipeline( */
+/*   } */
+  if (banged)
+    return regnode(parser, ast_bang_create(lhs));
   return lhs;
 }
 
@@ -279,11 +287,11 @@ static s_ast_node	*parse_command(s_parser *parser)
   token = lexer_lookahead(parser->lexer);
   recon(&token);
   if (token.id == TOK_FOR || token.id == TOK_WHILE || token.id == TOK_UNTIL ||
-      token.id == TOK_CASE || token.id == TOK_IF ||
-      !strcmp(token.str, "{") || !strcmp(token.str, "("))
+      token.id == TOK_CASE || token.id == TOK_IF || token.id == TOK_LBRACE ||
+      !strcmp(token.str, "("))
     return parse_shellcommand(parser);
   // probleme de choix avec function pour l'instant ya pas  defonction !
-  else if (token.id == TOK_WORD) {
+  else if (token.id >= TOK_DLESSDASH && token.id <= TOK_WORD) {
     return parse_simplecommand(parser);
   }
   else
@@ -355,20 +363,20 @@ static s_ast_node	*parse_shellcommand(s_parser *parser)
 
   debugmsg("parse_shellcommand");
   token = lexer_lookahead(parser->lexer);
+  recon(&token);
   switch (token.id) {
-  case TOK_IF:		parse_ruleif(parser); break;
-  case TOK_FOR:		parse_rulefor(parser); break;
-  case TOK_WHILE:	parse_rulewhile(parser); break;
-  case TOK_UNTIL:	parse_ruleuntil(parser); break;
-  case TOK_CASE:	parse_rulecase(parser); break;
+  case TOK_IF:		return parse_ruleif(parser);
+  case TOK_FOR:		return parse_rulefor(parser);
+  case TOK_WHILE:	return parse_rulewhile(parser);
+  case TOK_UNTIL:	return parse_ruleuntil(parser);
+  case TOK_CASE:	return parse_rulecase(parser);
+  case TOK_LBRACE:	assert(0);
   case TOK_WORD:
-    //gerer le cas de { et de (
-    assert(0);
-    break;
+    if (!strcmp(token.str, "("))
+      return regnode(parser, ast_subshell_create(parse_compound_list(parser)));
   default:
     parse_error(parser, token);
   }
-
   return NULL;
 }
 
@@ -381,7 +389,7 @@ static s_ast_node	*parse_shellcommand(s_parser *parser)
 static void		parse_redirection(s_parser *parser, s_ast_node *cmd)
 {
   s_token		token;
-  long int		fd;
+  long int		fd = -1;
   e_redir_type		redtype;
 
   debugmsg("parse_redirection");
@@ -396,15 +404,15 @@ static void		parse_redirection(s_parser *parser, s_ast_node *cmd)
   //retrieve redirection type
   token = lexer_gettoken(parser->lexer);
   switch (token.id) {
-  case TOK_GREAT: redtype = R_GREAT; break;
-  case TOK_DGREAT: redtype = R_DLESS; break;
-  case TOK_DLESSDASH: redtype = R_DLESSDASH; break;
-  case TOK_DLESS: redtype = R_DLESS; break;
-  case TOK_LESSGREAT: redtype = R_LESSGREAT; break;
-  case TOK_LESSAND: redtype = R_LESSAND; break;
-  case TOK_LESS: redtype = R_LESS; break;
-  case TOK_CLOBBER: redtype = R_CLOBBER; break;
-  case TOK_GREATAND: redtype = R_GREATAND; break;
+  case TOK_GREAT: redtype = R_GREAT; if (fd == -1) fd = 1; break;
+  case TOK_DGREAT: redtype = R_DLESS; if (fd == -1) fd = 1; break;
+  case TOK_DLESSDASH: redtype = R_DLESSDASH; if (fd == -1) fd = 0; break;
+  case TOK_DLESS: redtype = R_DLESS; if (fd == -1) fd = 0; break;
+  case TOK_LESSGREAT: redtype = R_LESSGREAT; if (fd == -1) fd = 0; break;
+  case TOK_LESSAND: redtype = R_LESSAND; if (fd == -1) fd = 0; break;
+  case TOK_LESS: redtype = R_LESS; if (fd == -1) fd = 0; break;
+  case TOK_CLOBBER: redtype = R_CLOBBER; if (fd == -1) fd = 1; break;
+  case TOK_GREATAND: redtype = R_GREATAND; if (fd == -1) fd = 1; break;
   default:
     parse_error(parser, token);
   }
@@ -416,11 +424,11 @@ static void		parse_redirection(s_parser *parser, s_ast_node *cmd)
     parse_error(parser, token);
 }
 
-/* static s_ast_node	*parse_compound_list(s_parser *parser) */
-/* { */
-/*   parser=parser; */
-/*   return NULL; */
-/* } */
+static s_ast_node	*parse_compound_list(s_parser *parser)
+{
+  parser=parser;
+  return NULL;
+}
 
 static s_ast_node	*parse_rulefor(s_parser *parser)
 {

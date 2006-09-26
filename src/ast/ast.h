@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sun Jul 30 04:40:03 2006 Seblu
-** Last update Fri Sep  1 00:30:34 2006 Seblu
+** Last update Tue Sep 26 17:49:18 2006 Seblu
 */
 
 #ifndef AST_H_
@@ -189,6 +189,7 @@ void		ast_print(s_ast_node *ast, const char *filename);
 **
 ** @param ast ast node to add to file
 ** @param fs file stream where print ast
+** @param node_id first free node id
 */
 void		ast_print_node(s_ast_node *ast, FILE *fs, unsigned int *node_id);
 
@@ -280,6 +281,15 @@ void		ast_case_destruct(s_ast_node *node);
 s_ast_node	*ast_while_create(s_ast_node *cond, s_ast_node *exec);
 
 /*!
+** Print an ast while (while) node
+**
+** @param ast ast node to add to file
+** @param fs file stream where print ast
+** @param node_id first free node id
+*/
+void		ast_while_print(s_ast_node *node, FILE *fs, unsigned int *node_id);
+
+/*!
 ** Destruct a while ast node
 **
 ** @param node node to destroy
@@ -295,6 +305,15 @@ void		ast_while_destruct(s_ast_node *node);
 ** @return the node
 */
 s_ast_node	*ast_until_create(s_ast_node *cond, s_ast_node *exec);
+
+/*!
+** Print an ast until (until) node
+**
+** @param ast ast node to add to file
+** @param fs file stream where print ast
+** @param node_id first free node id
+*/
+void		ast_until_print(s_ast_node *node, FILE *fs, unsigned int *node_id);
 
 /*!
 ** Destruct a until ast node
@@ -339,7 +358,13 @@ void		ast_cmd_add_argv(s_ast_node *node, char *argv);
 */
 void		ast_cmd_add_prefix(s_ast_node *node, char *assignment_word);
 
-
+/*!
+** Print an ast cmd node
+**
+** @param ast ast node to add to file
+** @param fs file stream where print ast
+** @param node_id first free node id
+*/
 void		ast_cmd_print(s_ast_node *node, FILE *fs, unsigned int *node_id);
 
 /*!
@@ -360,6 +385,15 @@ void		ast_cmd_destruct(s_ast_node *node);
 s_ast_node	*ast_and_create(s_ast_node *lhs, s_ast_node *rhs);
 
 /*!
+** Print an ast and (&&) node
+**
+** @param ast ast node to add to file
+** @param fs file stream where print ast
+** @param node_id first free node id
+*/
+void		ast_and_print(s_ast_node *node, FILE *fs, unsigned int *node_id);
+
+/*!
 ** Destruct an and (&&) node
 **
 ** @param node node to destroy
@@ -377,6 +411,15 @@ void		ast_and_destruct(s_ast_node *node);
 s_ast_node	*ast_or_create(s_ast_node *lhs, s_ast_node *rhs);
 
 /*!
+** Print an ast or (||) node
+**
+** @param ast ast node to add to file
+** @param fs file stream where print ast
+** @param node_id first free node id
+*/
+void		ast_or_print(s_ast_node *node, FILE *fs, unsigned int *node_id);
+
+/*!
 ** Destruct an or (||) node
 **
 ** @param node node to destroy
@@ -384,7 +427,7 @@ s_ast_node	*ast_or_create(s_ast_node *lhs, s_ast_node *rhs);
 void		ast_or_destruct(s_ast_node *node);
 
 /*!
-** Create a subshell ($()) ast node
+** Create a subshell (()) ast node
 **
 ** @param child subshell tree
 **
@@ -393,7 +436,16 @@ void		ast_or_destruct(s_ast_node *node);
 s_ast_node	*ast_subshell_create(s_ast_node *child);
 
 /*!
-** Destruct a subshell ($()) node
+** Print an ast subshell (()) node
+**
+** @param ast ast node to add to file
+** @param fs file stream where print ast
+** @param node_id first free node id
+*/
+void		ast_subshell_print(s_ast_node *node, FILE *fs, unsigned int *node_id);
+
+/*!
+** Destruct a subshell (()) node
 **
 ** @param node node to destroy
 */
@@ -426,6 +478,15 @@ void		ast_funcdec_destruct(s_ast_node *node);
 s_ast_node	*ast_bang_create(s_ast_node *child);
 
 /*!
+** Print an ast bang (!) node
+**
+** @param ast ast node to add to file
+** @param fs file stream where print ast
+** @param node_id first free node id
+*/
+void		ast_bang_print(s_ast_node *node, FILE *fs, unsigned int *node_id);
+
+/*!
 ** Destruct a bang (!) node
 **
 ** @param node node to destroy
@@ -441,6 +502,15 @@ void		ast_bang_destruct(s_ast_node *node);
 ** @return the node
 */
 s_ast_node	*ast_pipe_create(s_ast_node *lhs, s_ast_node *rhs);
+
+/*!
+** Print an ast pipe (|) node
+**
+** @param ast ast node to add to file
+** @param fs file stream where print ast
+** @param node_id first free node id
+*/
+void		ast_pipe_print(s_ast_node *node, FILE *fs, unsigned int *node_id);
 
 /*!
 ** Destruct a pipe (|) node
@@ -460,6 +530,15 @@ void		ast_pipe_destruct(s_ast_node *node);
 s_ast_node	*ast_sep_create(s_ast_node *lhs, s_ast_node *rhs);
 
 /*!
+** Print an ast sep (;) node
+**
+** @param ast ast node to add to file
+** @param fs file stream where print ast
+** @param node_id first free node id
+*/
+void		ast_sep_print(s_ast_node *node, FILE *fs, unsigned int *node_id);
+
+/*!
 ** Destruct a sep (;) node
 **
 ** @param node node to destroy
@@ -475,6 +554,15 @@ void		ast_sep_destruct(s_ast_node *node);
 ** @return the node
 */
 s_ast_node	*ast_sepand_create(s_ast_node *lhs, s_ast_node *rhs);
+
+/*!
+** Print an ast sepand (&) node
+**
+** @param ast ast node to add to file
+** @param fs file stream where print ast
+** @param node_id first free node id
+*/
+void		ast_sepand_print(s_ast_node *node, FILE *fs, unsigned int *node_id);
 
 /*!
 ** Destruct a sepand (&) node

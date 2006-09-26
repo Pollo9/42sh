@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Thu Aug  3 02:41:37 2006 Seblu
-** Last update Mon Aug 28 23:57:20 2006 Seblu
+** Last update Tue Sep 26 17:45:45 2006 Seblu
 */
 
 #include "ast.h"
@@ -19,6 +19,18 @@ s_ast_node	*ast_bang_create(s_ast_node *child)
   node->body.child_bang.lhs = child;
   node->body.child_bang.rhs = NULL;
   return node;
+}
+
+void		ast_bang_print(s_ast_node *node, FILE *fs, unsigned int *node_id)
+{
+  unsigned int	lhs_id, cur_id;
+
+  if (node->type != T_BANG)
+    return;
+  fprintf(fs, "%u [label = \"!\"];\n", cur_id = *node_id);
+  lhs_id = ++*node_id;
+  ast_print_node(node->body.child_bang.lhs, fs, node_id);
+  fprintf(fs, "%u -> %u\n", cur_id, lhs_id);
 }
 
 void		ast_bang_destruct(s_ast_node *node)

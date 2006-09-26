@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Fri Aug 18 22:13:51 2006 Seblu
-** Last update Mon Sep 25 04:19:18 2006 Seblu
+** Last update Tue Sep 26 17:25:05 2006 Seblu
 */
 
 #include "ast.h"
@@ -37,7 +37,7 @@ void		ast_cmd_add_redir(s_ast_node		*node,
   red->fd = fd;
   red->word = word;
   red->next = NULL;
-  for (this = &node->body.child_cmd.redirs; *this; *this = (*this)->next)
+  for (this = &node->body.child_cmd.redirs; (*this) != NULL; this = &(*this)->next)
     ; //do nothing
   *this = red;
 }
@@ -77,10 +77,10 @@ void		ast_cmd_print(s_ast_node *node, FILE *fs, unsigned int *node_id)
   if (node->type != T_CMD)
     return;
   fprintf(fs, "%u [label = \"Command\"];\n", *node_id);
+  ++*node_id;
   //prefix
   char **prefix = node->body.child_cmd.prefix;
   if (prefix && prefix[0]) {
-    ++*node_id;
     fprintf(fs, "%u [label = \"", *node_id);
     for (int i = 0; prefix && prefix[i]; ++i) {
       fprintf(fs, "prefix[%d]:", i);
@@ -93,11 +93,11 @@ void		ast_cmd_print(s_ast_node *node, FILE *fs, unsigned int *node_id)
     }
     fprintf(fs, "\"];\n");
     fprintf(fs, "%u -> %u\n", cur_id, *node_id);
+    ++*node_id;
   }
   //arguments
   char **argv = node->body.child_cmd.argv;
   if (argv && argv[0]) {
-    ++*node_id;
     fprintf(fs, "%u [label = \"", *node_id);
     for (int i = 0; argv && argv[i]; ++i) {
       fprintf(fs, "argv[%d]:", i);
@@ -110,11 +110,11 @@ void		ast_cmd_print(s_ast_node *node, FILE *fs, unsigned int *node_id)
     }
     fprintf(fs, "\"];\n");
     fprintf(fs, "%u -> %u\n", cur_id, *node_id);
+    ++*node_id;
   }
   //redirs
   if (node->body.child_cmd.redirs) {
     int i = 0;
-    ++*node_id;
     fprintf(fs, "%u [label = \"", *node_id);
     for (s_redir *this = node->body.child_cmd.redirs; this; this = this->next, ++i) {
       fprintf(fs, "redirs[%d]: fd=%d, type=%d, word=", i, this->fd, this->type);
@@ -124,6 +124,7 @@ void		ast_cmd_print(s_ast_node *node, FILE *fs, unsigned int *node_id)
 	  fprintf(fs, "%.*s\\", p - last, this->word + last), last = p;
       fprintf(fs, "%*s", p - last, this->word + last), last = p;
       fprintf(fs, "\\n");
+      ++*node_id;
     }
     fprintf(fs, "\"];\n");
     fprintf(fs, "%u -> %u\n", cur_id, *node_id);
