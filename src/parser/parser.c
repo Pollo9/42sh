@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Wed Aug  2 00:56:07 2006 Seblu
-** Last update Tue Sep 26 17:59:36 2006 Seblu
+** Last update Thu Sep 28 17:45:20 2006 Seblu
 */
 
 #include <stdio.h>
@@ -83,6 +83,7 @@ static s_ast_node	*parse_ruleuntil(s_parser *parser);
 static s_ast_node	*parse_ruleif(s_parser *parser);
 static s_ast_node	*parse_rulecase(s_parser *parser);
 static s_ast_node	*parse_compound_list(s_parser *parser);
+static s_ast_node	*parse_pipeline_command(s_parser *parser);
 
 /*!
 ** Notify a parse error
@@ -244,7 +245,9 @@ static s_ast_node	*parse_andor(s_parser *parser)
   lhs = parse_pipeline(parser);
   token = lexer_lookahead(parser->lexer);
   if (token.id == TOK_AND || token.id == TOK_OR) {
-    lexer_gettoken(parser->lexer);
+    do
+      lexer_gettoken(parser->lexer);
+    while (lexer_lookahead(parser->lexer).id == TOK_NEWLINE);
     rhs = parse_andor(parser);
     if (token.id == TOK_AND)
       return regnode(parser, ast_and_create(lhs, rhs));
@@ -257,7 +260,7 @@ static s_ast_node	*parse_andor(s_parser *parser)
 static s_ast_node	*parse_pipeline(s_parser *parser)
 {
   s_token		token;
-  s_ast_node		*lhs;
+  s_ast_node		*node, *lhs;
   int			banged = 0;
 
   debugmsg("parse_pipeline");
@@ -268,14 +271,26 @@ static s_ast_node	*parse_pipeline(s_parser *parser)
     banged = 1;
   }
   lhs = parse_command(parser);
-/*   if ((token = lexer_lookahead(parser->lexer)) == TOK_PIPE) { */
-/*     lexer_gettoken(parser->lexer); */
-/*     while (lexer_lookahead(parser->lexer) == TOK_NEWLINE) */
-/*       lexer_gettoken(parser->lexer); */
-/*     parse_pipeline( */
-/*   } */
+  if ((token = lexer_lookahead(parser->lexer)).id == TOK_PIPE)
+    node = regnode(parser, ast_pipe_create(lhs, parse_pipeline_command(parser)));
+  else node = lhs;
   if (banged)
-    return regnode(parser, ast_bang_create(lhs));
+    return regnode(parser, ast_bang_create(node));
+  return node;
+}
+
+static s_ast_node	*parse_pipeline_command(s_parser *parser)
+{
+  s_token		token;
+  s_ast_node		*lhs;
+
+  if ((token = lexer_gettoken(parser->lexer)).id != TOK_PIPE)
+    parse_error(parser, token);
+  while (lexer_lookahead(parser->lexer).id == TOK_NEWLINE)
+    lexer_gettoken(parser->lexer);
+  lhs = parse_command(parser);
+  if ((token = lexer_lookahead(parser->lexer)).id == TOK_PIPE)
+    return regnode(parser, ast_pipe_create(lhs, parse_pipeline_command(parser)));
   return lhs;
 }
 
