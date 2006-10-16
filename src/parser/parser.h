@@ -5,24 +5,27 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Wed Aug  2 00:49:50 2006 Seblu
-** Last update Mon Sep 25 05:20:21 2006 Seblu
+** Last update Mon Oct 16 15:33:04 2006 seblu
 */
-
-#include <setjmp.h>
-#include "../ast/ast.h"
 
 #ifndef PARSER_H_
 # define PARSER_H_
 
+# include <setjmp.h>
+# include "../ast/ast.h"
 # include "getline.h"
 
 // Define is parser or lexer is running for DEBBUGING
-#define DEBUG_PARSER 1
-#define DEBUG_LEXER 0
+# define DEBUG_PARSER 1
+# define DEBUG_LEXER 0
+
+enum {
+  TOKEN_COUNT = 22,
+  KEYWORD_COUNT = 15,
+};
 
 typedef enum		tokenid
   {
-    //token free-context recognition (lexer time)
     TOK_NONE,
     TOK_NEWLINE,	// \n
     TOK_EOF,		// EOF
@@ -32,6 +35,8 @@ typedef enum		tokenid
     TOK_PIPE,		// |
     TOK_DSEMI,		// ;;
     TOK_SEP,		// ;
+    TOK_LPAREN,		// (
+    TOK_RPAREN,		// )
     TOK_DLESSDASH,	// <<-
     TOK_DLESS,		// <<
     TOK_LESSGREAT,	// <>
@@ -42,25 +47,7 @@ typedef enum		tokenid
     TOK_CLOBBER,	// >|
     TOK_GREAT,		// >
     TOK_IONUMBER,	// number juste before '>' or '<'
-    TOK_WORD,		// all others
-
-    //token context-sensitive recognition (parser time)
-    TOK_IF,		// if
-    TOK_THEN,		// then
-    TOK_ELSE,		// else
-    TOK_FI,		// fi
-    TOK_ELIF,		// elif
-    TOK_DO,		// do
-    TOK_DONE,		// done
-    TOK_CASE,		// case
-    TOK_ESAC,		// esac
-    TOK_WHILE,		// while
-    TOK_UNTIL,		// until
-    TOK_FOR,		// for
-    TOK_IN,		// in
-    TOK_LBRACE,		// {
-    TOK_RBRACE,		// }
-    TOK_BANG		// !
+    TOK_WORD		// all others
   } e_tokenid;
 
 typedef struct		token
@@ -131,15 +118,13 @@ s_ast_node		*parse(s_parser *parser);
 s_lexer			*lexer_init(int fd);
 
 /*!
-** Start a new lexical recognition
-** This must be call by parser before each parse start
-** This function is necessarity to correctly show the prompt
+** Flush current information of position in the line,
+** size of the line, and free line buffer. This is call
+** by the parser after an error.
 **
-** @param lexer lexer to set in starting block
-**
-** @return return if lexer is ready to start or not
+** @param lexer lexer to flush
 */
-int			lexer_start(s_lexer *lexer);
+void			lexer_flush(s_lexer *lexer);
 
 /*!
 ** Return the next token and destroy it

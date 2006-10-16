@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sun Jul 30 04:40:03 2006 Seblu
-** Last update Tue Sep 26 17:49:18 2006 Seblu
+** Last update Wed Oct 11 14:58:42 2006 seblu
 */
 
 #ifndef AST_H_
@@ -68,7 +68,7 @@ typedef struct		while_node
 /*
 ** Enumerate different type of redirection
 */
-typedef enum		redir_type
+typedef enum		red_type
   {
     R_LESS,		/*  <   */
     R_LESSAND,		/*  <&  */
@@ -79,19 +79,19 @@ typedef enum		redir_type
     R_CLOBBER,		/*  >|  */
     R_DLESS,		/*  <<  */
     R_DLESSDASH		/*  <<- */
-  } e_redir_type;
+  } e_red_type;
 
 /*
 ** Redirection ast node
 */
-typedef struct redir	s_redir;
-struct			redir
+typedef struct		red_node
 {
-  e_redir_type		type;
-  int			fd;
-  char			*word;
-  s_redir		*next;
-};
+  size_t		size;
+  e_red_type		*type;
+  int			*fd;
+  char			**word;
+  s_ast_node		*mhs;
+} s_red_node;
 
 /*
 ** Command ast node
@@ -99,7 +99,6 @@ struct			redir
 typedef struct		cmd_node
 {
   char			**argv;
-  s_redir		*redirs;
   char			**prefix;
 } s_cmd_node;
 
@@ -133,7 +132,6 @@ typedef enum		node_type
     T_FOR,
     T_CASE,
     T_WHILE,
-    T_UNTIL,
     T_CMD,
     T_AND,
     T_OR,
@@ -143,7 +141,13 @@ typedef enum		node_type
     T_PIPE,
     T_SEPAND,
     T_SEP,
+    T_RED,
   } e_node_type;
+
+/*
+** Global constant of total count of node type
+*/
+enum { NODE_TYPE_COUNT = 14 };
 
 /*
 ** This is a type for a node item
@@ -154,7 +158,6 @@ typedef union		node_item
   s_for_node		child_for;
   s_case_node		child_case;
   s_while_node		child_while;
-  s_while_node		child_until;
   s_cmd_node		child_cmd;
   s_bin_node		child_and;
   s_bin_node		child_or;
@@ -164,6 +167,7 @@ typedef union		node_item
   s_bin_node		child_pipe;
   s_bin_node		child_sep;
   s_bin_node		child_sepand;
+  s_red_node		child_red;
 } u_node_item;
 
 /*
@@ -213,6 +217,14 @@ void		ast_destruct(s_ast_node *ast);
 s_ast_node	*ast_if_create(s_ast_node *cond,
 			       s_ast_node *cond_true,
 			       s_ast_node *cond_false);
+/*!
+** Print an if ast node
+**
+** @param ast ast node to add to file
+** @param fs file stream where print ast
+** @param node_id first free node id
+*/
+void		ast_if_print(s_ast_node *node, FILE *fs, unsigned int *node_id);
 
 /*!
 ** Destruct an if ast node
@@ -234,6 +246,15 @@ void		ast_if_destruct(s_ast_node *node);
 s_ast_node	*ast_for_create(char		*varname,
 				char		**values,
 				s_ast_node	*exec);
+
+/*!
+** Print a for ast node
+**
+** @param ast ast node to add to file
+** @param fs file stream where print ast
+** @param node_id first free node id
+*/
+void		ast_for_print(s_ast_node *node, FILE *fs, unsigned *node_id);
 
 /*!
 ** Destruct a for ast node
@@ -262,6 +283,15 @@ s_ast_node	*ast_case_create(char *word);
 void		ast_case_add_item(s_ast_node	*node,
 				  char		**pattern,
 				  s_ast_node	*exec);
+
+/*!
+** Print a case ast node
+**
+** @param ast ast node to add to file
+** @param fs file stream where print ast
+** @param node_id first free node id
+*/
+void		ast_case_print(s_ast_node *node, FILE *fs, unsigned *node_id);
 
 /*!
 ** Destruct a case ast node
@@ -297,50 +327,11 @@ void		ast_while_print(s_ast_node *node, FILE *fs, unsigned int *node_id);
 void		ast_while_destruct(s_ast_node *node);
 
 /*!
-** Create a until ast node
-**
-** @param cond poursuit condition
-** @param exec tree to execute if cond is false
-**
-** @return the node
-*/
-s_ast_node	*ast_until_create(s_ast_node *cond, s_ast_node *exec);
-
-/*!
-** Print an ast until (until) node
-**
-** @param ast ast node to add to file
-** @param fs file stream where print ast
-** @param node_id first free node id
-*/
-void		ast_until_print(s_ast_node *node, FILE *fs, unsigned int *node_id);
-
-/*!
-** Destruct a until ast node
-**
-** @param node node to destroy
-*/
-void		ast_until_destruct(s_ast_node *node);
-
-/*!
 ** Create a cmd ast node
 **
 ** @return the node
 */
 s_ast_node	*ast_cmd_create(void);
-
-/*!
-** Add a redirection to a cmd node
-**
-** @param node node where add
-** @param type type of redirection
-** @param fd fd parameter of redirection
-** @param word file or word parameter of redirection
-*/
-void		ast_cmd_add_redir(s_ast_node		*node,
-				  e_redir_type		type,
-				  int			fd,
-				  char			*word);
 
 /*!
 ** Add a arg vector to a cmd node
@@ -459,7 +450,16 @@ void		ast_subshell_destruct(s_ast_node *node);
 **
 ** @return the node
 */
-s_ast_node	*ast_fundec_create(char *name, s_ast_node *body);
+s_ast_node	*ast_funcdec_create(char *name, s_ast_node *body);
+
+/*!
+** Print an function declaration node
+**
+** @param ast ast node to add to file
+** @param fs file stream where print ast
+** @param node_id first free node id
+*/
+void		ast_funcdec_print(s_ast_node *node, FILE *fs, unsigned *node_id);
 
 /*!
 ** Destruct a funcdec ast node
@@ -570,5 +570,41 @@ void		ast_sepand_print(s_ast_node *node, FILE *fs, unsigned int *node_id);
 ** @param node node to destroy
 */
 void		ast_sepand_destruct(s_ast_node *node);
+
+/*!
+** Create a redirection ast node
+**
+** @return the node
+*/
+s_ast_node	*ast_red_create(void);
+
+/*!
+** Add a redirection to a redirection node
+**
+** @param node node where add
+** @param type type of redirection
+** @param fd fd parameter of redirection
+** @param word file or word parameter of redirection
+*/
+void		ast_red_add(s_ast_node		*node,
+			    e_red_type		type,
+			    int			fd,
+			    char		*word);
+
+/*!
+** Print an ast red node
+**
+** @param ast ast node to add to file
+** @param fs file stream where print ast
+** @param node_id first free node id
+*/
+void		ast_red_print(s_ast_node *node, FILE *fs, unsigned int *node_id);
+
+/*!
+** Destruct a red node
+**
+** @param node node to destroy
+*/
+void		ast_red_destruct(s_ast_node *node);
 
 #endif /* !AST_H_ */

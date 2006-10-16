@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Mon Apr 10 23:57:28 2006 Seblu
-** Last update Wed Aug 30 00:20:33 2006 Seblu
+** Last update Fri Oct 13 14:34:17 2006 seblu
 */
 
 #include <stdio.h>
@@ -45,14 +45,17 @@ int		main(int argc, char *argv[])
   do
   {
     ast = parse(parser);
-    if (!parser->error && option_isset(shell->options, "ast_print"))
+    if (parser->error && isinteractive())
+      continue;
+    else if (parser->error)
+      return ERROR_PARSE;
+    if (option_isset(shell->options, "ast_print"))
       ast_print(ast, NULL);
-    if (!parser->error)
-      exec_node(ast);
+    exec_node(ast);
     ast_destruct(ast);
   }
   while (!parser->lexer->eof);
-  if (!isinteractive())
+  if (isinteractive())
     fprintf(stderr, "exit\n");
   return shell->status;
 }

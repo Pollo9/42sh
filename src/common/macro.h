@@ -5,7 +5,7 @@
 ** Login   <seblu@seblu.net>
 **
 ** Started on  Fri Aug 25 03:32:54 2006 Seblu
-** Last update Fri Aug 25 03:42:43 2006 Seblu
+** Last update Fri Oct 13 14:33:10 2006 seblu
 */
 
 #ifndef MACRO_H_
@@ -19,6 +19,6 @@
 # define secrealloc(ret, name, size) if (!(ret = realloc(name, size))) exit(ERROR_MEM)
 # define secstrdup(ret, str) if (!(ret = strdup(str))) exit(ERROR_MEM)
 
-# define isinteractive() (isatty(STDOUT_FILENO) && isatty(STDERR_FILENO))
+# define isinteractive() (isatty(STDIN_FILENO) && isatty(STDERR_FILENO))
 
 #endif

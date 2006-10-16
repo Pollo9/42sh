@@ -5,7 +5,7 @@
 ** Login   <Seblu@epita.fr>
 **
 ** Started on  Fri Aug 25 03:39:03 2006 Seblu
-** Last update Tue Aug 29 00:31:01 2006 Seblu
+** Last update Fri Oct 13 14:25:22 2006 seblu
 */
 
 #ifndef CONSTANT_H_
@@ -13,7 +13,7 @@
 
 typedef enum error
   {
-    ERROR_PARSE = 258,
+    ERROR_PARSE = 2,
     ERROR_FORK = 128,
     ERROR_REDIR = 1,
     ERROR_MEM = 42,

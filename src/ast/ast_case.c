@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Thu Aug  3 02:41:37 2006 Seblu
-** Last update Mon Aug 28 23:57:38 2006 Seblu
+** Last update Wed Oct 11 13:07:50 2006 seblu
 */
 
 #include "ast.h"
@@ -37,6 +37,34 @@ void		ast_case_add_item(s_ast_node	*node,
   for (this = &node->body.child_case.items; *this; *this = (*this)->next)
     ; //do nothing
   *this = item;
+}
+
+void		ast_case_print(s_ast_node *node, FILE *fs, unsigned *node_id)
+{
+  unsigned	cur_node;
+  s_case_item	*item;
+  unsigned	item_id;
+
+  if (node->type != T_CASE)
+    return;
+  fprintf(fs, "%u [label = \"CASE\\nword: %s\"];\n",
+	  cur_node = *node_id, node->body.child_case.word);
+  ++*node_id;
+  for (item = node->body.child_case.items, item_id = 0;
+       item;
+       item = item->next, ++item_id) {
+    fprintf(fs, "%u -> %u\n", cur_node, *node_id);
+    fprintf(fs, "%u [ label = \"Item %u\\n", *node_id, item_id);
+    ++*node_id;
+    //print pattern
+    if (item->pattern)
+      for (int i = 0; item->pattern[i]; ++i)
+	fprintf(fs, "%s\\n", item->pattern[i]);
+    fprintf(fs, "\"];\n");
+    //print exec
+    if (item->exec)
+      ast_print_node(item->exec, fs, node_id);
+  }
 }
 
 void		ast_case_destruct(s_ast_node *node)

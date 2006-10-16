@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Thu Aug  3 02:41:37 2006 Seblu
-** Last update Mon Aug 28 23:59:17 2006 Seblu
+** Last update Tue Oct 10 17:15:53 2006 seblu
 */
 
 #include "ast.h"
@@ -22,6 +22,31 @@ s_ast_node	*ast_if_create(s_ast_node *cond,
   node->body.child_if.cond_true = cond_true;
   node->body.child_if.cond_false = cond_false;
   return node;
+}
+
+void		ast_if_print(s_ast_node *node, FILE *fs, unsigned *node_id)
+{
+  unsigned	cur_node;
+
+  if (node->type != T_IF)
+    return;
+  fprintf(fs, "%u [label = \"IF\"];\n", cur_node = *node_id);
+  ++*node_id;
+  //if
+  if (node->body.child_if.cond) {
+    fprintf(fs, "%u -> %u\n", cur_node, *node_id);
+    ast_print_node(node->body.child_if.cond, fs, node_id);
+  }
+  //then
+  if (node->body.child_if.cond_true) {
+    fprintf(fs, "%u -> %u\n", cur_node, *node_id);
+    ast_print_node(node->body.child_if.cond_true, fs, node_id);
+  }
+  //else
+  if (node->body.child_if.cond_false) {
+    fprintf(fs, "%u -> %u\n", cur_node, *node_id);
+    ast_print_node(node->body.child_if.cond_false, fs, node_id);
+  }
 }
 
 void		ast_if_destruct(s_ast_node *node)

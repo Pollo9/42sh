@@ -5,13 +5,13 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Thu Aug  3 02:41:37 2006 Seblu
-** Last update Mon Aug 28 23:58:56 2006 Seblu
+** Last update Thu Oct 12 16:01:04 2006 seblu
 */
 
 #include "ast.h"
 
 s_ast_node	*ast_for_create(char		*varname,
-				char		**values, 
+				char		**values,
 				s_ast_node	*exec)
 {
   s_ast_node	*node;
@@ -22,6 +22,31 @@ s_ast_node	*ast_for_create(char		*varname,
   node->body.child_for.values = values;
   node->body.child_for.exec = exec;
   return node;
+}
+
+void		ast_for_print(s_ast_node *node, FILE *fs, unsigned *node_id)
+{
+  unsigned	cur_node;
+
+  if (node->type != T_FOR)
+    return;
+  fprintf(fs, "%u [label = \"FOR\\nvariable: %s\"];\n",
+	  cur_node = *node_id, node->body.child_for.varname);
+  ++*node_id;
+  //values
+  if (node->body.child_for.values) {
+    fprintf(fs, "%u -> %u\n", cur_node, *node_id);
+    fprintf(fs, "%u [ label = \"Values\\n", *node_id);
+    ++*node_id;
+    for (register size_t i = 0; node->body.child_for.values[i]; ++i)
+      fprintf(fs, "id=%u %s\\n", i, node->body.child_for.values[i]);
+    fprintf(fs, "\"];");
+  }
+  //execution
+  if (node->body.child_for.exec) {
+    fprintf(fs, "%u -> %u\n", cur_node, *node_id);
+    ast_print_node(node->body.child_for.exec, fs, node_id);
+  }
 }
 
 void		ast_for_destruct(s_ast_node *node)

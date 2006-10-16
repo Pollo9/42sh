@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Thu Aug  3 02:41:37 2006 Seblu
-** Last update Mon Aug 28 23:59:05 2006 Seblu
+** Last update Tue Oct 10 14:40:44 2006 seblu
 */
 
 #include "ast.h"
@@ -19,6 +19,19 @@ s_ast_node	*ast_funcdec_create(char *name, s_ast_node *body)
   node->body.child_funcdec.name = name;
   node->body.child_funcdec.body = body;
   return node;
+}
+
+void		ast_funcdec_print(s_ast_node *node, FILE *fs, unsigned *node_id)
+{
+  unsigned int	lhs_id, cur_id;
+
+  if (node->type != T_FUNCDEC)
+    return;
+  fprintf(fs, "%u [label = \"FuncDec\\nName: %s\"];\n",
+	  cur_id = *node_id, node->body.child_funcdec.name);
+  lhs_id = ++*node_id;
+  ast_print_node(node->body.child_funcdec.body, fs, node_id);
+  fprintf(fs, "%u -> %u\n", cur_id, lhs_id);
 }
 
 void		ast_funcdec_destruct(s_ast_node *node)

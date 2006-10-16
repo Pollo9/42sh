@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Thu Aug  3 02:41:37 2006 Seblu
-** Last update Tue Sep 26 17:43:20 2006 Seblu
+** Last update Thu Oct 12 13:12:13 2006 seblu
 */
 
 #include "ast.h"
@@ -31,9 +31,11 @@ void		ast_sepand_print(s_ast_node *node, FILE *fs, unsigned int *node_id)
   lhs_id = ++*node_id;
   ast_print_node(node->body.child_sepand.lhs, fs, node_id);
   fprintf(fs, "%u -> %u\n", cur_id, lhs_id);
-  rhs_id = *node_id;
-  ast_print_node(node->body.child_sepand.rhs, fs, node_id);
-  fprintf(fs, "%u -> %u\n", cur_id, rhs_id);
+  if (node->body.child_sepand.rhs) {
+    rhs_id = *node_id;
+    ast_print_node(node->body.child_sepand.rhs, fs, node_id);
+    fprintf(fs, "%u -> %u\n", cur_id, rhs_id);
+  }
 }
 
 void		ast_sepand_destruct(s_ast_node *node)

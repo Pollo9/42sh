@@ -11,7 +11,7 @@ pipeline:	['!'] command ('|' ('\n')* command)*
 
 command:	  simple_command
 		| shell_command  (redirection)*
-		| funcdec
+		| funcdec (redirection)*
 
 simple_command:   (prefix)+
 		| (prefix)* (element)+
@@ -24,7 +24,7 @@ shell_command:	  '{' compound_list '}'
                 | rule_case
                 | rule_if
 
-funcdec:	['function'] WORD '(' ')' ('\n')* shell_command (redirection)*
+funcdec:	['function'] WORD '(' ')' ('\n')* shell_command
 
 redirection:  	  [IONUMBER] '>' WORD
 		| [IONUMBER] '<' WORD
@@ -62,4 +62,3 @@ do_group:	'do' compound_list 'done'
 case_clause:	case_item (';;' (\n)* case_item)* [;;]
 
 case_item:	['('] WORD ('|' WORD)* ')' ( ('\n')* | compound_list )
-

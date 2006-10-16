@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sat Mar 25 23:11:01 2006 Seblu
-** Last update Tue Sep 26 17:47:33 2006 Seblu
+** Last update Thu Oct 12 13:12:31 2006 seblu
 */
 
 #include <string.h>
@@ -15,11 +15,10 @@
 #include <limits.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <assert.h>
 #include "ast.h"
 
-enum { NODE_TYPE_COUNT = 14 };
-
-typedef void (*f_print)(s_ast_node *, FILE *, unsigned int *);
+typedef void	(*f_print)(s_ast_node *, FILE *, unsigned int *);
 
 struct		ast_print_switch
 {
@@ -29,20 +28,20 @@ struct		ast_print_switch
 
 struct ast_print_switch print_table[NODE_TYPE_COUNT] =
   {
-    {T_IF, NULL}, // ast_if_print},
-    {T_FOR,  NULL}, //ast_for_print},
+    {T_IF, ast_if_print},
+    {T_FOR, ast_for_print},
     {T_WHILE, ast_while_print},
-    {T_UNTIL, ast_until_print},
     {T_CMD, ast_cmd_print},
-    {T_AND,  ast_and_print},
-    {T_OR,  ast_or_print},
-    {T_SUBSHELL,  ast_subshell_print},
-    {T_FUNCDEC,  NULL}, //ast_funcdec_print},
-    {T_BANG,  ast_bang_print},
-    {T_PIPE,  ast_pipe_print},
-    {T_SEPAND,  ast_sepand_print},
+    {T_AND, ast_and_print},
+    {T_OR, ast_or_print},
+    {T_SUBSHELL, ast_subshell_print},
+    {T_FUNCDEC, ast_funcdec_print},
+    {T_BANG, ast_bang_print},
+    {T_PIPE, ast_pipe_print},
+    {T_SEPAND, ast_sepand_print},
     {T_SEP, ast_sep_print},
-    {T_CASE,  NULL} //ast_sepand_print}
+    {T_CASE, ast_case_print},
+    {T_RED, ast_red_print}
   };
 
 static char	*newastfilename(void);
@@ -71,6 +70,7 @@ void		ast_print(s_ast_node *ast, const char *filename)
 
 void		ast_print_node(s_ast_node *ast, FILE *fs, unsigned int *node_id)
 {
+  assert(ast);
   for (register int i = 0; i < NODE_TYPE_COUNT; ++i)
     if (print_table[i].type == ast->type)
       (print_table[i].fct)(ast, fs, node_id);
@@ -78,7 +78,6 @@ void		ast_print_node(s_ast_node *ast, FILE *fs, unsigned int *node_id)
 
 static char	*newastfilename(void)
 {
-
   static char	buf[PATH_MAX];
   time_t	st;
   struct tm	*t;

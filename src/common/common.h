@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sun Jul 30 03:59:48 2006 Seblu
-** Last update Fri Aug 25 03:31:29 2006 Seblu
+** Last update Wed Oct 11 16:56:07 2006 seblu
 */
 
 #ifndef COMMON_H_
@@ -60,5 +60,18 @@ char            *strndup(const char *str, size_t n);
 ** @return boolean result
 */
 int		isdigitstr(const char *str);
+
+/*!
+** Add @arg str at the end of @arg vector. vector is a
+** table of char *, where the last element is NULL.
+** if @arg str is NULL, nothing is done
+**
+** @param vector first vector
+** @param str string to add at the end of vector
+**
+** @return the new vector. You should not think that have the
+** same address that @arg vector
+*/
+char		**strvectoradd(char **vector, char *str);
 
 #endif

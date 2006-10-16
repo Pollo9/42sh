@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sun Jul 30 04:36:53 2006 Seblu
-** Last update Fri Sep  1 02:04:21 2006 Seblu
+** Last update Thu Oct 12 15:45:20 2006 seblu
 */
 
 #include <stdio.h>
@@ -51,6 +51,8 @@ static const s_token	operators[] =
     {TOK_GREATAND, ">&", 2},
     {TOK_CLOBBER, ">|", 2},
     {TOK_GREAT, ">", 1},
+    {TOK_LPAREN, "(", 1},
+    {TOK_RPAREN, ")", 1},
     {TOK_NONE, NULL, 0}
   };
 
@@ -171,11 +173,18 @@ s_lexer		*lexer_init(int fd)
   new->stream = getline_open(fd);
   new->buf = NULL;
   new->buf_size = new->buf_pos = 0;
-  new->token.id = TOK_NONE;
-  new->token.str = NULL;
-  new->token.len = 0;
+  token_set(&new->token, TOK_NONE, NULL);
   new->eof = 0;
   return new;
+}
+
+void		lexer_flush(s_lexer *lexer)
+{
+  token_set(&lexer->token, TOK_NONE, NULL);
+  if (lexer->buf)
+    free(lexer->buf);
+  lexer->buf = NULL;
+  lexer->buf_size = lexer->buf_pos = 0;
 }
 
 s_token		lexer_lookahead(s_lexer *lexer)

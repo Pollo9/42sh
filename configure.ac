@@ -10,23 +10,22 @@ AC_CONFIG_AUX_DIR([build])
 # Auto Make init
 AM_INIT_AUTOMAKE([foreign dist-bzip2 no-dist-gzip])
 
-echo "Checking locale CFLAGS"
+echo "checking CFLAGS..."
 # Check platform
 AC_CANONICAL_HOST
 
 case $host_os in
   *netbsd*)
-	AC_SUBST([CFLAGS], ['-Wall -Werror -W -ansi -pedantic'])
+	CFLAGS='-Wall -Werror -W -ansi -pedantic'
 	;;
   *osf*)
-	AC_SUBST([CFLAGS], ['-Wall -Werror -W -ansi -pedantic -D_XOPEN_SOURCE=600'])
+	CFLAGS='-Wall -Werror -W -ansi -pedantic -D_XOPEN_SOURCE=600'
 	;;
   *solaris*)
-	AC_SUBST([CFLAGS], ['-Wall -Werror -W -ansi -pedantic -D_XOPEN_SOURCE=600'])
+	CFLAGS='-Wall -Werror -W -ansi -pedantic -D_XOPEN_SOURCE=600'
 	;;
   *linux*)
-	AC_SUBST([CFLAGS], ['-Wall -Werror -W -std=c99 -pedantic -D_XOPEN_SOURCE=600'])
-	AC_SUBST([LDFLAGS], ['-static'])
+	CFLAGS='-Wall -Werror -W -std=c99 -pedantic -D_XOPEN_SOURCE=600'
 	;;
   *)
 	pl="`uname -s`"
@@ -77,36 +76,41 @@ AC_TYPE_SIZE_T
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
 
+AC_HEADER_STDBOOL
+AC_STRUCT_TM
+
 # Check for headers
 AC_CHECK_HEADERS([sys/param.h unistd.h])
 AC_CHECK_HEADERS([fcntl.h])
 AC_CHECK_HEADERS([libintl.h])
 AC_CHECK_HEADERS([stddef.h])
+AC_CHECK_HEADERS([limits.h])
 
 dnl Memo:
 dnl AC ARG WITH(package, help-string, [action-if-given], [action-if-not-given])
 
 AC_ARG_WITH([debug],
   [AS_HELP_STRING([--with-debug], [use -g and don't use -DNDEBUG -O3])],
-  [dnl action-if-given: --with-debug => -g || --without-debug => -DNDEBUG
-    if test x$withval = xyes; then
-      CFLAGS="$CFLAGS -g"
-    else
-      CFLAGS="$CFLAGS -DNDEBUG -O3"
-    fi
+  [dnl action-if-given
+       CFLAGS="$CFLAGS -g"
   ],
-  [dnl action-if-not-given: MAINTAINER_MODE => -g || !MAINTAINER_MODE => -DNDEBUG
-    # If we are in maintainer mode, we want to have DEBUG (NDEBUG==NO DEBUG)
-    # So we simply replace -DNDEBUG by -g
-    if test x$MAINTAINER_MODE = xyes; then
-      CFLAGS="$CFLAGS -g"
-    else
+  [dnl action-if-not-given
       CFLAGS="$CFLAGS -DNDEBUG -O3"
-    fi
+  ]
+)
+
+AC_ARG_WITH([efence],
+  [AS_HELP_STRING([--with-efence], [link with lib efence])],
+  [dnl action-if-given
+       LDFLAGS="$LDFLAGS -lefence"
+  ],
+  [dnl action-if-not-given
+       LDFLAGS="$LDFLAGS -static"
   ]
 )
 
 AC_SUBST([CFLAGS])
+AC_SUBST([LDFLAGS])
 
 # define Autoconf config header
 AC_CONFIG_HEADERS([config.h])
