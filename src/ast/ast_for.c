@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Thu Aug  3 02:41:37 2006 Seblu
-** Last update Thu Oct 12 16:01:04 2006 seblu
+** Last update Tue Oct 17 17:15:27 2006 seblu
 */
 
 #include "ast.h"
@@ -49,7 +49,7 @@ void		ast_for_print(s_ast_node *node, FILE *fs, unsigned *node_id)
   }
 }
 
-void		ast_for_destruct(s_ast_node *node)
+void		ast_for_destruct_node(s_ast_node *node)
 {
   if (node->type != T_FOR)
     return;
@@ -57,6 +57,13 @@ void		ast_for_destruct(s_ast_node *node)
   for (register int i = 0; node->body.child_for.values[i]; ++i)
     free(node->body.child_for.values[i]);
   free(node->body.child_for.values);
-  ast_destruct(node->body.child_for.exec);
   free(node);
+}
+
+void		ast_for_destruct(s_ast_node *node)
+{
+  if (node->type != T_FOR)
+    return;
+  ast_destruct(node->body.child_for.exec);
+  ast_for_destruct_node(node);
 }

@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sun Jul 30 02:27:59 2006 Seblu
-** Last update Tue Aug 29 00:47:41 2006 Seblu
+** Last update Wed Oct 18 21:08:51 2006 seblu
 */
 
 #include <stdio.h>
@@ -38,22 +38,20 @@ const char	*get_prompt(e_prompt pty)
 //todo gestion des variables !
 void		show_prompt(e_prompt pty)
 {
-  char		*prompt;
-
   if (!isinteractive())
     return;
+  fflush(stderr);
   switch (pty) {
+  default:
   case PROMPT_PS1:
-    prompt = "42sh ";
+    fprintf(stderr, "%s$ ", shell->name);
     break;
   case PROMPT_PS2:
-    prompt = "> ";
+    fprintf(stderr, "> ");
     break;
   case PROMPT_PS4:
-    prompt = "+";
+    fprintf(stderr, "+ ");
     break;
   }
-  fflush(stderr);
-  fprintf(stderr, "%s", prompt);
   fflush(stderr);
 }

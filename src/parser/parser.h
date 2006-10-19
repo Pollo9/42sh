@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Wed Aug  2 00:49:50 2006 Seblu
-** Last update Mon Oct 16 15:33:04 2006 seblu
+** Last update Wed Oct 18 18:28:06 2006 seblu
 */
 
 #ifndef PARSER_H_
@@ -20,8 +20,11 @@
 # define DEBUG_LEXER 0
 
 enum {
-  TOKEN_COUNT = 22,
+  TOKEN_COUNT = 23,
   KEYWORD_COUNT = 15,
+  FD_MAX = 32765,
+  REGISTER_REDUCE_SIZE = 200,
+  REGISTER_DEFAULT_SIZE = 50,
 };
 
 typedef enum		tokenid
@@ -59,7 +62,8 @@ typedef struct		token
 
 typedef struct		lexer
 {
-  s_token		token;
+  s_token		current; //working token
+  s_token		previous;
   FILE			*fs;
   char			eof;
   char			*buf;
@@ -121,6 +125,7 @@ s_lexer			*lexer_init(int fd);
 ** Flush current information of position in the line,
 ** size of the line, and free line buffer. This is call
 ** by the parser after an error.
+** Flush don't reset eof flag !
 **
 ** @param lexer lexer to flush
 */
@@ -145,6 +150,17 @@ s_token			lexer_gettoken(s_lexer *lexer);
 ** @return the look ahead token
 */
 s_token			lexer_lookahead(s_lexer *lexer);
+
+/*!
+** Return the next next token without destruction of it.
+** @warning The token string MUST NOT be freed !
+** This is a possibility will come from LL1 lexer.
+**
+** @param lexer lexer structure
+**
+** @return the look ahead token
+*/
+s_token			lexer_lookahead2(s_lexer *lexer);
 
 /*!
 ** Parse input as a here-document (describe is XSI)

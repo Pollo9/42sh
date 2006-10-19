@@ -16,16 +16,16 @@ AC_CANONICAL_HOST
 
 case $host_os in
   *netbsd*)
-	CFLAGS='-Wall -Werror -W -ansi -pedantic'
+	CFLAGS='-Wall -W -ansi -pedantic -D_XOPEN_SOURCE=600'
 	;;
   *osf*)
-	CFLAGS='-Wall -Werror -W -ansi -pedantic -D_XOPEN_SOURCE=600'
+	CFLAGS='-Wall -W -ansi -pedantic -D_XOPEN_SOURCE=600'
 	;;
   *solaris*)
-	CFLAGS='-Wall -Werror -W -ansi -pedantic -D_XOPEN_SOURCE=600'
+	CFLAGS='-Wall -W -ansi -pedantic -D_XOPEN_SOURCE=600'
 	;;
   *linux*)
-	CFLAGS='-Wall -Werror -W -std=c99 -pedantic -D_XOPEN_SOURCE=600'
+	CFLAGS='-Wall -Wextra -std=c99 -pedantic -D_XOPEN_SOURCE=600'
 	;;
   *)
 	pl="`uname -s`"
@@ -89,6 +89,17 @@ AC_CHECK_HEADERS([limits.h])
 dnl Memo:
 dnl AC ARG WITH(package, help-string, [action-if-given], [action-if-not-given])
 
+
+AC_ARG_WITH([noerror],
+  [AS_HELP_STRING([--with-noerror], [Warning dont create compilation error])],
+  [dnl action-if-given
+       true
+  ],
+  [dnl action-if-not-given
+       CFLAGS="$CFLAGS -Werror"
+  ]
+)
+
 AC_ARG_WITH([debug],
   [AS_HELP_STRING([--with-debug], [use -g and don't use -DNDEBUG -O3])],
   [dnl action-if-given
@@ -103,11 +114,13 @@ AC_ARG_WITH([efence],
   [AS_HELP_STRING([--with-efence], [link with lib efence])],
   [dnl action-if-given
        LDFLAGS="$LDFLAGS -lefence"
+       CFLAGS="$CFLAGS -include stdlib.h -include efence.h"
   ],
   [dnl action-if-not-given
        LDFLAGS="$LDFLAGS -static"
   ]
 )
+
 
 AC_SUBST([CFLAGS])
 AC_SUBST([LDFLAGS])

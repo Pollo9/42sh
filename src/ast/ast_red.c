@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Fri Aug 18 22:13:51 2006 Seblu
-** Last update Mon Oct 16 17:26:11 2006 seblu
+** Last update Tue Oct 17 17:16:40 2006 seblu
 */
 
 #include "ast.h"
@@ -17,6 +17,9 @@ s_ast_node	*ast_red_create(void)
   secmalloc(node, sizeof (s_ast_node));
   node->type = T_RED;
   node->body.child_red.size = 0;
+  node->body.child_red.type = NULL;
+  node->body.child_red.fd = NULL;
+  node->body.child_red.word = NULL;
   node->body.child_red.mhs = NULL;
   return node;
 }
@@ -58,7 +61,7 @@ void		ast_red_print(s_ast_node *node, FILE *fs, unsigned *node_id)
     ast_print_node(reds->mhs, fs, node_id);
 }
 
-void		ast_red_destruct(s_ast_node *node)
+void		ast_red_destruct_node(s_ast_node *node)
 {
   s_red_node	*reds;
 
@@ -68,9 +71,17 @@ void		ast_red_destruct(s_ast_node *node)
   if (reds->size) {
     free(reds->type);
     free(reds->fd);
-    for (register size_t i = 0; i < node->body.child_red.size; ++i)
+    for (register size_t i = 0; i < reds->size; ++i)
       free(reds->word[i]);
     free(reds->word);
   }
   free(node);
+}
+
+void		ast_red_destruct(s_ast_node *node)
+{
+  if (node->type != T_RED)
+    return;
+  ast_destruct(node->body.child_red.mhs);
+  ast_red_destruct_node(node);
 }

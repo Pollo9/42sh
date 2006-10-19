@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Wed Aug  2 01:25:01 2006 Seblu
-** Last update Tue Aug 29 02:20:32 2006 Seblu
+** Last update Tue Oct 17 09:51:30 2006 seblu
 */
 
 #include <string.h>
@@ -33,16 +33,15 @@ static void     buf_str(char **str, char *append, unsigned n)
   unsigned      j;
 
   ln = sstrlen(*str);
-  if ((*str = realloc(*str, (ln + n + 1) * sizeof (char))) == NULL)
-    exit(1);
+  secrealloc(*str, *str, (ln + n + 1) * sizeof (char));
   for (i = ln, j = 0; i < ln + n; i++, j++)
     (*str)[i] = append[j];
   (*str)[ln + n] = 0;
 }
 
-s_getline		*getline_open(int fd)
+s_getline	*getline_open(int fd)
 {
-  s_getline		*new_buf;
+  s_getline	*new_buf;
 
   secmalloc(new_buf, sizeof (s_getline));
   new_buf->fd = fd;

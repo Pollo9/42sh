@@ -32,4 +32,4 @@ ln -sf ${last%*.dot}.png ast.png
 echo "${lyellow}Showing ${lblue}${last%*.dot}.png${lyellow}...$norm"
 xview=`which xview`
 test -x "$xview" || { echo "${lred}xview not found !$norm"; exit 2; }
-"$xview" ast.png
+"$xview" ast.png &

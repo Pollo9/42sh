@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Fri Aug 18 22:13:51 2006 Seblu
-** Last update Tue Oct 10 14:27:02 2006 seblu
+** Last update Tue Oct 17 17:00:22 2006 seblu
 */
 
 #include "ast.h"
@@ -81,6 +81,11 @@ void		ast_cmd_print(s_ast_node *node, FILE *fs, unsigned int *node_id)
       fprintf(fs, "\\n");
     }
   fprintf(fs, "\"];\n");
+}
+
+void		ast_cmd_destruct_node(s_ast_node *node)
+{
+  ast_cmd_destruct(node);
 }
 
 void		ast_cmd_destruct(s_ast_node *node)

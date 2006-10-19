@@ -5,7 +5,7 @@
 ** Login   <seblu@seblu.net>
 **
 ** Started on  Fri Aug 25 03:32:54 2006 Seblu
-** Last update Fri Oct 13 14:33:10 2006 seblu
+** Last update Tue Oct 17 10:15:20 2006 seblu
 */
 
 #ifndef MACRO_H_

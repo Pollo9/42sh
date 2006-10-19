@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sun Jul 30 04:40:03 2006 Seblu
-** Last update Wed Oct 11 14:58:42 2006 seblu
+** Last update Tue Oct 17 17:14:49 2006 seblu
 */
 
 #ifndef AST_H_
@@ -106,7 +106,7 @@ typedef struct		cmd_node
 ** Binary ast node
 ** Generic node, it's a contener !
 ** T_PIPE, T_SEP* , T_AND, T_OR : binary operator
-** T_BANG : unary operator but ts_bin_op with right pointer is always NULL
+** T_BANG : unary operator
 */
 typedef struct		bin_node
 {
@@ -158,6 +158,7 @@ typedef union		node_item
   s_for_node		child_for;
   s_case_node		child_case;
   s_while_node		child_while;
+  s_red_node		child_red;
   s_cmd_node		child_cmd;
   s_bin_node		child_and;
   s_bin_node		child_or;
@@ -167,7 +168,6 @@ typedef union		node_item
   s_bin_node		child_pipe;
   s_bin_node		child_sep;
   s_bin_node		child_sepand;
-  s_red_node		child_red;
 } u_node_item;
 
 /*
@@ -206,6 +206,14 @@ void		ast_print_node(s_ast_node *ast, FILE *fs, unsigned int *node_id);
 void		ast_destruct(s_ast_node *ast);
 
 /*!
+** Destroy node and only this node. All childs will survive.
+**
+** @param ast mother node to destroy
+**
+*/
+void		ast_destruct_node(s_ast_node *ast);
+
+/*!
 ** Create an if ast node
 **
 ** @param cond if condition
@@ -227,7 +235,14 @@ s_ast_node	*ast_if_create(s_ast_node *cond,
 void		ast_if_print(s_ast_node *node, FILE *fs, unsigned int *node_id);
 
 /*!
-** Destruct an if ast node
+** Destruct an if ast node. Don't destruct child nodes.
+**
+** @param node node to free
+*/
+void		ast_if_destruct_node(s_ast_node *node);
+
+/*!
+** Destruct an if ast node. Destruct child nodes.
 **
 ** @param node node to destroy
 */
@@ -257,7 +272,14 @@ s_ast_node	*ast_for_create(char		*varname,
 void		ast_for_print(s_ast_node *node, FILE *fs, unsigned *node_id);
 
 /*!
-** Destruct a for ast node
+** Destruct a for ast node. Don't destruct child nodes.
+**
+** @param node node to free
+*/
+void		ast_for_destruct_node(s_ast_node *node);
+
+/*!
+** Destruct a for ast node. Destruct child nodes.
 **
 ** @param node node to destroy
 */
@@ -294,7 +316,14 @@ void		ast_case_add_item(s_ast_node	*node,
 void		ast_case_print(s_ast_node *node, FILE *fs, unsigned *node_id);
 
 /*!
-** Destruct a case ast node
+** Destruct a case ast node. Don't destruct child nodes.
+**
+** @param node node to free
+*/
+void		ast_case_destruct_node(s_ast_node *node);
+
+/*!
+** Destruct a case ast node. Destruct child node.
 **
 ** @param node node to destroy
 */
@@ -320,11 +349,61 @@ s_ast_node	*ast_while_create(s_ast_node *cond, s_ast_node *exec);
 void		ast_while_print(s_ast_node *node, FILE *fs, unsigned int *node_id);
 
 /*!
-** Destruct a while ast node
+** Destruct a while ast node. Don't destruct child nodes.
+**
+** @param node node to free
+*/
+void		ast_while_destruct_node(s_ast_node *node);
+
+/*!
+** Destruct a while ast node. Destruct all child nodes.
 **
 ** @param node node to destroy
 */
 void		ast_while_destruct(s_ast_node *node);
+
+/*!
+** Create a redirection ast node
+**
+** @return the node
+*/
+s_ast_node	*ast_red_create(void);
+
+/*!
+** Add a redirection to a redirection node
+**
+** @param node node where add
+** @param type type of redirection
+** @param fd fd parameter of redirection
+** @param word file or word parameter of redirection
+*/
+void		ast_red_add(s_ast_node		*node,
+			    e_red_type		type,
+			    int			fd,
+			    char		*word);
+
+/*!
+** Print an ast red node
+**
+** @param ast ast node to add to file
+** @param fs file stream where print ast
+** @param node_id first free node id
+*/
+void		ast_red_print(s_ast_node *node, FILE *fs, unsigned int *node_id);
+
+/*!
+** Destruct a red ast node. Don't destruct child nodes.
+**
+** @param node node to free
+*/
+void		ast_red_destruct_node(s_ast_node *node);
+
+/*!
+** Destruct a red ast node. Destruct child nodes.
+**
+** @param node node to destroy
+*/
+void		ast_red_destruct(s_ast_node *node);
 
 /*!
 ** Create a cmd ast node
@@ -359,7 +438,14 @@ void		ast_cmd_add_prefix(s_ast_node *node, char *assignment_word);
 void		ast_cmd_print(s_ast_node *node, FILE *fs, unsigned int *node_id);
 
 /*!
-** Destruct a cmd node
+** Destruct a cmd ast node. Don't destruct child nodes.
+**
+** @param node node to free
+*/
+void		ast_cmd_destruct_node(s_ast_node *node);
+
+/*!
+** Destruct a cmd node. All child nodes will be destruct.
 **
 ** @param node node to destroy
 */
@@ -385,7 +471,14 @@ s_ast_node	*ast_and_create(s_ast_node *lhs, s_ast_node *rhs);
 void		ast_and_print(s_ast_node *node, FILE *fs, unsigned int *node_id);
 
 /*!
-** Destruct an and (&&) node
+** Destruct an and ast node. Don't destruct child nodes.
+**
+** @param node node to free
+*/
+void		ast_and_destruct_node(s_ast_node *node);
+
+/*!
+** Destruct an and (&&) node. Destruct all child nodes.
 **
 ** @param node node to destroy
 */
@@ -411,7 +504,14 @@ s_ast_node	*ast_or_create(s_ast_node *lhs, s_ast_node *rhs);
 void		ast_or_print(s_ast_node *node, FILE *fs, unsigned int *node_id);
 
 /*!
-** Destruct an or (||) node
+** Destruct an or ast node. Don't destruct child nodes.
+**
+** @param node node to free
+*/
+void		ast_or_destruct_node(s_ast_node *node);
+
+/*!
+** Destruct an or (||) ast node. Destruct child nodes.
 **
 ** @param node node to destroy
 */
@@ -436,7 +536,14 @@ s_ast_node	*ast_subshell_create(s_ast_node *child);
 void		ast_subshell_print(s_ast_node *node, FILE *fs, unsigned int *node_id);
 
 /*!
-** Destruct a subshell (()) node
+** Destruct a subshell (()) ast node. Don't destruct child nodes.
+**
+** @param node node to free
+*/
+void		ast_subshell_destruct_node(s_ast_node *node);
+
+/*!
+** Destruct a subshell (()) ast node. Destruct child nodes.
 **
 ** @param node node to destroy
 */
@@ -462,7 +569,14 @@ s_ast_node	*ast_funcdec_create(char *name, s_ast_node *body);
 void		ast_funcdec_print(s_ast_node *node, FILE *fs, unsigned *node_id);
 
 /*!
-** Destruct a funcdec ast node
+** Destruct a funcdec ast node. Don't destruct child nodes.
+**
+** @param node node to free
+*/
+void		ast_funcdec_destruct_node(s_ast_node *node);
+
+/*!
+** Destruct a funcdec ast node. Destruct child nodes.
 **
 ** @param node node to destroy
 */
@@ -487,7 +601,14 @@ s_ast_node	*ast_bang_create(s_ast_node *child);
 void		ast_bang_print(s_ast_node *node, FILE *fs, unsigned int *node_id);
 
 /*!
-** Destruct a bang (!) node
+** Destruct a bang (!) ast node. Don't destruct child nodes.
+**
+** @param node node to destroy
+*/
+void		ast_bang_destruct_node(s_ast_node *node);
+
+/*!
+** Destruct a bang (!) ast node. Destruct child nodes.
 **
 ** @param node node to destroy
 */
@@ -512,6 +633,12 @@ s_ast_node	*ast_pipe_create(s_ast_node *lhs, s_ast_node *rhs);
 */
 void		ast_pipe_print(s_ast_node *node, FILE *fs, unsigned int *node_id);
 
+/*!
+** Destruct a pipe (|) ast node. Don't destruct child nodes.
+**
+** @param node node to destroy
+*/
+void		ast_pipe_destruct_node(s_ast_node *node);
 /*!
 ** Destruct a pipe (|) node
 **
@@ -539,7 +666,13 @@ s_ast_node	*ast_sep_create(s_ast_node *lhs, s_ast_node *rhs);
 void		ast_sep_print(s_ast_node *node, FILE *fs, unsigned int *node_id);
 
 /*!
-** Destruct a sep (;) node
+** Destruct a sep (;) ast node. Don't destruct child nodes.
+**
+** @param node node to destroy
+*/
+void		ast_sep_destruct_node(s_ast_node *node);
+/*!
+** Destruct a sep (;) ast node. Destruct child nodes.
 **
 ** @param node node to destroy
 */
@@ -565,46 +698,17 @@ s_ast_node	*ast_sepand_create(s_ast_node *lhs, s_ast_node *rhs);
 void		ast_sepand_print(s_ast_node *node, FILE *fs, unsigned int *node_id);
 
 /*!
-** Destruct a sepand (&) node
+** Destruct a sepand (&) ast node. Don't destruct child nodes.
+**
+** @param node node to destroy
+*/
+void		ast_sepand_destruct_node(s_ast_node *node);
+
+/*!
+** Destruct a sepand (&) ast node. Destruct child nodes.
 **
 ** @param node node to destroy
 */
 void		ast_sepand_destruct(s_ast_node *node);
-
-/*!
-** Create a redirection ast node
-**
-** @return the node
-*/
-s_ast_node	*ast_red_create(void);
-
-/*!
-** Add a redirection to a redirection node
-**
-** @param node node where add
-** @param type type of redirection
-** @param fd fd parameter of redirection
-** @param word file or word parameter of redirection
-*/
-void		ast_red_add(s_ast_node		*node,
-			    e_red_type		type,
-			    int			fd,
-			    char		*word);
-
-/*!
-** Print an ast red node
-**
-** @param ast ast node to add to file
-** @param fs file stream where print ast
-** @param node_id first free node id
-*/
-void		ast_red_print(s_ast_node *node, FILE *fs, unsigned int *node_id);
-
-/*!
-** Destruct a red node
-**
-** @param node node to destroy
-*/
-void		ast_red_destruct(s_ast_node *node);
 
 #endif /* !AST_H_ */

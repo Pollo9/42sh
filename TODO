@@ -1,17 +1,8 @@
-----
-Revoir les free dans le parser a cause de ast_destruct qui rentre dans les fils.
-il faudrait ecrire des fonctions qui ne le fasse pas! Voir aussi au niveau de la
-boucle general si ast_destruct est appele alors qu'une erreur de parse est surevenur
-(le cas echeant, le supprimer)
-----
-Voir probleme de syntax que j'accepte lorsque un EOF apparait avant une quote
-fermante. Le token est valide alors que sous bash non
-----
-ajotuer le prompt PS3 lorsque l'on parse sur plusieurs ligne
-----
-parse du case
-----
-parse du funcdec
-----
-corriger le bug
- ./42sh  </etc/bash/bashrc
+- Lexer
+-- Voir probleme de syntax que j'accepte lorsque un EOF apparait avant une quote
+fermante. Le token est valide alors que sous bash non. faire un test avant.
+Maintenant il renvoie EOF a la place du token.
+
+- Parser
+-- aliases
+-- history

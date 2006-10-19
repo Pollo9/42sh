@@ -5,8 +5,9 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Wed Aug  2 00:56:07 2006 Seblu
-** Last update Mon Oct 16 16:35:13 2006 seblu
+** Last update Wed Oct 18 19:21:32 2006 seblu
 */
+
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -25,10 +26,6 @@
 ** DECLARATIONS
 ** ============
 */
-
-enum {
-  FD_MAX = 32765
-};
 
 static s_ast_node	*regnode(s_parser *parser, s_ast_node *node);
 
@@ -121,7 +118,8 @@ static const s_token	keyword_table[] =
     {TOK_WORD, "case", 4},
     {TOK_WORD, "esac", 4},
     {TOK_WORD, "while", 5},
-    {TOK_WORD, "until", 5}
+    {TOK_WORD, "until", 5},
+    {TOK_WORD, "function", 8}
   };
 
 s_parser		*parser_init(int fd)
@@ -152,13 +150,16 @@ static s_ast_node	*regnode(s_parser *parser, s_ast_node *node)
 
 static void		parse_error(s_parser *parser, s_token t)
 {
-  fprintf(stderr, "%s: syntax error near unexpected token `%s'\n",
-	  shell->name, t.str);
+  if (t.id == TOK_EOF)
+    fprintf(stderr, "%s: syntax error: unexpected end of file\n", shell->name);
+  else
+    fprintf(stderr, "%s: syntax error near unexpected token `%s'\n",
+	    shell->name, t.str);
   parser->error = 1;
   shell->status = ERROR_PARSE;
-/*   if (parser->regnodes) */
-/*     for (register int i = 0; parser->regnodes[i]; ++i) */
-/*       ast_destruct(parser->regnodes[i]); */
+  if (parser->regnodes)
+    for (register int i = 0; parser->regnodes[i]; ++i)
+      ast_destruct_node(parser->regnodes[i]);
   lexer_flush(parser->lexer);
   longjmp(parser->stack, 1);
 }
@@ -168,9 +169,10 @@ s_ast_node		*parse(s_parser *parser)
   parser->regpos = 0;
   parser->error = 0;
   // prevent of too big register ast size
-  if (parser->regsize >= 200)
+  if (parser->regsize >= REGISTER_REDUCE_SIZE)
     secrealloc(parser->regnodes, parser->regnodes,
-	       (parser->regsize = 50) * sizeof (s_ast_node));
+	       (parser->regsize = REGISTER_DEFAULT_SIZE) * sizeof (s_ast_node));
+  //return from parse_error (return !0)
   if (setjmp(parser->stack))
     return NULL;
   show_prompt(PROMPT_PS1);
@@ -178,10 +180,10 @@ s_ast_node		*parse(s_parser *parser)
   //test lexer mode
   for (;;) {
     s_token tok = lexer_gettoken(parser->lexer);
-    if (tok.id == TOK_EOF)
-      exit(69);
     printf("Returned token: %d [%s]\n", tok.id,
 	   (*tok.str == '\n') ? "\\n" : tok.str);
+    if (tok.id == TOK_EOF)
+      exit(69);
     if (tok.id == TOK_NEWLINE)
       show_prompt(PROMPT_PS1);
   }
@@ -290,7 +292,6 @@ static s_ast_node	*parse_pipeline_command(s_parser *parser)
   return lhs;
 }
 
-//problem of choice between simple and funcdec
 static s_ast_node	*parse_command(s_parser *parser)
 {
   s_token		token;
@@ -302,13 +303,15 @@ static s_ast_node	*parse_command(s_parser *parser)
        !strcmp(token.str, "if") || !strcmp(token.str, "until") ||
        !strcmp(token.str, "{") || !strcmp(token.str, "case"))))
     return parse_shellcommand(parser);
-  // probleme de choix avec function pour l'instant seulement si function!
-  else if (token.id == TOK_WORD && !strcmp(token.str, "function"))
+  else if ((token.id == TOK_WORD && !strcmp(token.str, "function")) ||
+	   (token.id == TOK_WORD &&
+	    lexer_lookahead2(parser->lexer).id == TOK_LPAREN))
     return parse_funcdec(parser);
   else if (token.id >= TOK_DLESSDASH && token.id <= TOK_WORD)
     return parse_simplecommand(parser);
   else
     parse_error(parser, token);
+  assert(0);
   return NULL;
 }
 
@@ -341,7 +344,7 @@ static int		parse_element(s_parser		*parser,
 {
   s_token		token;
   int			found = 0;
-  int			first = 1;
+   int			first = 1;
 
   debugmsg("parse_element");
   for (;;) {
@@ -350,10 +353,14 @@ static int		parse_element(s_parser		*parser,
       parse_redirection(parser, red);
       ++found;
     }
-    else if (token.id == TOK_WORD && (!first || !is_keyword(token))) {
+    else if (token.id == TOK_WORD && first && !is_keyword(token)) {
+      first = 0;
+      //TODO: gestion des alias
       ast_cmd_add_argv(cmd, lexer_gettoken(parser->lexer).str);
       ++found;
     }
+    else if (token.id == TOK_WORD && !first)
+      ast_cmd_add_argv(cmd, lexer_gettoken(parser->lexer).str);
     else break;
   }
   return found;
@@ -420,7 +427,6 @@ static s_ast_node	*parse_shellcommand(s_parser *parser)
   return NULL;
 }
 
-//IN PROGRESS
 static s_ast_node	*parse_funcdec(s_parser *parser)
 {
   s_token		tok;
@@ -437,11 +443,9 @@ static s_ast_node	*parse_funcdec(s_parser *parser)
   if (tok.id != TOK_WORD)
     parse_error(parser, tok);
   funcname = tok.str;
-  if ((tok = lexer_gettoken(parser->lexer)).id != TOK_WORD &&
-      !strcmp(tok.str, "("))
+  if (lexer_gettoken(parser->lexer).id != TOK_LPAREN)
     parse_error(parser, tok);
-  if ((tok = lexer_gettoken(parser->lexer)).id != TOK_WORD &&
-      !strcmp(tok.str, ")"))
+  if (lexer_gettoken(parser->lexer).id != TOK_RPAREN)
     parse_error(parser, tok);
   eat_newline();
   body = parse_shellcommand(parser);
@@ -487,6 +491,7 @@ static void		parse_redirection(s_parser *parser, s_ast_node **reds)
   case TOK_GREATAND: redtype = R_GREATAND; if (fd == -1) fd = 1; break;
   default:
     parse_error(parser, token);
+    redtype = 0; //to avoid warning about redtype may be unitialized
   }
   //retrieve redirection word
   token = lexer_gettoken(parser->lexer);
@@ -510,6 +515,8 @@ static s_ast_node	*parse_compound_list(s_parser *parser)
   tok = lexer_lookahead(parser->lexer);
   if (tok.id == TOK_SEP || tok.id == TOK_SEPAND || tok.id == TOK_NEWLINE) {
     lexer_gettoken(parser->lexer);
+    if (tok.id == TOK_NEWLINE)
+      show_prompt(PROMPT_PS2);
     eat_newline();
     //check for and_or
     tok2 = lexer_lookahead(parser->lexer);
@@ -572,7 +579,7 @@ static s_ast_node	*parse_rulefor(s_parser *parser)
     while ((tok = lexer_lookahead(parser->lexer)).id == TOK_WORD);
     //check for ';' or '\n'
     if ((tok = lexer_gettoken(parser->lexer)).id != TOK_SEP &&
-	 tok.id != TOK_NEWLINE)
+	tok.id != TOK_NEWLINE)
       parse_error(parser, tok);
     //eat newline
     eat_newline();
@@ -726,8 +733,9 @@ static s_ast_node	*parse_rulecase(s_parser *parser)
   free(tok.str);
   //eat newline
   eat_newline();
+  //parse case body
   tok = lexer_lookahead(parser->lexer);
-  if ((tok.id == TOK_WORD && !strcmp(tok.str, "esac")) ||
+  if ((tok.id == TOK_WORD && strcmp(tok.str, "esac")) ||
       tok.id == TOK_LPAREN) {
     casenode = regnode(parser, ast_case_create(varname));
     parse_caseclause(parser, casenode);
@@ -744,13 +752,19 @@ static void		parse_caseclause(s_parser *parser, s_ast_node *casenode)
 {
   s_token		tok;
 
-  parse_caseitem(parser, casenode);
-  //check for token 'case'
-  tok = lexer_lookahead(parser->lexer);
-  if (tok.id != TOK_DSEMI)
-    return;
-  lexer_gettoken(parser->lexer);
-  tok = lexer_gettoken(parser->lexer);
+  debugmsg("parse_caseclause");
+  do {
+    parse_caseitem(parser, casenode);
+    tok = lexer_lookahead(parser->lexer);
+    if (tok.id == TOK_DSEMI) {
+      lexer_gettoken(parser->lexer);
+      eat_newline();
+      tok = lexer_lookahead(parser->lexer);
+    }
+    if (tok.id == TOK_WORD && !strcmp(tok.str, "esac"))
+      return;
+  }
+  while (1);
 }
 
 static void		parse_caseitem(s_parser *parser, s_ast_node *casenode)
@@ -759,6 +773,7 @@ static void		parse_caseitem(s_parser *parser, s_ast_node *casenode)
   char			**pattern = NULL;
   s_ast_node		*exec = NULL;
 
+  debugmsg("parse_caseitem");
   tok = lexer_gettoken(parser->lexer);
   //check for a '(' before pattern list
   if (tok.id == TOK_LPAREN)
@@ -773,6 +788,9 @@ static void		parse_caseitem(s_parser *parser, s_ast_node *casenode)
       parse_error(parser, tok);
     pattern = strvectoradd(pattern, tok.str);
   }
+  //check for ')'
+  if ((tok = lexer_gettoken(parser->lexer)).id != TOK_RPAREN)
+    parse_error(parser, tok);
   //eat newline
   eat_newline();
   if ((tok = lexer_lookahead(parser->lexer)).id != TOK_DSEMI &&

@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sun Jul 30 04:36:53 2006 Seblu
-** Last update Thu Oct 12 15:45:20 2006 seblu
+** Last update Wed Oct 18 18:27:39 2006 seblu
 */
 
 #include <stdio.h>
@@ -158,6 +158,14 @@ static int	lexer_cut(s_lexer *lexer);
 */
 static void	token_set(s_token *token, e_tokenid id, char *s);
 
+/*!
+** Move a token to another. Token source, will become token
+** NONE.
+**
+** @param src source token
+** @param dst destination token
+*/
+static void	token_move(s_token *src, s_token *dst);
 
 /*
 ** ===========
@@ -173,14 +181,16 @@ s_lexer		*lexer_init(int fd)
   new->stream = getline_open(fd);
   new->buf = NULL;
   new->buf_size = new->buf_pos = 0;
-  token_set(&new->token, TOK_NONE, NULL);
+  token_set(&new->previous, TOK_NONE, NULL);
+  token_set(&new->current, TOK_NONE, NULL);
   new->eof = 0;
   return new;
 }
 
 void		lexer_flush(s_lexer *lexer)
 {
-  token_set(&lexer->token, TOK_NONE, NULL);
+  token_set(&lexer->previous, TOK_NONE, NULL);
+  token_set(&lexer->current, TOK_NONE, NULL);
   if (lexer->buf)
     free(lexer->buf);
   lexer->buf = NULL;
@@ -189,20 +199,34 @@ void		lexer_flush(s_lexer *lexer)
 
 s_token		lexer_lookahead(s_lexer *lexer)
 {
-  if (lexer->token.id == TOK_NONE)
+  if (lexer->previous.id == TOK_NONE && lexer->current.id == TOK_NONE)
     lexer_eattoken(lexer);
-  return lexer->token;
+  return (lexer->previous.id != TOK_NONE) ? lexer->previous : lexer->current;
+}
+
+s_token		lexer_lookahead2(s_lexer *lexer)
+{
+  if (lexer->current.id == TOK_NONE)
+    lexer_eattoken(lexer);
+  if (lexer->previous.id == TOK_NONE) {
+    token_move(&lexer->current, &lexer->previous);
+    lexer_eattoken(lexer);
+  }
+  return lexer->current;
 }
 
 s_token		lexer_gettoken(s_lexer *lexer)
 {
   s_token	buf;
+  s_token	*victim;
 
-  if (lexer->token.id == TOK_NONE)
+  if (lexer->previous.id != TOK_NONE)
+    victim = &lexer->previous;
+  else
+    victim = &lexer->current;
+  if (lexer->current.id == TOK_NONE)
     lexer_eattoken(lexer);
-  buf = lexer->token;
-  lexer->token.id = TOK_NONE;
-  lexer->token.str = NULL;
+  token_move(victim, &buf);
   return buf;
 }
 
@@ -240,6 +264,14 @@ static void	token_set(s_token *token, e_tokenid id, char *s)
   else token->len = 0;
 }
 
+static void	token_move(s_token *src, s_token *dst)
+{
+  *dst = *src;
+  src->id = TOK_NONE;
+  src->str = NULL;
+  src->len = 0;
+}
+
 static void	lexer_eattoken(s_lexer *lexer)
 {
   //if last char was read free buffer
@@ -256,7 +288,7 @@ static void	lexer_eattoken(s_lexer *lexer)
   //if eof is read, bye bye
   if (!lexer->buf) {
     lexer->eof = 1;
-    token_set(&lexer->token, TOK_EOF, "EOF");
+    token_set(&lexer->current, TOK_EOF, "EOF");
     return;
   }
   //cut a slice of stream
@@ -270,8 +302,7 @@ static int	lexer_eatline(s_lexer *lexer)
 
   assert(lexer->buf);
   buf = lexer->buf;
-  if (lexer->buf_size > 0 && buf[lexer->buf_size - 1] == '\n')
-    buf[lexer->buf_size - 1] = 0;
+  //remove \n if a \ is present before him
   if (lexer->buf_size > 1 && buf[lexer->buf_size - 2] == '\\')
     buf[lexer->buf_size - 2] = 0;
   //show incomplet recognition prompt
@@ -279,13 +310,14 @@ static int	lexer_eatline(s_lexer *lexer)
   //retrieve a new line
   if (!(buf2 = getline(lexer->stream))) {
     lexer->eof = 1;
-    return 0;
+    token_set(&lexer->current, TOK_EOF, "EOF");
+    return 1;
   }
   lexer->buf = strmerge(2, buf, buf2);
   lexer->buf_size = strlen(lexer->buf);
   free(buf);
   free(buf2);
-  return 1;
+  return 0;
 }
 
 static int	lexer_cut(s_lexer *lexer)
@@ -295,25 +327,25 @@ static int	lexer_cut(s_lexer *lexer)
   size_t	*buf_pos = &lexer->buf_pos, token_start, token_pos;
   int		end_found = 0;
   char		backed = 0, quoted = 0;
-  const s_quote	*quote;
+  const s_quote	*quote = NULL;
 
   // Rationale: Search begin of token
-  //eat separators (" ",\t, \v)
+  // eat separators (" ",\t, \v)
   while (buf[*buf_pos] && is_sep(buf[*buf_pos]))
     ++*buf_pos;
-  //eat comment
+  // eat comment
   if (buf[*buf_pos] == '#')
     while (buf[*buf_pos] && buf[*buf_pos] != '\n')
       ++*buf_pos;
-  //check if first chars is an operator
-  if (is_operator(buf + *buf_pos, buf_pos, &lexer->token))
+  // check if first chars is an operator
+  if (is_operator(buf + *buf_pos, buf_pos, &lexer->current))
     return 1;
   token_start = token_pos = *buf_pos;
   // Rationale: Search end of token
   for (; buf[token_pos]; ++token_pos) {
     // backslah newline => eatline
-    if ((backed || quoted) && buf[token_pos] == '\n' && lexer_eatline(lexer))
-      return 0; //new line added, you can try again
+    if ((backed || quoted) && buf[token_pos] == '\n' && buf[token_pos + 1] == '\0')
+      return lexer_eatline(lexer);
     // backed, go to next char
     else if (backed) backed = 0;
     // check end of quoting
@@ -332,7 +364,7 @@ static int	lexer_cut(s_lexer *lexer)
   }
   lexer->buf_pos = token_pos; //update real lexer position buffer
   tokstr = strndup(buf + token_start, token_pos - token_start);
-  token_set(&lexer->token, ((buf[token_pos] == '>' || buf[token_pos] == '<')
+  token_set(&lexer->current, ((buf[token_pos] == '>' || buf[token_pos] == '<')
 	    && isdigitstr(tokstr)) ? TOK_IONUMBER : TOK_WORD, tokstr);
   return 1;
 }
@@ -364,6 +396,7 @@ static int	is_quote_start(const char *buf, size_t *buf_pos, const s_quote **quot
 
 static int	is_quote_stop(const char *buf, size_t *buf_pos, const s_quote *quote)
 {
+  assert(quote);
   if (!strncmp(buf + *buf_pos, quote->stop, quote->lenstop)) {
     *buf_pos +=  quote->lenstop - 1;
     return 1;

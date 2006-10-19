@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Thu Aug  3 02:41:37 2006 Seblu
-** Last update Thu Oct 12 13:11:35 2006 seblu
+** Last update Tue Oct 17 17:13:30 2006 seblu
 */
 
 #include "ast.h"
@@ -37,6 +37,13 @@ void		ast_sep_print(s_ast_node *node, FILE *fs, unsigned int *node_id)
   }
 }
 
+void		ast_sep_destruct_node(s_ast_node *node)
+{
+  if (node->type != T_SEP)
+    return;
+  free(node);
+}
+
 void		ast_sep_destruct(s_ast_node *node)
 {
   if (node->type != T_SEP)
@@ -45,4 +52,3 @@ void		ast_sep_destruct(s_ast_node *node)
   ast_destruct(node->body.child_sep.rhs);
   free(node);
 }
-

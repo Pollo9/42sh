@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sun Jul 16 20:03:53 2006 Seblu
-** Last update Tue Aug 29 00:51:36 2006 Seblu
+** Last update Tue Oct 17 09:38:57 2006 seblu
 */
 
 #ifndef SHELL_H_

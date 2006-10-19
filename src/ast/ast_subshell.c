@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Thu Aug  3 02:41:37 2006 Seblu
-** Last update Tue Sep 26 17:43:33 2006 Seblu
+** Last update Tue Oct 17 17:02:57 2006 seblu
 */
 
 #include "ast.h"
@@ -31,6 +31,13 @@ void		ast_subshell_print(s_ast_node *node, FILE *fs, unsigned int *node_id)
   lhs_id = ++*node_id;
   ast_print_node(node->body.child_subshell.lhs, fs, node_id);
   fprintf(fs, "%u -> %u\n", cur_id, lhs_id);
+}
+
+void		ast_subshell_destruct_node(s_ast_node *node)
+{
+  if (node->type != T_SUBSHELL)
+    return;
+  free(node);
 }
 
 void		ast_subshell_destruct(s_ast_node *node)

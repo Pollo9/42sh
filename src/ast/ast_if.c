@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Thu Aug  3 02:41:37 2006 Seblu
-** Last update Tue Oct 10 17:15:53 2006 seblu
+** Last update Tue Oct 17 16:30:23 2006 seblu
 */
 
 #include "ast.h"
@@ -47,6 +47,13 @@ void		ast_if_print(s_ast_node *node, FILE *fs, unsigned *node_id)
     fprintf(fs, "%u -> %u\n", cur_node, *node_id);
     ast_print_node(node->body.child_if.cond_false, fs, node_id);
   }
+}
+
+void		ast_if_destruct_node(s_ast_node *node)
+{
+  if (node->type != T_IF)
+    return;
+  free(node);
 }
 
 void		ast_if_destruct(s_ast_node *node)
