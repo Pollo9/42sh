@@ -100,6 +100,16 @@ AC_ARG_WITH([noerror],
   ]
 )
 
+AC_ARG_WITH([dynamic],
+  [AS_HELP_STRING([--with-dynamic], [Compiling with dynamic libraries])],
+  [dnl action-if-given
+       dynamic=true
+  ],
+  [dnl action-if-not-given
+       dynamic=false
+  ]
+)
+
 AC_ARG_WITH([debug],
   [AS_HELP_STRING([--with-debug], [use -g and don't use -DNDEBUG -O3])],
   [dnl action-if-given
@@ -117,7 +127,7 @@ AC_ARG_WITH([efence],
        CFLAGS="$CFLAGS -include stdlib.h -include efence.h"
   ],
   [dnl action-if-not-given
-       LDFLAGS="$LDFLAGS -static"
+       test "$dynamic" = "true" || LDFLAGS="$LDFLAGS -static"
   ]
 )
 
@@ -131,7 +141,6 @@ AC_CONFIG_HEADERS([config.h])
 # define Autoconf config files
 AC_CONFIG_FILES([
 	Makefile
-	src/Makefile
 ])
 
 AC_OUTPUT

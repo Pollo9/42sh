@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sat Mar 25 23:11:01 2006 Seblu
-** Last update Thu Oct 12 13:12:31 2006 seblu
+** Last update Thu Oct 19 13:02:30 2006 seblu
 */
 
 #include <string.h>
@@ -49,7 +49,7 @@ static char	*newastfilename(void);
 void		ast_print(s_ast_node *ast, const char *filename)
 {
   FILE		*fs;
-  unsigned int	index;
+  unsigned int	index = 0;
 
   if (ast == NULL)
     return;

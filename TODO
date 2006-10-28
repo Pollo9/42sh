@@ -6,3 +6,6 @@ Maintenant il renvoie EOF a la place du token.
 - Parser
 -- aliases
 -- history
+
+- Option
+-- voir probleme de non initialisation envoye par valgrind a chaque tour de boucle

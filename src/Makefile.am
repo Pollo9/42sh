@@ -1,4 +1,3 @@
-#SUBDIRS=
 bin_PROGRAMS=42sh
 
 #42sh_LDADD  = parser/libparse.a ../check/leaktrack/libmem.a evalexpr/libevalexpr.a

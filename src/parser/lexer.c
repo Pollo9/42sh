@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sun Jul 30 04:36:53 2006 Seblu
-** Last update Wed Oct 18 18:27:39 2006 seblu
+** Last update Thu Oct 19 13:18:20 2006 seblu
 */
 
 #include <stdio.h>
@@ -181,8 +181,10 @@ s_lexer		*lexer_init(int fd)
   new->stream = getline_open(fd);
   new->buf = NULL;
   new->buf_size = new->buf_pos = 0;
-  token_set(&new->previous, TOK_NONE, NULL);
-  token_set(&new->current, TOK_NONE, NULL);
+  //dont use token_set, because it make comparaison on uninitialized values
+  new->previous.id = new->current.id = TOK_NONE;
+  new->previous.str = new->current.str = NULL;
+  new->previous.len = new->current.len = 0;
   new->eof = 0;
   return new;
 }

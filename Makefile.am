@@ -1,11 +1,54 @@
-SUBDIRS = 	src
+bin_PROGRAMS=42sh
 
-noinst_DATA=42sh$(EXEEXT)
-DISTCLEANFILES=42sh$(EXEEXT)
+42sh_SOURCES=	src/ast/ast.h				\
+		src/ast/ast_and.c			\
+		src/ast/ast_bang.c			\
+		src/ast/ast_case.c			\
+		src/ast/ast_cmd.c			\
+		src/ast/ast_destruct.c			\
+		src/ast/ast_for.c			\
+		src/ast/ast_funcdec.c			\
+		src/ast/ast_if.c			\
+		src/ast/ast_or.c			\
+		src/ast/ast_pipe.c			\
+		src/ast/ast_print.c			\
+		src/ast/ast_red.c			\
+		src/ast/ast_sep.c			\
+		src/ast/ast_sepand.c			\
+		src/ast/ast_subshell.c			\
+		src/ast/ast_while.c			\
+		src/common/basename.c			\
+		src/common/common.h			\
+		src/common/constant.h			\
+		src/common/isdigitstr.c			\
+		src/common/macro.h			\
+		src/common/strmerge.c			\
+		src/common/strvectoradd.c		\
+		src/common/strvmerge.c			\
+		src/common/strndup.c			\
+		src/exec/exec.h				\
+		src/exec/exec_node.c			\
+		src/parser/alias.h			\
+		src/parser/alias.c			\
+		src/parser/getline.h			\
+		src/parser/getline.c			\
+		src/parser/parser.h			\
+		src/parser/parser.c			\
+		src/parser/lexer.c			\
+		src/shell/getoptions.c			\
+		src/shell/option.h			\
+		src/shell/option.c			\
+		src/shell/shell.h			\
+		src/shell/shell_entry.c			\
+		src/shell/shell_init.c			\
+		src/shell/shell_destroy.c		\
+		src/shell/prompt.c
+
+CLEANFILES= *~ '\#*'
+
+EXTRA_DIST = AUTHORS README TODO
 
 .PHONY: tar doc re
-
-42sh$(EXEEXT): src/42sh$(EXEEXT)
 
 tar: distcheck
 
@@ -13,7 +56,3 @@ re: clean all
 
 doc:
 	cd $(srcdir)/doc && $(MAKE) doc
-
-CLEANFILES= *~ '\#*'
-
-EXTRA_DIST = AUTHORS README TODO
