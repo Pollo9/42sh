@@ -5,20 +5,19 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sat Mar 25 14:51:09 2006 Seblu
-** Last update Sun Nov 12 13:36:41 2006 seblu
+** Last update Sun Nov 12 16:43:18 2006 Seblu
 */
 
 #include "exec.h"
 
 void		exec_node(s_ast_node *node)
 {
-  if (node == NULL)
-    return;
+  assert(node);
   switch (node->type) {
   case T_SEP: break;
   case T_SEPAND: break;
   case T_CMD: break;
-  case T_RED: break;
+  case T_RED: exec_red(&node->body.child_red); break;
   case T_PIPE: break;
   case T_AND: exec_and(&node->body.child_and); break;
   case T_OR: exec_or(&node->body.child_or); break;

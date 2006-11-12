@@ -32,6 +32,7 @@ bin_PROGRAMS=42sh
 		src/exec/exec_node.c			\
 		src/exec/exec_or.c			\
 		src/exec/exec_if.c			\
+		src/exec/exec_red.c			\
 		src/exec/exec_sep.c			\
 		src/exec/exec_sepand.c			\
 		src/exec/exec_while.c			\

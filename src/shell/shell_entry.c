@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Mon Apr 10 23:57:28 2006 Seblu
-** Last update Fri Oct 13 14:34:17 2006 seblu
+** Last update Sun Nov 12 16:38:29 2006 Seblu
 */
 
 #include <stdio.h>
@@ -51,7 +51,8 @@ int		main(int argc, char *argv[])
       return ERROR_PARSE;
     if (option_isset(shell->options, "ast_print"))
       ast_print(ast, NULL);
-    exec_node(ast);
+    if (ast)
+      exec_node(ast);
     ast_destruct(ast);
   }
   while (!parser->lexer->eof);
