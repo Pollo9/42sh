@@ -15,19 +15,22 @@ echo "checking CFLAGS..."
 AC_CANONICAL_HOST
 
 case $host_os in
-  *osf*)
+     *osf*)
 	CFLAGS='-Wall -W -ansi -pedantic -D_XOPEN_SOURCE=600'
 	;;
-  *solaris*)
+     *solaris*)
 	CFLAGS='-Wall -W -ansi -pedantic -D_XOPEN_SOURCE=600'
 	;;
-  *linux*|*netbsd*)
+     *linux*|*netbsd*)
 	CFLAGS='-Wall -Wextra -std=c99 -pedantic -D_XOPEN_SOURCE=600 -pipe'
 	;;
-  *)
-	pl="`uname -s`"
-	AC_MSG_ERROR([Platform $pl not supported.])
+     *darwin*)
+	CFLAGS='-Wall -W -std=c99 -pedantic -D_XOPEN_SOURCE=600 -pipe'
 	;;
+  *)
+       pl="`uname -s`"
+       AC_MSG_ERROR([Platform $pl not supported.])
+       ;;
 esac
 
 # Check for C compiler
@@ -85,8 +88,6 @@ AC_CHECK_HEADERS([limits.h])
 
 dnl Memo:
 dnl AC ARG WITH(package, help-string, [action-if-given], [action-if-not-given])
-
-
 AC_ARG_WITH([noerror],
   [AS_HELP_STRING([--with-noerror], [Warning dont create compilation error])],
   [dnl action-if-given

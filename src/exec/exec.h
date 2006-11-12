@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sun Mar 30 16:02:07 2006 Seblu
-** Last update Sun Nov 12 03:43:20 2006 seblu
+** Last update Sun Nov 12 13:29:49 2006 seblu
 */
 
 #ifndef EXEC_H_
@@ -16,21 +16,12 @@
 # include "../ast/ast.h"
 # include "../shell/shell.h"
 
-void	exec_node(s_ast_node *node);
-
-/* void exec_list(struct s_list *node, struct s_42sh *sh); */
-/* void exec_if(struct s_if *node, struct s_42sh *sh); */
-/* void exec_while(struct s_while *node, struct s_42sh *sh); */
-/* void exec_until(struct s_while *node, struct s_42sh *sh); */
-/* void exec_and(struct s_op *node, struct s_42sh *sh); */
-/* void exec_or(struct s_op *node, struct s_42sh *sh); */
-/* void exec_cmd(struct s_cmd *node, struct s_42sh *sh); */
-/* void exec_pipe(struct s_op *node, struct s_42sh *sh); */
-/* void exec_bang(struct s_op *node, struct s_42sh *sh); */
-/* void exec_sepand(struct s_op *node, struct s_42sh *sh); */
-/* void exec_sepsemicolon(struct s_op *node, struct s_42sh *sh); */
-/* void exec_line(struct s_op *node, struct s_42sh *sh); */
-/* void exec_subshell(struct s_subshell *node, struct s_42sh *sh); */
+void		exec_node(s_ast_node *node);
+void		exec_and(s_bin_node *node);
+void		exec_or(s_bin_node *node);
+void		exec_bang(s_bin_node *node);
+void		exec_if(s_if_node *node);
+void		exec_while(s_while_node *node);
 
 /* FIXME */
 

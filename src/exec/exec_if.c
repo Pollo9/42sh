@@ -5,12 +5,12 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sat Mar 25 15:27:20 2006 Seblu
-** Last update Sun Nov 12 03:45:42 2006 seblu
+** Last update Sun Nov 12 13:11:02 2006 seblu
 */
 
 #include "exec.h"
 
-void exec_if(s_if_node *node)
+void		exec_if(s_if_node *node)
 {
   assert(node);
   exec_node(node->cond);
