@@ -1,11 +1,11 @@
 /*
-** exec_subshell.c for 42sh in /home/seblu/devel/c/42sh/src/execution
+** exec_subshell.c for 42sh
 **
 ** Made by Seblu
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sat Apr 15 08:54:51 2006 Seblu
-** Last update Tue May 16 20:18:49 2006 Seblu
+** Last update Sun Nov 12 03:48:42 2006 seblu
 */
 
 #include <string.h>

@@ -1,11 +1,11 @@
 /*
-** exec_cmd.c for 42sh in /home/seblu/devel/c/42sh/src/execution
+** exec_cmd.c for 42sh
 **
 ** Made by Seblu
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sat Apr  8 07:38:48 2006 Seblu
-** Last update Sun May 21 17:07:27 2006 Seblu
+** Last update Sun Nov 12 04:04:09 2006 seblu
 */
 
 #define DEBUG_EXEC 0
@@ -28,7 +28,6 @@
 #include "../history/history.h"
 #include "../expand/expand.h"
 
-#include "mem.h"
 
 #define rederror(prompt) do { perror(prompt); return 0; } while (0)
 

@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Wed Aug  2 00:56:07 2006 Seblu
-** Last update Wed Oct 18 19:21:32 2006 seblu
+** Last update Sun Nov 12 02:58:03 2006 seblu
 */
 
 
@@ -327,10 +327,6 @@ static s_ast_node	*parse_simplecommand(s_parser *parser)
   found += parse_element(parser, cmd, &red);
   if (!found)
     parse_error(parser, lexer_lookahead(parser->lexer));
-  if (cmd->body.child_cmd.argv && cmd->body.child_cmd.argv[0])
-    debugmsg(cmd->body.child_cmd.argv[0]);
-  else if (cmd->body.child_cmd.prefix && cmd->body.child_cmd.prefix[0])
-    debugmsg(cmd->body.child_cmd.prefix[0]);
   if (red) {
     red->body.child_red.mhs = cmd;
     cmd = red;

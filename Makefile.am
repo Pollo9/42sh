@@ -27,7 +27,14 @@ bin_PROGRAMS=42sh
 		src/common/strvmerge.c			\
 		src/common/strndup.c			\
 		src/exec/exec.h				\
+		src/exec/exec_and.c			\
+		src/exec/exec_bang.c			\
 		src/exec/exec_node.c			\
+		src/exec/exec_or.c			\
+		src/exec/exec_if.c			\
+		src/exec/exec_sep.c			\
+		src/exec/exec_sepand.c			\
+		src/exec/exec_while.c			\
 		src/parser/alias.h			\
 		src/parser/alias.c			\
 		src/parser/getline.h			\
@@ -44,7 +51,7 @@ bin_PROGRAMS=42sh
 		src/shell/shell_destroy.c		\
 		src/shell/prompt.c
 
-CLEANFILES= *~ '\#*'
+CLEANFILES= *~ \#*\#
 
 EXTRA_DIST = AUTHORS README TODO
 

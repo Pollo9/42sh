@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Wed Aug  2 00:49:50 2006 Seblu
-** Last update Wed Oct 18 18:28:06 2006 seblu
+** Last update Sun Nov 12 02:55:47 2006 seblu
 */
 
 #ifndef PARSER_H_
@@ -16,7 +16,7 @@
 # include "getline.h"
 
 // Define is parser or lexer is running for DEBBUGING
-# define DEBUG_PARSER 1
+# define DEBUG_PARSER 0
 # define DEBUG_LEXER 0
 
 enum {

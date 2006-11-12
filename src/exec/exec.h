@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sun Mar 30 16:02:07 2006 Seblu
-** Last update Tue Aug 29 00:15:59 2006 Seblu
+** Last update Sun Nov 12 03:43:20 2006 seblu
 */
 
 #ifndef EXEC_H_
@@ -14,10 +14,10 @@
 # include <assert.h>
 # include <stdio.h>
 # include "../ast/ast.h"
+# include "../shell/shell.h"
 
 void	exec_node(s_ast_node *node);
 
-/* void exec_node(struct s_ast *node, struct s_42sh *sh); */
 /* void exec_list(struct s_list *node, struct s_42sh *sh); */
 /* void exec_if(struct s_if *node, struct s_42sh *sh); */
 /* void exec_while(struct s_while *node, struct s_42sh *sh); */
@@ -32,7 +32,7 @@ void	exec_node(s_ast_node *node);
 /* void exec_line(struct s_op *node, struct s_42sh *sh); */
 /* void exec_subshell(struct s_subshell *node, struct s_42sh *sh); */
 
-/* /\* FIXME *\/ */
+/* FIXME */
 
 /* void exec_for(struct s_for *node, struct s_42sh *sh); */
 /* void exec_case(struct s_case *node, struct s_42sh *sh); */

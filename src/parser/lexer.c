@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sun Jul 30 04:36:53 2006 Seblu
-** Last update Thu Oct 19 13:18:20 2006 seblu
+** Last update Sun Nov 12 03:11:19 2006 seblu
 */
 
 #include <stdio.h>
@@ -239,7 +239,10 @@ s_token		lexer_getheredoc(s_lexer *lexer, const char *delim)
   char		*line;
 
   if (lexer->eof) {
-    token_set(&token, TOK_EOF, "EOF");
+    //don't use token_set because it's not for new token
+    token.id = TOK_EOF;
+    token.str = "EOF";
+    token.len = 3;
     return token;
   }
   show_prompt(PROMPT_PS2);
@@ -252,7 +255,10 @@ s_token		lexer_getheredoc(s_lexer *lexer, const char *delim)
     buf = strmerge(2, buf, line);
   }
   while (strcmp(line, delim));
-  token_set(&token, TOK_WORD, buf);
+  //don't use token set because token is unitialized!
+  token.id = TOK_WORD;
+  token.str = buf;
+  token.len = strlen(buf);
   return token;
 }
 
@@ -274,7 +280,7 @@ static void	token_move(s_token *src, s_token *dst)
   src->len = 0;
 }
 
-static void	lexer_eattoken(s_lexer *lexer)
+static  void	lexer_eattoken(s_lexer *lexer)
 {
   //if last char was read free buffer
   if (lexer->buf && lexer->buf_pos == lexer->buf_size) {

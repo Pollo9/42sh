@@ -1,27 +1,20 @@
 /*
-** exec_and.c for 42sh in /home/seblu
+** exec_and.c for 42sh
 **
 ** Made by Seblu
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sat Mar 25 15:27:20 2006 Seblu
-** Last update Sun Apr  9 12:04:03 2006 SIGOURE Benoit
+** Last update Sun Nov 12 03:43:57 2006 seblu
 */
 
-#include "execution.h"
+#include "exec.h"
 
-#include "mem.h"
-
-/*!
-** Execution an AND node
-**
-** @param node node to treat
-** @param sh sh data
-*/
-void		exec_and(struct s_op *node, struct s_42sh *sh)
+void		exec_and(s_bin_node *node)
 {
-  assert(node && sh);
-  exec_node(node->left, sh);
-  if (!sh->last_status)
-    exec_node(node->right, sh);
+  assert(node && node->lhs && node->rhs);
+  exec_node(node->lhs);
+  //FIXME: error with chained "or" and "and"
+  if (!shell->status)
+    exec_node(node->rhs);
 }
