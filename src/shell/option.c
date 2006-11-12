@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Tue Mar 21 19:00:38 2006 Seblu
-** Last update Wed Aug 30 00:19:38 2006 Seblu
+** Last update Sun Nov 12 20:11:40 2006 Seblu
 */
 
 /*
@@ -42,6 +42,7 @@ s_options	*option_init(void)
 
   secmalloc(new, sizeof (s_options));
   new->command = NULL;
+  //FIXME: item is uninitialized! Do it here
   return new;
 }
 

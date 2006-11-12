@@ -1,11 +1,11 @@
 /*
-** builtin_cd.c for 42sh in /home/seblu/devel/c/42sh/src/execution
+** builtin_cd.c for 42sh
 **
 ** Made by Seblu
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Tue Apr 11 00:23:47 2006 Seblu
-** Last update Sun May 21 19:17:53 2006 Seblu
+** Last update Sun Nov 12 19:55:57 2006 Seblu
 */
 
 #include <ctype.h>
@@ -19,8 +19,6 @@
 #include "builtin.h"
 #include "../var/var.h"
 
-#include "mem.h"
-
 static int cd_var(struct s_42sh *sh, const char *name);
 static int cd_minus(struct s_42sh *sh);
 static int secure_chdir(const char *path);
@@ -30,7 +28,7 @@ static int secure_chdir(const char *path);
 ** @param argv The tab of args: terminated by NULL, argv[0] = "cd"
 ** @param sh The 42sh structure
 */
-int	builtin_cd(char **argv, struct s_42sh *sh)
+int	builtin_cd(char **argv)
 {
   assert(sh && argv && argv[0]);
 

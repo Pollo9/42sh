@@ -17,6 +17,9 @@ bin_PROGRAMS=42sh
 		src/ast/ast_sepand.c			\
 		src/ast/ast_subshell.c			\
 		src/ast/ast_while.c			\
+		src/builtin/builtin.h			\
+		src/builtin/builtin.c			\
+		src/builtin/builtin_exit.c		\
 		src/common/basename.c			\
 		src/common/common.h			\
 		src/common/constant.h			\
