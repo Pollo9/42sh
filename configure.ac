@@ -15,17 +15,14 @@ echo "checking CFLAGS..."
 AC_CANONICAL_HOST
 
 case $host_os in
-  *netbsd*)
-	CFLAGS='-Wall -W -ansi -pedantic -D_XOPEN_SOURCE=600'
-	;;
   *osf*)
 	CFLAGS='-Wall -W -ansi -pedantic -D_XOPEN_SOURCE=600'
 	;;
   *solaris*)
 	CFLAGS='-Wall -W -ansi -pedantic -D_XOPEN_SOURCE=600'
 	;;
-  *linux*)
-	CFLAGS='-Wall -Wextra -std=c99 -pedantic -D_XOPEN_SOURCE=600'
+  *linux*|*netbsd*)
+	CFLAGS='-Wall -Wextra -std=c99 -pedantic -D_XOPEN_SOURCE=600 -pipe'
 	;;
   *)
 	pl="`uname -s`"
