@@ -1,15 +1,15 @@
 /*
-** common.h for 42sh
+** function.h for 42sh
 **
 ** Made by Seblu
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sun Jul 30 03:59:48 2006 Seblu
-** Last update Wed Oct 11 16:56:07 2006 seblu
+** Last update Tue Nov 14 15:36:14 2006 seblu
 */
 
-#ifndef COMMON_H_
-# define COMMON_H_
+#ifndef FUNCTION_H_
+# define FUNCTION_H_
 
 /*!
 ** Merge strings
@@ -73,5 +73,35 @@ int		isdigitstr(const char *str);
 ** same address that @arg vector
 */
 char		**strvectoradd(char **vector, char *str);
+
+/*!
+** Return the current working directory in a malloced string.
+**
+** @return the current working directory
+*/
+char			*getcwd2(void);
+
+/*!
+** Add a name and value to the current environment
+**
+** @param name variable name
+** @param value variable value
+** @param overwrite boolean which tell if overwrite a existing value
+**
+** @return boolean success
+*/
+int		setenv2(char	*name,
+			char	*value,
+			int	overwrite);
+
+/*!
+** Remove from environment a variable.
+** @warning Don't use unsetenv !
+**
+** @param name env variable to remove
+**
+** @return boolean success
+*/
+int		unsetenv2(const char *name);
 
 #endif

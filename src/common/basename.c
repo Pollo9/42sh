@@ -5,11 +5,11 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Thu Aug  3 05:29:46 2006 Seblu
-** Last update Sat Aug 19 01:57:49 2006 Seblu
+** Last update Tue Nov 14 15:37:34 2006 seblu
 */
 
 #include <string.h>
-#include "common.h"
+#include "function.h"
 
 char		*basename(const char *path)
 {

@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Wed Aug 23 00:32:09 2006 Seblu
-** Last update Mon Aug 28 23:07:38 2006 Seblu
+** Last update Tue Nov 14 15:32:55 2006 seblu
 */
 
 #ifndef ALIAS_H_
@@ -13,25 +13,25 @@
 
 # include <stddef.h>
 
-typedef struct alias
+typedef struct alias_item
 {
   char		*name;
   char		*value;
-} s_alias;
+} s_alias_item;
 
-typedef struct aliases
+typedef struct alias
 {
   size_t	size;
   size_t	pos;
-  s_alias	**db;
-} s_aliases;
+  s_alias_item	**db;
+} s_alias;
 
 /*!
 ** Create a new aliases database
 **
 ** @return new alias database
 */
-s_aliases	*alias_init(void);
+s_alias		*alias_init(void);
 
 /*!
 ** Add an alias into an alias database
@@ -40,7 +40,7 @@ s_aliases	*alias_init(void);
 ** @param name new alias name
 ** @param value new alias value
 */
-void		alias_add(s_aliases *aliases, const char *name, const char *value);
+void		alias_add(s_alias *aliases, const char *name, const char *value);
 
 /*!
 ** Remove an alias into an alias database
@@ -50,6 +50,6 @@ void		alias_add(s_aliases *aliases, const char *name, const char *value);
 **
 ** @return true, if alias was found in database, else false
 */
-int		alias_remove(s_aliases *aliases, const char *name);
+int		alias_remove(s_alias *aliases, const char *name);
 
 #endif

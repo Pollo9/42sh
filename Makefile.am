@@ -21,8 +21,10 @@ bin_PROGRAMS=42sh
 		src/builtin/builtin.c			\
 		src/builtin/builtin_exit.c		\
 		src/common/basename.c			\
-		src/common/common.h			\
 		src/common/constant.h			\
+		src/common/env.c			\
+		src/common/function.h			\
+		src/common/getcwd2.c			\
 		src/common/isdigitstr.c			\
 		src/common/macro.h			\
 		src/common/strmerge.c			\
@@ -39,21 +41,24 @@ bin_PROGRAMS=42sh
 		src/exec/exec_sep.c			\
 		src/exec/exec_sepand.c			\
 		src/exec/exec_while.c			\
-		src/parser/alias.h			\
 		src/parser/alias.c			\
-		src/parser/getline.h			\
+		src/parser/alias.h			\
 		src/parser/getline.c			\
-		src/parser/parser.h			\
+		src/parser/getline.h			\
 		src/parser/parser.c			\
+		src/parser/parser.h			\
 		src/parser/lexer.c			\
+		src/shell/func.c			\
+		src/shell/func.h			\
 		src/shell/getoptions.c			\
-		src/shell/option.h			\
 		src/shell/option.c			\
+		src/shell/option.h			\
+		src/shell/shell.c			\
 		src/shell/shell.h			\
-		src/shell/shell_entry.c			\
-		src/shell/shell_init.c			\
-		src/shell/shell_destroy.c		\
-		src/shell/prompt.c
+		src/shell/prompt.c			\
+		src/shell/var.c				\
+		src/shell/var.h
+
 
 CLEANFILES= *~ \#*\#
 

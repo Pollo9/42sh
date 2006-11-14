@@ -5,21 +5,21 @@
 ** Login  <seblu@epita.fr>
 **
 ** Started on  Tue Mar 21 18:50:03 2006 Seblu
-** Last update Wed Aug 30 00:19:19 2006 Seblu
+** Last update Tue Nov 14 15:29:08 2006 seblu
 */
 
 #ifndef OPTION_H_
 # define OPTION_H_
 
-#define NBR_OPTION 9
-
 #define DEBUG_OPTION 0
 
-typedef struct options
+enum { OPTION_COUNT = 9 };
+
+typedef struct option
 {
-  signed char	item[NBR_OPTION];
+  signed char	item[OPTION_COUNT];
   char		*command;
-} s_options;
+} s_option;
 
 /*
 ** ==============
@@ -32,7 +32,14 @@ typedef struct options
 **
 ** @return A new options structure
 */
-s_options	*option_init(void);
+s_option	*option_init(void);
+
+/*!
+** Set default shell options
+**
+** @param opt option struct
+*/
+void		option_set_default(s_option *shopt);
 
 /*!
 ** Set a shell option
@@ -42,7 +49,7 @@ s_options	*option_init(void);
 **
 ** @return 0 on failure, else 1
 */
-int		option_set(s_options *shopt, const char *name);
+int		option_set(s_option *shopt, const char *name);
 
 /*!
 ** Unset a shell option
@@ -52,7 +59,7 @@ int		option_set(s_options *shopt, const char *name);
 **
 ** @return 0 on failure, else 1
 */
-int		option_unset(s_options *shopt, const char *name);
+int		option_unset(s_option *shopt, const char *name);
 
 /*!
 ** Tell if an option is set. if option nane is not set return -1
@@ -62,7 +69,7 @@ int		option_unset(s_options *shopt, const char *name);
 **
 ** @return 0 if unset, 1 if set and -1 if not exist
 */
-int		option_isset(const s_options *shopt, const char *name);
+int		option_isset(const s_option *shopt, const char *name);
 
 /*!
 ** Return a list of know opt
@@ -84,6 +91,6 @@ const char	**opt_get();
 ** @param argc program argc
 ** @param argv program argv
 */
-void		getoptions(s_options *opt, int argc, char **argv);
+void		getoptions(s_option *opt, int argc, char **argv);
 
 #endif

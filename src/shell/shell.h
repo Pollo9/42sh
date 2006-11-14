@@ -1,11 +1,11 @@
 /*
-** shell.h for 42sh in /home/seblu/devel/c/42sh
+** shell.h for 42sh
 **
 ** Made by Seblu
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sun Jul 16 20:03:53 2006 Seblu
-** Last update Tue Oct 17 09:38:57 2006 seblu
+** Last update Tue Nov 14 15:30:52 2006 seblu
 */
 
 #ifndef SHELL_H_
@@ -15,21 +15,19 @@
 # include <stdlib.h>
 # include "../common/constant.h"
 # include "../parser/alias.h"
+# include "var.h"
 # include "option.h"
+# include "func.h"
 
-typedef struct shell
+typedef struct	shell
 {
-/*   struct s_var		*vars; */
-/*   struct s_func		*funcs; */
-/*   struct s_history		*history; */
-  s_aliases		*aliases;
-  s_options		*options;
+  s_var			*var;
+  s_func		*func;
+  s_alias		*alias;
+  s_option		*option;
   char			*name;
   int			status;
 } s_shell;
-
-s_shell			*shell_init(const char *argv0);
-void			shell_destroy(s_shell *sh);
 
 const char		*get_prompt(e_prompt pty);
 

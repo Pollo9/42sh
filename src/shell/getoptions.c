@@ -5,14 +5,14 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sun Jul 30 03:28:26 2006 Seblu
-** Last update Mon Sep 25 02:52:45 2006 Seblu
+** Last update Tue Nov 14 15:38:32 2006 seblu
 */
 
 #include <stdio.h>
 #include <string.h>
 #include "option.h"
 #include "shell.h"
-#include "../common/common.h"
+#include "../common/function.h"
 
 /*!
 ** Parse the command line
@@ -21,7 +21,7 @@
 ** @param argv program argv
 ** @param opt shell opt structure to set with options
 */
-void	getoptions(s_options *opt, int argc, char **argv)
+void	getoptions(s_option *opt, int argc, char **argv)
 {
 #if DEBUG_OPTION == 1
   printf("* Option Parser\n");
@@ -41,7 +41,7 @@ void	getoptions(s_options *opt, int argc, char **argv)
       break;
     }
     else if (!strcmp(copt, "--ast-print"))
-      option_set(shell->options, "ast_print");
+      option_set(shell->option, "ast_print");
     else {
       printf("Error: Invalid option %s\n", copt);
       exit(1);
