@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Tue Nov 14 13:54:14 2006 seblu
-** Last update Tue Nov 14 15:26:09 2006 seblu
+** Last update Wed Nov 15 10:36:09 2006 seblu
 */
 
 #ifndef VAR_H_
@@ -55,7 +55,6 @@ const char	*var_get(const s_var *var, const char *name);
 void		var_set(s_var	*var,
 			char	*name,
 			char	*value,
-			int	env,
 			int	overwrite);
 
 /*!

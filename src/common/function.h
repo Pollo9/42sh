@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sun Jul 30 03:59:48 2006 Seblu
-** Last update Tue Nov 14 15:36:14 2006 seblu
+** Last update Wed Nov 15 10:34:19 2006 seblu
 */
 
 #ifndef FUNCTION_H_
@@ -81,6 +81,8 @@ char		**strvectoradd(char **vector, char *str);
 */
 char			*getcwd2(void);
 
+# define setenv setenv2
+
 /*!
 ** Add a name and value to the current environment
 **
@@ -93,6 +95,8 @@ char			*getcwd2(void);
 int		setenv2(char	*name,
 			char	*value,
 			int	overwrite);
+
+# define unsetenv unsetenv2
 
 /*!
 ** Remove from environment a variable.

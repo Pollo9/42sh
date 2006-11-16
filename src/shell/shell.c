@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Mon Apr 10 23:57:28 2006 Seblu
-** Last update Tue Nov 14 15:46:38 2006 seblu
+** Last update Wed Nov 15 14:14:05 2006 seblu
 */
 
 #include <stdio.h>
@@ -66,7 +66,7 @@ int		main(int argc, char *argv[])
   option_set_default(shell->option);
   // parse argv for user options
   getoptions(shell->option, argc, argv);
-  //FIXME: set PWD et OLDPWD variable
+  //FIXME: set shell env variables (eg. PWD, OLDPWD)
   // shell parser init
   parser = parser_init(STDIN_FILENO);
   // parse and execute stdin stream
@@ -76,7 +76,7 @@ int		main(int argc, char *argv[])
       continue;
     else if (parser->error)
       return ERROR_PARSE;
-    if (option_isset(shell->option, "ast_print"))
+    if (option_is_set(shell->option, "ast_print"))
       ast_print(ast, NULL);
     if (ast)
       exec_node(ast);

@@ -5,17 +5,19 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Tue Nov 14 14:52:22 2006 seblu
-** Last update Tue Nov 14 15:59:32 2006 seblu
+** Last update Thu Nov 16 17:02:27 2006 seblu
 */
 
 #ifndef FUNC_H_
 # define FUNC_H_
 
 # include <assert.h>
-# include <stdlib.h>
 # include "../ast/ast.h"
 
-enum { FUNC_DEFAULT_SIZE = 5 };
+enum {
+  FUNC_DEFAULT_SIZE = 5,
+  FUNC_PADDING = 5
+};
 
 typedef struct	func_item
 {
@@ -37,10 +39,48 @@ typedef struct	func
 */
 s_func		*func_init(void);
 
-/* int		func_add(char *, struct s_ast *, struct s_func **); */
-/* int		func_del(const char *, struct s_func **); */
-/* int		func_exec(const char *, struct s_42sh *); */
-/* void		func_clean(struct s_func **); */
-/* struct s_ast 	*func_get(const char *, struct s_func **); */
+/*!
+** Return if @var name is a function.
+**
+** @param func func struct
+** @param name function name
+**
+** @return boolean existance
+*/
+int		is_a_function(s_func *func, const char *name);
+
+/*!
+** Add a function. @var name and @var body are not copied.
+** Not free/modify it after adding function.
+** Return a boolean which explain if function @var name
+** has been deleted before insertion.
+**
+** @param func func struct
+** @param name func name
+** @param body func body
+**
+** @return an boolean already exist function information
+*/
+int		func_add(s_func *func, char *name, s_ast_node *body);
+
+/*!
+** Delete a function and destroy is AST.
+**
+** @param func func struct
+** @param name func name to deleted
+**
+** @return Boolean delete success
+*/
+int		func_del(s_func *func, const char *name);
+
+/*!
+** Return the function body of a function.
+**
+** @param func func struct
+** @param name func name
+**
+** @return ast node to corresponding to the function
+*/
+s_ast_node	*func_get(s_func *func, const char *name);
 
 #endif

@@ -5,7 +5,7 @@
 ** Login  <seblu@epita.fr>
 **
 ** Started on  Tue Mar 21 18:50:03 2006 Seblu
-** Last update Tue Nov 14 15:29:08 2006 seblu
+** Last update Wed Nov 15 13:35:32 2006 seblu
 */
 
 #ifndef OPTION_H_
@@ -13,7 +13,7 @@
 
 #define DEBUG_OPTION 0
 
-enum { OPTION_COUNT = 9 };
+enum { OPTION_COUNT = 10 };
 
 typedef struct option
 {
@@ -69,7 +69,7 @@ int		option_unset(s_option *shopt, const char *name);
 **
 ** @return 0 if unset, 1 if set and -1 if not exist
 */
-int		option_isset(const s_option *shopt, const char *name);
+int		option_is_set(const s_option *shopt, const char *name);
 
 /*!
 ** Return a list of know opt

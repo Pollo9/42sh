@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sun Jul 30 04:40:03 2006 Seblu
-** Last update Tue Oct 17 17:14:49 2006 seblu
+** Last update Thu Nov 16 17:01:11 2006 seblu
 */
 
 #ifndef AST_H_
@@ -179,6 +179,12 @@ struct			ast_node
   u_node_item		body;
 };
 
+/*
+** =================
+** FILE: ast_print.c
+** =================
+*/
+
 /*!
 ** Print an ast to @arg filename file
 **
@@ -197,6 +203,12 @@ void		ast_print(s_ast_node *ast, const char *filename);
 */
 void		ast_print_node(s_ast_node *ast, FILE *fs, unsigned int *node_id);
 
+/*
+** ====================
+** FILE: ast_destruct.c
+** ====================
+*/
+
 /*!
 ** Destroy node and all its childs
 **
@@ -212,6 +224,12 @@ void		ast_destruct(s_ast_node *ast);
 **
 */
 void		ast_destruct_node(s_ast_node *ast);
+
+/*
+** ===========
+** ast_if.c
+** ===========
+*/
 
 /*!
 ** Create an if ast node
@@ -247,6 +265,12 @@ void		ast_if_destruct_node(s_ast_node *node);
 ** @param node node to destroy
 */
 void		ast_if_destruct(s_ast_node *node);
+
+/*
+** ===============
+** FILE: ast_for.c
+** ===============
+*/
 
 /*!
 ** Create a for ast node
@@ -284,6 +308,12 @@ void		ast_for_destruct_node(s_ast_node *node);
 ** @param node node to destroy
 */
 void		ast_for_destruct(s_ast_node *node);
+
+/*
+** ================
+** FILE: ast_case.c
+** ================
+*/
 
 /*!
 ** Create a case ast node
@@ -329,6 +359,12 @@ void		ast_case_destruct_node(s_ast_node *node);
 */
 void		ast_case_destruct(s_ast_node *node);
 
+/*
+** =================
+** FILE: ast_while.c
+** =================
+*/
+
 /*!
 ** Create a while ast node
 **
@@ -361,6 +397,12 @@ void		ast_while_destruct_node(s_ast_node *node);
 ** @param node node to destroy
 */
 void		ast_while_destruct(s_ast_node *node);
+
+/*
+** ===============
+** FILE: ast_red.c
+** ===============
+*/
 
 /*!
 ** Create a redirection ast node
@@ -404,6 +446,12 @@ void		ast_red_destruct_node(s_ast_node *node);
 ** @param node node to destroy
 */
 void		ast_red_destruct(s_ast_node *node);
+
+/*
+** ===============
+** FILE: ast_cmd.c
+** ===============
+*/
 
 /*!
 ** Create a cmd ast node
@@ -451,6 +499,12 @@ void		ast_cmd_destruct_node(s_ast_node *node);
 */
 void		ast_cmd_destruct(s_ast_node *node);
 
+/*
+** ===============
+** FILE: ast_and.c
+** ===============
+*/
+
 /*!
 ** Create an and (&&) ast node
 **
@@ -483,6 +537,12 @@ void		ast_and_destruct_node(s_ast_node *node);
 ** @param node node to destroy
 */
 void		ast_and_destruct(s_ast_node *node);
+
+/*
+** ==============
+** FILE: ast_or.c
+** ==============
+*/
 
 /*!
 ** Create an or (||) ast node
@@ -517,6 +577,12 @@ void		ast_or_destruct_node(s_ast_node *node);
 */
 void		ast_or_destruct(s_ast_node *node);
 
+/*
+** ====================
+** FILE: ast_subshell.c
+** ====================
+*/
+
 /*!
 ** Create a subshell (()) ast node
 **
@@ -548,6 +614,12 @@ void		ast_subshell_destruct_node(s_ast_node *node);
 ** @param node node to destroy
 */
 void		ast_subshell_destruct(s_ast_node *node);
+
+/*
+** ===================
+** FILE: ast_funcdec.c
+** ===================
+*/
 
 /*!
 ** Create a funcdec (function declaration) ast node
@@ -582,6 +654,12 @@ void		ast_funcdec_destruct_node(s_ast_node *node);
 */
 void		ast_funcdec_destruct(s_ast_node *node);
 
+/*
+** ================
+** FILE: ast_bang.c
+** ================
+*/
+
 /*!
 ** Create a bang (!) ast node
 **
@@ -613,6 +691,12 @@ void		ast_bang_destruct_node(s_ast_node *node);
 ** @param node node to destroy
 */
 void		ast_bang_destruct(s_ast_node *node);
+
+/*
+** ================
+** FILE: ast_pipe.c
+** ================
+*/
 
 /*!
 ** Create a pipe (|) ast node
@@ -646,6 +730,12 @@ void		ast_pipe_destruct_node(s_ast_node *node);
 */
 void		ast_pipe_destruct(s_ast_node *node);
 
+/*
+** ===============
+** FILE: ast_sep.c
+** ===============
+*/
+
 /*!
 ** Create a separtor (;) ast node
 **
@@ -677,6 +767,12 @@ void		ast_sep_destruct_node(s_ast_node *node);
 ** @param node node to destroy
 */
 void		ast_sep_destruct(s_ast_node *node);
+
+/*
+** ==================
+** FILE: ast_sepand.c
+** ==================
+*/
 
 /*!
 ** Create a sepand (&) ast node

@@ -1,53 +1,25 @@
 /*
-** builtin_shopt.c for 42sh in /goinfre/seblu/42sh/src
+** builtin_shopt.c for 42sh
 **
 ** Made by Seblu
-** Login   <luttri_s@epita.fr>
+** Login   <seblu@epita.fr>
 **
 ** Started on  Wed Mar 22 16:27:35 2006 Seblu
-** Last update Tue Apr 11 00:24:22 2006 Seblu
+** Last update Wed Nov 15 15:18:32 2006 seblu
 */
 
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
 #include "builtin.h"
-#include "../main/42sh.h"
-#include "../opt/opt.h"
+#include "../shell/option.h"
+#include "../shell/shell.h"
 
-#include "mem.h"
-
-static void	getoption(char *argv[], int *argp, int opts[2]);
-static int	mutator_opt(char *argv[], int *argp, int opts[2], struct s_42sh *sh);
-static int	show_opt(char *argv[], int *argp, int opts[2], struct s_42sh *sh);
-static int	show_all_opt(int quiet, struct s_42sh *sh);
-
-/*!
-** This builtin change local setting of the shell
-** opts[0] == set or unset
-** opts[1] == quiet mode
-**
-** @param argv argument vector
-** @param sh shell data
-**
-** @return success status
+/*
+** ============
+** DECLARATIONS
+** ============
 */
-int		builtin_shopt(char *argv[], struct s_42sh *sh)
-{
-  int		opts[2];
-  int		argp = 1;
-
-  assert(argv && argv[0] && sh);
-  opts[0] = -1;
-  opts[1] = 0;
-  getoption(argv, &argp, opts);
-  if (opts[0] == -1 && !argv[argp])
-    return show_all_opt(opts[1], sh);
-  else if (opts[0] == -1 && argv[argp])
-    return show_opt(argv, &argp, opts, sh);
-  else
-    return mutator_opt(argv, &argp, opts, sh);
-}
 
 /*!
 ** Retreinve command line option
@@ -57,6 +29,64 @@ int		builtin_shopt(char *argv[], struct s_42sh *sh)
 ** @param line line flag
 ** @param ext extended flag
 */
+static void	getoption(char *argv[], int *argp, int opts[2]);
+
+/*!
+** Sun or unset an option
+**
+** @param argv arg vector
+** @param argp cur pos
+** @param opts argline opts
+**
+** @return builtin status
+*/
+static int	mutator_opt(char *argv[], int *argp, int opts[2]);
+
+/*!
+** Show info about shell opts
+**
+** @param argv arg vector
+** @param argp cur pos
+** @param opts argline opts
+**
+** @return builtin status
+*/
+static int	show_opt(char *argv[], int *argp, int opts[2]);
+
+/*!
+** Show all options
+**
+** @param quiet silent showing
+**
+** @return return status
+*/
+static int	show_all_opt(int quiet);
+
+/*
+** ===========
+** DEFINITIONS
+** ===========
+*/
+
+int		builtin_shopt(char *argv[])
+{
+  int		argp = 1;
+  int		opts[2];
+  // opts[0] == set or unset mode
+  // opts[1] == quiet mode
+
+  assert(argv && argv[0]);
+  opts[0] = -1;
+  opts[1] = 0;
+  getoption(argv, &argp, opts);
+  if (opts[0] == -1 && !argv[argp])
+    return show_all_opt(opts[1]);
+  else if (opts[0] == -1 && argv[argp])
+    return show_opt(argv, &argp, opts);
+  else
+    return mutator_opt(argv, &argp, opts);
+}
+
 static void	getoption(char *argv[], int *argp, int opts[2])
 {
   for (; argv[*argp]; ++*argp)
@@ -70,64 +100,38 @@ static void	getoption(char *argv[], int *argp, int opts[2])
       break;
 }
 
-/*!
-** Sun or unset an option
-**
-** @param argv arg vector
-** @param argp cur pos
-** @param opts argline opts
-** @param sh struct info
-**
-** @return builtin status
-*/
 static int	mutator_opt(char		*argv[],
 			    int			*argp,
-			    int			opts[2],
-			    struct s_42sh	*sh)
+			    int			opts[2])
 {
   int		ret = 0;
 
-  for (; argv[*argp]; ++*argp)
-  {
-    if (opt_isset(argv[*argp], sh->opt) == -1)
-    {
-      fprintf(stderr, "42sh: shopt: %s: invalid shell option name\n",
-	      argv[*argp]);
+  for (; argv[*argp]; ++*argp) {
+    if (option_is_set(shell->option, argv[*argp]) == -1) {
+      fprintf(stderr, "%s: shopt: %s: invalid shell option name\n",
+	      shell->name, argv[*argp]);
       ret = 1;
       continue;
     }
     if (opts[0])
-      opt_set(argv[*argp], sh->opt);
+      option_set(shell->option, argv[*argp]);
     else
-      opt_unset(argv[*argp], sh->opt);
+      option_unset(shell->option, argv[*argp]);
   }
   return ret;
 }
 
-/*!
-** Show info about shell opts
-**
-** @param argv arg vector
-** @param argp cur pos
-** @param opts argline opts
-** @param sh struct info
-**
-** @return builtin status
-*/
 static int	show_opt(char			*argv[],
 			 int			*argp,
-			 int			opts[2],
-			 struct s_42sh		*sh)
+			 int			opts[2])
 {
   int		ret = 0;
   int		isset = 0;
 
-  for (; argv[*argp]; ++*argp)
-  {
-    if ((isset = opt_isset(argv[*argp], sh->opt)) == -1)
-    {
-      fprintf(stderr, "42sh: shopt: %s: invalid shell option name\n",
-	      argv[*argp]);
+  for (; argv[*argp]; ++*argp) {
+    if ((isset = option_is_set(shell->option, argv[*argp])) == -1) {
+      fprintf(stderr, "%s: shopt: %s: invalid shell option name\n",
+	      shell->name, argv[*argp]);
       ret = 1;
       continue;
     }
@@ -139,14 +143,7 @@ static int	show_opt(char			*argv[],
   return ret;
 }
 
-/*!
-** Show all options
-**
-** @param quiet silent showing
-**
-** @return return status
-*/
-static int	show_all_opt(int quiet, struct s_42sh *sh)
+static int	show_all_opt(int quiet)
 {
   const char	**opts;
   register int	i;
@@ -155,6 +152,7 @@ static int	show_all_opt(int quiet, struct s_42sh *sh)
     return 0;
   opts = opt_get();
   for (i = 0; opts[i]; ++i)
-    printf("%-15s %s\n", opts[i], (opt_isset(opts[i], sh->opt)) ? "yes" : "no");
+    printf("%-15s %s\n", opts[i],
+	   (option_is_set(shell->option, opts[i])) ? "yes" : "no");
   return 0;
 }

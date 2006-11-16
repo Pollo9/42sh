@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Tue Mar 21 19:00:38 2006 Seblu
-** Last update Tue Nov 14 20:30:23 2006 seblu
+** Last update Wed Nov 15 13:35:24 2006 seblu
 */
 
 /*
@@ -28,6 +28,7 @@ static const char *opts_table[OPTION_COUNT] = {
   "expand_aliases",
   "ast_print",
   "readline",
+  "noclobber",
 };
 
 /*
@@ -80,7 +81,7 @@ int		option_unset(s_option *shopt, const char *name)
   return 0;
 }
 
-int		option_isset(const s_option *shopt, const char *name)
+int		option_is_set(const s_option *shopt, const char *name)
 {
   register int	i;
 

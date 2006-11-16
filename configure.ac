@@ -112,7 +112,8 @@ AC_ARG_WITH([efence],
   [AS_HELP_STRING([--with-efence], [link with lib efence])],
   [dnl action-if-given
        LDFLAGS="$LDFLAGS -lefence"
-       CFLAGS="$CFLAGS -include stdlib.h -include efence.h"
+       test -r "/usr/include/efence.h" &&
+	    CFLAGS="$CFLAGS -include stdlib.h -include efence.h"
   ],
   [dnl action-if-not-given
   	true

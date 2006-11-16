@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Thu Aug  3 02:41:37 2006 Seblu
-** Last update Wed Oct 18 17:14:16 2006 seblu
+** Last update Thu Nov 16 17:07:14 2006 seblu
 */
 
 #include "ast.h"
@@ -38,7 +38,8 @@ void		ast_funcdec_destruct_node(s_ast_node *node)
 {
   if (node->type != T_FUNCDEC)
     return;
-  free(node->body.child_funcdec.name);
+  if (node->body.child_funcdec.name)
+    free(node->body.child_funcdec.name);
   free(node);
 }
 
@@ -46,7 +47,9 @@ void		ast_funcdec_destruct(s_ast_node *node)
 {
   if (node->type != T_FUNCDEC)
     return;
-  free(node->body.child_funcdec.name);
-  ast_destruct(node->body.child_funcdec.body);
+  if (node->body.child_funcdec.name)
+    free(node->body.child_funcdec.name);
+  if (node->body.child_funcdec.body)
+    ast_destruct(node->body.child_funcdec.body);
   free(node);
 }

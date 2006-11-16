@@ -5,49 +5,50 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Tue Apr 11 00:22:44 2006 Seblu
-** Last update Sun Nov 12 19:56:53 2006 Seblu
+** Last update Thu Nov 16 18:59:29 2006 seblu
 */
 
 #include <string.h>
+#include <assert.h>
 #include "builtin.h"
 
-enum { BUILTIN_COUNT = 7 };
+enum { BUILTIN_COUNT = 10 };
 
-typedef int (*f_builtin)(char *argv[]);
-
-struct builtin_table
+struct		builtin_table
 {
-  const char *name;
-  f_builtin func;
+  const char	*name;
+  f_builtin	func;
 };
 
 static struct builtin_table builtin_table[BUILTIN_COUNT] =
   {
-    {"cd", NULL}, //builtin_cd},
-    {"echo", NULL}, //builtin_echo},
+    {"cd", builtin_cd},
+    {"echo", builtin_echo},
     {"exit", builtin_exit},
-    {"shopt", NULL}, //builtin_shopt},
+    {"shopt", builtin_shopt},
+    {"alias", builtin_alias},
+    {"unalias", builtin_unalias},
     {"source", NULL}, //builtin_source},
+    {"set", NULL}, //builtin_set},
     {"unset", NULL}, //builtin_unset},
     {"export", NULL}, //builtin_export}
   };
 
 int		is_a_builtin(const char *name)
 {
-  register int	i;
-
-  for (i = 0; i < BUILTIN_COUNT; ++i)
+  for (register int i = 0; i < BUILTIN_COUNT; ++i)
     if (!strcmp(name, builtin_table[i].name))
       return 1;
   return 0;
 }
 
-int		exec_builtin(s_cmd_node *cmd)
+f_builtin	get_builtin(const char *name)
 {
-  register int	i;
-
-  for (i = 0; i < BUILTIN_COUNT; ++i)
-    if (!strcmp(cmd->argv[0], builtin_table[i].name))
-      return builtin_table[i].func(cmd->argv);
-  return 0;
+  for (register int i = 0; i < BUILTIN_COUNT; ++i)
+    if (!strcmp(name, builtin_table[i].name)) {
+      assert(builtin_table[i].func);
+      return builtin_table[i].func;
+    }
+  assert(0);
+  return NULL;
 }

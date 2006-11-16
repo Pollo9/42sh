@@ -5,26 +5,75 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sun Nov 12 16:46:24 2006 Seblu
-** Last update Sun Nov 12 19:55:03 2006 Seblu
+** Last update Thu Nov 16 17:49:13 2006 seblu
 */
 
 #ifndef BUILTIN_H_
 # define BUILTIN_H_
 
-# include <assert.h>
-# include "../ast/ast.h"
-# include "../shell/shell.h"
+typedef int	(*f_builtin)(char *argv[]);
 
-int	is_a_builtin(const char *name);
-int	exec_builtin(s_cmd_node *cmd);
+/*!
+** Says if @var name is a builtin.
+**
+** @param name builtin name
+**
+** @return boolean existance
+*/
+int		is_a_builtin(const char *name);
 
-int	builtin_cd(char *argv[]);
-int	builtin_echo(char *argv[]);
-int	builtin_shopt(char *argv[]);
-int	builtin_exit(char *argv[]);
-int	builtin_source(char *argv[]);
-int	builtin_unset(char *argv[]);
-int	builtin_export(char *argv[]);
+/*!
+** Return a pointer on a builtin function
+**
+** @param name builtin name
+**
+** @return pointer on the builtin function @var name
+*/
+f_builtin	get_builtin(const char *name);
+
+/*!
+** Builtin Change Directory
+**
+** @param argv argument vector
+**
+** @return success status
+*/
+int		builtin_cd(char *argv[]);
+
+/*!
+** Echo show all element on her line
+**
+** @param argc number of argument given
+**
+** @return sucess status
+*/
+int		builtin_echo(char *argv[]);
+
+/*!
+** This builtin change local setting of the shell
+**
+** @param argv argument vector
+**
+** @return success status
+*/
+int		builtin_shopt(char *argv[]);
+
+/*!
+** Builtin exit :)
+**
+** @param argv argument vector
+**
+** @return success status
+*/
+int		builtin_exit(char *argv[]);
+
+int		builtin_source(char *argv[]);
+int		builtin_unset(char *argv[]);
+int		builtin_export(char *argv[]);
+
+int		builtin_alias(char *argv[]);
+int		builtin_unalias(char *argv[]);
+
 
 /*
 ** Bonus builtin

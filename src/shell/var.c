@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Tue Nov 14 13:55:46 2006 seblu
-** Last update Tue Nov 14 16:25:06 2006 seblu
+** Last update Thu Nov 16 15:14:34 2006 seblu
 */
 
 #include <string.h>
@@ -45,10 +45,9 @@ const char	*var_get(const s_var *var, const char *name)
 void		var_set(s_var	*var,
 			char	*name,
 			char	*value,
-			int	env,
 			int	overwrite)
 {
-  assert(0); var = var; name = value; env = overwrite;
+  assert(0); var = var; name = value; overwrite = overwrite;
 /*  size_t		i; */
 /*  int		pos = -1; */
 
@@ -76,6 +75,7 @@ void		var_set(s_var	*var,
 int		var_unset(s_var *var, const char *name)
 {
   assert(var && name);
+  var = var; name = name;
 /*   if (getenv(name)) { */
 /*     var_unsetenv(name); */
 /*     return 0; */

@@ -5,16 +5,14 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sun Jul 16 20:03:53 2006 Seblu
-** Last update Tue Nov 14 15:30:52 2006 seblu
+** Last update Thu Nov 16 16:54:53 2006 seblu
 */
 
 #ifndef SHELL_H_
 # define SHELL_H_
 
-# include <errno.h>
-# include <stdlib.h>
 # include "../common/constant.h"
-# include "../parser/alias.h"
+# include "alias.h"
 # include "var.h"
 # include "option.h"
 # include "func.h"

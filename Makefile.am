@@ -19,7 +19,12 @@ bin_PROGRAMS=42sh
 		src/ast/ast_while.c			\
 		src/builtin/builtin.h			\
 		src/builtin/builtin.c			\
+		src/builtin/builtin_alias.c		\
+		src/builtin/builtin_cd.c		\
+		src/builtin/builtin_echo.c		\
 		src/builtin/builtin_exit.c		\
+		src/builtin/builtin_unalias.c		\
+		src/builtin/builtin_shopt.c		\
 		src/common/basename.c			\
 		src/common/constant.h			\
 		src/common/env.c			\
@@ -34,6 +39,8 @@ bin_PROGRAMS=42sh
 		src/exec/exec.h				\
 		src/exec/exec_and.c			\
 		src/exec/exec_bang.c			\
+		src/exec/exec_cmd.c			\
+		src/exec/exec_funcdec.c			\
 		src/exec/exec_node.c			\
 		src/exec/exec_or.c			\
 		src/exec/exec_if.c			\
@@ -41,13 +48,13 @@ bin_PROGRAMS=42sh
 		src/exec/exec_sep.c			\
 		src/exec/exec_sepand.c			\
 		src/exec/exec_while.c			\
-		src/parser/alias.c			\
-		src/parser/alias.h			\
 		src/parser/getline.c			\
 		src/parser/getline.h			\
 		src/parser/parser.c			\
 		src/parser/parser.h			\
 		src/parser/lexer.c			\
+		src/shell/alias.c			\
+		src/shell/alias.h			\
 		src/shell/func.c			\
 		src/shell/func.h			\
 		src/shell/getoptions.c			\

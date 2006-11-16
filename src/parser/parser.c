@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Wed Aug  2 00:56:07 2006 Seblu
-** Last update Tue Nov 14 15:38:06 2006 seblu
+** Last update Thu Nov 16 15:52:31 2006 seblu
 */
 
 
@@ -15,6 +15,7 @@
 #include <unistd.h>
 #include <setjmp.h>
 #include <assert.h>
+#include <errno.h>
 #include "parser.h"
 #include "../common/macro.h"
 #include "../common/function.h"

@@ -5,73 +5,33 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Tue Apr 11 00:23:47 2006 Seblu
-** Last update Sun Nov 12 19:55:57 2006 Seblu
+** Last update Thu Nov 16 16:57:54 2006 seblu
 */
 
-#include <ctype.h>
 #include <stdio.h>
 #include <assert.h>
 #include <errno.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
-#include "../main/42sh.h"
-#include "builtin.h"
-#include "../var/var.h"
+#include "../common/function.h"
+#include "../shell/shell.h"
+#include "../shell/var.h"
 
-static int cd_var(struct s_42sh *sh, const char *name);
-static int cd_minus(struct s_42sh *sh);
-static int secure_chdir(const char *path);
-
-/*!
-** Builtin cd.
-** @param argv The tab of args: terminated by NULL, argv[0] = "cd"
-** @param sh The 42sh structure
+/*
+** ============
+** DECLARATIONS
+** ============
 */
-int	builtin_cd(char **argv)
-{
-  assert(sh && argv && argv[0]);
-
-  if (!argv[1])
-    return cd_var(sh, "HOME");
-  if (!strcmp("-", argv[1]))
-    return cd_minus(sh);
-  return secure_chdir(argv[1]);
-}
 
 /*!
 ** Change directory to home directory
 **
-** @param sh shell env
 ** @param name env var
 **
-** @return exit status
+** @return success status
 */
-static int	cd_var(struct s_42sh *sh, const char *name)
-{
-  const char	*new_dir;
-
-  if (!(new_dir = var_get(sh->vars, name)))
-  {
-    fprintf(stderr, "42sh: cd: %s not set\n", name);
-    return 1;
-  }
-  return secure_chdir(new_dir);
-}
-
-/*!
-** Return in previous directory
-**
-** @param sh shell info
-**
-** @return return status
-*/
-static int	cd_minus(struct s_42sh *sh)
-{
-  if (cd_var(sh, "OLDPWD"))
-    return 1;
-  return 0;
-}
+static int	cd_var(const char *name);
 
 /*!
 ** Change of directory and on error, print good error.
@@ -80,32 +40,47 @@ static int	cd_minus(struct s_42sh *sh)
 **
 ** @return error status with error code (0 is good)
 */
-static int	secure_chdir(const char *path)
-{
-  const char	*errormsg = "";
-  char		*tmp;
+static int	secure_chdir(const char *path);
 
-  errno = 0;
-  if (chdir(path))
-  {
-    if (errno == ENOENT)
-      errormsg = "No such file or directory";
-    else if (errno == EACCES)
-      errormsg = "Permission denied";
-    else if (errno == ENAMETOOLONG)
-      errormsg = "File name too long";
-    else if (errno == ENOTDIR)
-      errormsg = "Not a directory";
-    else if (errno == ELOOP)
-      errormsg = "Too many levels of symbolic links";
-    else
-      assert(0);
-    fprintf(stderr, "42sh: cd %s: %s\n", path, errormsg);
+/*
+** ===========
+** DEFINITIONS
+** ===========
+*/
+
+int		builtin_cd(char **argv)
+{
+  assert(argv && argv[0]);
+
+  if (!argv[1])
+    return cd_var("HOME");
+  if (!strcmp("-", argv[1]))
+    return cd_var("OLDPWD");
+  return secure_chdir(argv[1]);
+}
+
+static int	cd_var(const char *name)
+{
+  const char	*new_dir;
+
+  if (!(new_dir = var_get(shell->var, name))) {
+    fprintf(stderr, "%s: cd: %s not set\n", shell->name, name);
     return 1;
   }
+  return secure_chdir(new_dir);
+}
+
+static int	secure_chdir(const char *path)
+{
+  char		*tmp;
+
+  if (chdir(path)) {
+    fprintf(stderr, "%s: cd %s: %s\n", shell->name, path, strerror(errno));
+    return 1;
+  }
+  //FIXME: getenv return name=val and setenv2 take cut arguments
   if ((tmp = getenv("PWD")))
-    var_setenv("OLDPWD", tmp, !0);
-  var_setenv("PWD", (tmp = var_getcwd()), !0);
-  free(tmp);
+    setenv2("OLDPWD", tmp, !0);
+  setenv2("PWD", (tmp = getcwd2()), !0);
   return 0;
 }
