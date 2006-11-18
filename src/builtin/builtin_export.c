@@ -1,20 +1,21 @@
 /*
-** builtin_export.c for 42sh in /goinfre/seblu/42sh/src/builtin
+** builtin_export.c for 42sh
 **
 ** Made by Seblu
-** Login   <luttri_s@epita.fr>
+** Login   <seblu@epita.fr>
 **
 ** Started on  Thu May 11 09:32:30 2006 Seblu
-** Last update Thu May 11 09:41:01 2006 Seblu
+** Last update Fri Nov 17 12:57:12 2006 seblu
 */
 
 #include <stdio.h>
-#include "builtin.h"
+#include <assert.h>
+#include "../shell/shell.h"
 
-int	builtin_export(char *argv[], struct s_42sh *sh)
+int	builtin_export(char *argv[])
 {
-   printf("export: not yet implemeted\n");
-   sh = sh;
-   argv = argv;
-   return 1;
+  assert(argv);
+  fprintf(stderr, "%s: export: not yet implemeted.\n", shell->name);
+  argv = argv;
+  return 1;
 }

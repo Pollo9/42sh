@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Tue Nov 14 13:55:46 2006 seblu
-** Last update Thu Nov 16 15:14:34 2006 seblu
+** Last update Fri Nov 17 13:11:10 2006 seblu
 */
 
 #include <string.h>
@@ -42,7 +42,7 @@ const char	*var_get(const s_var *var, const char *name)
   return NULL;
 }
 
-void		var_set(s_var	*var,
+void		var_add(s_var	*var,
 			char	*name,
 			char	*value,
 			int	overwrite)
@@ -72,7 +72,7 @@ void		var_set(s_var	*var,
 /*       add_var(var, name, value); */
 }
 
-int		var_unset(s_var *var, const char *name)
+int		var_del(s_var *var, const char *name)
 {
   assert(var && name);
   var = var; name = name;

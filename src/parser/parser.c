@@ -5,9 +5,8 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Wed Aug  2 00:56:07 2006 Seblu
-** Last update Thu Nov 16 15:52:31 2006 seblu
+** Last update Fri Nov 17 15:53:35 2006 seblu
 */
-
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -352,7 +351,7 @@ static int		parse_element(s_parser		*parser,
     }
     else if (token.id == TOK_WORD && first && !is_keyword(token)) {
       first = 0;
-      //TODO: gestion des alias
+      //FIXME: gestion des alias
       ast_cmd_add_argv(cmd, lexer_gettoken(parser->lexer).str);
       ++found;
     }

@@ -5,14 +5,14 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Tue Apr 11 00:22:44 2006 Seblu
-** Last update Thu Nov 16 18:59:29 2006 seblu
+** Last update Fri Nov 17 13:12:22 2006 seblu
 */
 
 #include <string.h>
 #include <assert.h>
 #include "builtin.h"
 
-enum { BUILTIN_COUNT = 10 };
+enum { BUILTIN_COUNT = 12 };
 
 struct		builtin_table
 {
@@ -29,9 +29,11 @@ static struct builtin_table builtin_table[BUILTIN_COUNT] =
     {"alias", builtin_alias},
     {"unalias", builtin_unalias},
     {"source", NULL}, //builtin_source},
-    {"set", NULL}, //builtin_set},
-    {"unset", NULL}, //builtin_unset},
-    {"export", NULL}, //builtin_export}
+    {".", NULL}, //builtin_source},
+    {"set", builtin_set},
+    {"unset", builtin_unset},
+    {"export", builtin_export},
+    {"exec", builtin_exec}
   };
 
 int		is_a_builtin(const char *name)

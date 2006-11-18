@@ -1,28 +1,19 @@
 /*
-** exec_for.c for 42sh in /home/seblu
+** exec_for.c for 42sh
 **
 ** Made by Seblu
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sat Mar 25 15:27:20 2006 Seblu
-** Last update Sun May 21 18:46:45 2006 Seblu
+** Last update Fri Nov 17 14:27:00 2006 seblu
 */
 
-#include "execution.h"
+#include "exec.h"
 
-#include "mem.h"
-
-/*!
-** Executre for instruction
-**
-** @param node node to treat
-** @param sh sh info
-*/
-void		exec_for(struct s_for *node, struct s_42sh *sh)
+void		exec_for(s_for_node *node)
 {
-  assert(node && sh);
+  assert(node);
+  //FIXME: code it
   assert(0);
   node = node;
-  sh = sh;
-  /* explain for node  */
 }

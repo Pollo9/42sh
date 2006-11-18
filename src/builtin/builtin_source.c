@@ -1,11 +1,11 @@
 /*
-** builtin_source.c for 42sh in /goinfre/42sh/src
+** builtin_source.c for 42sh
 **
 ** Made by Seblu
-** Login   <luttri_s@epita.fr>
+** Login   <seblu@epita.fr>
 **
 ** Started on  Sun Apr  9 04:40:11 2006 Seblu
-** Last update Sun May 21 18:35:59 2006 Seblu
+** Last update Fri Nov 17 13:03:34 2006 seblu
 */
 
 #include <stdio.h>
@@ -14,11 +14,9 @@
 #include "../main/42sh.h"
 #include "../execution/execution.h"
 
-#include "mem.h"
-
 static int		builtin_source_error(int err);
 
-int			builtin_source(char *argv[], struct s_42sh *sh)
+int			builtin_source(char *argv[])
 {
    FILE			*fd;
    int			yyparse();

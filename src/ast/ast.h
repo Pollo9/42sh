@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sun Jul 30 04:40:03 2006 Seblu
-** Last update Thu Nov 16 17:01:11 2006 seblu
+** Last update Fri Nov 17 14:17:02 2006 seblu
 */
 
 #ifndef AST_H_
@@ -104,9 +104,9 @@ typedef struct		cmd_node
 
 /*
 ** Binary ast node
-** Generic node, it's a contener !
-** T_PIPE, T_SEP* , T_AND, T_OR : binary operator
-** T_BANG : unary operator
+** Generic node, it's a contener for:
+** T_PIPE, T_SEP, T_SEPAND , T_AND, T_OR : binary operator
+** T_BANG, T_SUBSHELL : unary operator
 */
 typedef struct		bin_node
 {

@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sun Nov 12 16:39:51 2006 Seblu
-** Last update Thu Nov 16 15:52:08 2006 seblu
+** Last update Fri Nov 17 13:16:51 2006 seblu
 */
 
 #include <fcntl.h>
@@ -13,6 +13,7 @@
 #include <string.h>
 #include <errno.h>
 #include "exec.h"
+#include "../common/constant.h"
 
 /*
 ** ===========
@@ -21,7 +22,7 @@
 */
 
 #define rederror(file, msg) do { fprintf(stderr, "%s: %s: %s.\n", \
- shell->name, file, msg); return 1; } while (0)
+ shell->name, file, msg); return ERROR_PIPE; } while (0)
 
 #define is_open_read(flags) (((flags) & 0x3) == O_RDONLY || \
  ((flags) & 0x2) == O_RDWR)
@@ -182,7 +183,7 @@ static int		apply_red(s_red_node *reds)
     default:
       fprintf(stderr, "%s: Invalid redirection.\n", shell->name);
       assert(0);
-      return 1;
+      return ERROR_RED;
     }
   }
   return 0;

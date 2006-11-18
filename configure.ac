@@ -53,7 +53,6 @@ AC_FUNC_CLOSEDIR_VOID
 AC_FUNC_REALLOC
 AC_FUNC_FORK
 AC_FUNC_STAT
-AC_FUNC_ALLOCA
 AC_HEADER_DIRENT
 AC_HEADER_SYS_WAIT
 AC_CHECK_HEADERS([malloc.h])
@@ -69,13 +68,13 @@ AC_CHECK_FUNCS([strstr])
 AC_CHECK_FUNCS([atexit])
 AC_CHECK_FUNCS([putenv])
 AC_CHECK_FUNCS([strtoul])
+AC_CHECK_FUNCS([strerror])
 
 AC_TYPE_PID_T
 AC_TYPE_SIZE_T
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
-
 AC_HEADER_STDBOOL
 AC_STRUCT_TM
 
@@ -119,7 +118,6 @@ AC_ARG_WITH([efence],
   	true
   ]
 )
-
 
 AC_SUBST([CFLAGS])
 AC_SUBST([LDFLAGS])

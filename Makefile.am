@@ -1,4 +1,4 @@
-bin_PROGRAMS=42sh
+bin_PROGRAMS=	42sh
 
 42sh_SOURCES=	src/ast/ast.h				\
 		src/ast/ast_and.c			\
@@ -22,8 +22,12 @@ bin_PROGRAMS=42sh
 		src/builtin/builtin_alias.c		\
 		src/builtin/builtin_cd.c		\
 		src/builtin/builtin_echo.c		\
+		src/builtin/builtin_exec.c		\
 		src/builtin/builtin_exit.c		\
+		src/builtin/builtin_export.c		\
 		src/builtin/builtin_unalias.c		\
+		src/builtin/builtin_unset.c		\
+		src/builtin/builtin_set.c		\
 		src/builtin/builtin_shopt.c		\
 		src/common/basename.c			\
 		src/common/constant.h			\
@@ -39,14 +43,18 @@ bin_PROGRAMS=42sh
 		src/exec/exec.h				\
 		src/exec/exec_and.c			\
 		src/exec/exec_bang.c			\
+		src/exec/exec_case.c			\
 		src/exec/exec_cmd.c			\
+		src/exec/exec_for.c			\
 		src/exec/exec_funcdec.c			\
 		src/exec/exec_node.c			\
 		src/exec/exec_or.c			\
 		src/exec/exec_if.c			\
+		src/exec/exec_pipe.c			\
 		src/exec/exec_red.c			\
 		src/exec/exec_sep.c			\
 		src/exec/exec_sepand.c			\
+		src/exec/exec_subshell.c		\
 		src/exec/exec_while.c			\
 		src/parser/getline.c			\
 		src/parser/getline.h			\

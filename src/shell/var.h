@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Tue Nov 14 13:54:14 2006 seblu
-** Last update Wed Nov 15 10:36:09 2006 seblu
+** Last update Fri Nov 17 13:11:08 2006 seblu
 */
 
 #ifndef VAR_H_
@@ -52,10 +52,12 @@ s_var		*var_init(void);
 const char	*var_get(const s_var *var, const char *name);
 
 
-void		var_set(s_var	*var,
+void		var_add(s_var	*var,
 			char	*name,
 			char	*value,
 			int	overwrite);
+
+int		var_del(s_var *var, const char *name);
 
 /*!
 ** Print all variables on standard output

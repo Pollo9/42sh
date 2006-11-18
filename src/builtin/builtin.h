@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sun Nov 12 16:46:24 2006 Seblu
-** Last update Thu Nov 16 17:49:13 2006 seblu
+** Last update Fri Nov 17 13:01:45 2006 seblu
 */
 
 #ifndef BUILTIN_H_
@@ -67,12 +67,31 @@ int		builtin_shopt(char *argv[]);
 */
 int		builtin_exit(char *argv[]);
 
+/*!
+** Set or show aliases.
+**
+** @param argv argument vector
+**
+** @return 0 on succes, or 1 if no alias found
+*/
+int		builtin_alias(char *argv[]);
+
+/*!
+** Unset one or more aliases
+**
+** @param argv argument vector
+**
+** @return 0 on success, or 1 if no alias found
+*/
+int		builtin_unalias(char *argv[]);
+
+
 int		builtin_source(char *argv[]);
+int		builtin_set(char *argv[]);
 int		builtin_unset(char *argv[]);
+int		builtin_exec(char *argv[]);
 int		builtin_export(char *argv[]);
 
-int		builtin_alias(char *argv[]);
-int		builtin_unalias(char *argv[]);
 
 
 /*
