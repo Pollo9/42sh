@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Wed Aug  2 00:56:07 2006 Seblu
-** Last update Fri Nov 17 15:53:35 2006 seblu
+** Last update Thu Nov 23 14:24:39 2006 seblu
 */
 
 #include <stdio.h>
@@ -151,9 +151,9 @@ static s_ast_node	*regnode(s_parser *parser, s_ast_node *node)
 static void		parse_error(s_parser *parser, s_token t)
 {
   if (t.id == TOK_EOF)
-    fprintf(stderr, "%s: syntax error: unexpected end of file\n", shell->name);
+    fprintf(stderr, "%s: syntax error: unexpected end of file.\n", shell->name);
   else
-    fprintf(stderr, "%s: syntax error near unexpected token `%s'\n",
+    fprintf(stderr, "%s: syntax error near unexpected token `%s'.\n",
 	    shell->name, t.str);
   parser->error = 1;
   shell->status = ERROR_PARSE;

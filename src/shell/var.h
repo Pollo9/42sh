@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Tue Nov 14 13:54:14 2006 seblu
-** Last update Fri Nov 17 13:11:08 2006 seblu
+** Last update Thu Nov 23 11:41:04 2006 seblu
 */
 
 #ifndef VAR_H_
@@ -13,7 +13,10 @@
 
 # include <stddef.h>
 
-enum { VAR_DEFAULT_SIZE = 25 };
+enum {
+  VAR_DEFAULT_SIZE = 25,
+  VAR_PADDING = 10,
+};
 
 typedef struct	var_item
 {
@@ -51,20 +54,25 @@ s_var		*var_init(void);
 */
 const char	*var_get(const s_var *var, const char *name);
 
-
-void		var_add(s_var	*var,
-			char	*name,
-			char	*value,
-			int	overwrite);
-
-int		var_del(s_var *var, const char *name);
+/*!
+** Add a variable to a variable contener
+**
+** @param var contener of variable
+** @param name variable name to add
+** @param value variable value to add
+**
+** @return true if variable already exist else false
+*/
+int		var_add(s_var *var, const char *name, const char *value);
 
 /*!
-** Print all variables on standard output
+** Delete a variable from a variable contener
 **
-** @param var var struct
+** @param var contener name
+** @param name variable to destroy
+**
+** @return boolean del success (i.e. if exist or not)
 */
-void		var_print(const s_var *var);
-
+int		var_del(s_var *var, const char *name);
 
 #endif /* ! VAR_H_ */

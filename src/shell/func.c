@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Tue Nov 14 14:52:39 2006 seblu
-** Last update Thu Nov 16 17:40:11 2006 seblu
+** Last update Thu Nov 23 11:38:33 2006 seblu
 */
 
 /*
@@ -36,7 +36,7 @@ s_func			*func_init(void)
   return new;
 }
 
-int			is_a_function(s_func *func, const char *name)
+int			func_exist(s_func *func, const char *name)
 {
   assert(func && name);
   for (register size_t i = 0; i < func->count; ++i)
@@ -47,10 +47,16 @@ int			is_a_function(s_func *func, const char *name)
 
 int			func_add(s_func *func, char *name, s_ast_node *body)
 {
-  int			ret;
-
   assert(func && name);
-  ret = func_del(func, name);
+  //check for add or update
+  for (register size_t i = 0; i < func->count; ++i)
+    if (!strcmp(name, func->table[i].name)) {
+      //update time
+      ast_destruct(func->table[i].body);
+      func->table[i].body = body;
+      return 1;
+    }
+  //add time
   ++func->count;
   if (func->size < func->count) {
     func->size += FUNC_PADDING;
@@ -58,7 +64,7 @@ int			func_add(s_func *func, char *name, s_ast_node *body)
   }
   func->table[func->count - 1].name = name;
   func->table[func->count - 1].body = body;
-  return ret;
+  return 0;
 }
 
 int			func_del(s_func *func, const char *name)

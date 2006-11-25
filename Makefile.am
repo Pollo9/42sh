@@ -77,9 +77,9 @@ bin_PROGRAMS=	42sh
 
 CLEANFILES= *~ \#*\#
 
-EXTRA_DIST = AUTHORS README TODO
+EXTRA_DIST = AUTHORS README TODO doc
 
-.PHONY: tar doc re
+.PHONY: tar doc man re
 
 tar: distcheck
 
@@ -87,3 +87,6 @@ re: clean all
 
 doc:
 	cd $(srcdir)/doc && $(MAKE) doc
+
+man:
+	cd $(srcdir)/doc && $(MAKE) man

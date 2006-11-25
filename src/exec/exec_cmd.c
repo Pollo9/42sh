@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Sat Apr  8 07:38:48 2006 Seblu
-** Last update Fri Nov 17 14:08:10 2006 seblu
+** Last update Thu Nov 23 11:28:39 2006 seblu
 */
 
 #include <unistd.h>
@@ -53,7 +53,7 @@ void			exec_cmd(s_cmd_node *cmd)
     if (cmd->prefix) exec_prefix(cmd->prefix, 0);
     return;
   }
-  if (is_a_function(shell->func, cmd->argv[0]))
+  if (func_exist(shell->func, cmd->argv[0]))
     exec_function(cmd->argv);
   else if (is_a_builtin(cmd->argv[0]))
     shell->status = get_builtin(cmd->argv[0])(cmd->argv);
@@ -71,7 +71,7 @@ void			exec_piped_cmd(s_cmd_node *cmd)
     if (cmd->prefix) exec_prefix(cmd->prefix, 0);
     return;
   }
-  if (is_a_function(shell->func, cmd->argv[0]))
+  if (func_exist(shell->func, cmd->argv[0]))
     exec_function(cmd->argv);
   else if (is_a_builtin(cmd->argv[0]))
     shell->status = get_builtin(cmd->argv[0])(cmd->argv);
@@ -126,11 +126,12 @@ static void		exec_prefix(char **prefix, int glob)
   for (int i = 0; prefix[i]; ++i) {
     if (!(value = strchr(prefix[i], '=')))
       assert(0);
-    *value++ = 0;
-    if (glob)
-      setenv2(prefix[i], value, !0);
+    *value = 0;
+    if (glob || getenv(prefix[i]) != NULL)
+      setenv2(prefix[i], value + 1, !0);
     else
-      var_add(shell->var, prefix[i], value, !0);
+      var_add(shell->var, prefix[i], value + 1);
+    *value = '=';
   }
 }
 

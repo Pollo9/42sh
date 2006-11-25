@@ -128,6 +128,7 @@ AC_CONFIG_HEADERS([config.h])
 # define Autoconf config files
 AC_CONFIG_FILES([
 	Makefile
+	doc/Makefile
 ])
 
 AC_OUTPUT

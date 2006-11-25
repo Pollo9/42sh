@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Wed Aug 23 00:39:17 2006 Seblu
-** Last update Thu Nov 16 18:58:49 2006 seblu
+** Last update Thu Nov 23 11:24:39 2006 seblu
 */
 
 #include <string.h>
@@ -30,7 +30,7 @@ s_alias		*alias_init(void)
   return new;
 }
 
-int		alias_add(s_alias *alias, char *name, char *value)
+int		alias_add(s_alias *alias, const char *name, const char *value)
 {
   int		ret;
 
@@ -41,8 +41,8 @@ int		alias_add(s_alias *alias, char *name, char *value)
     alias->size += ALIAS_PADDING;
     secrealloc(alias->table, alias->table, alias->size * sizeof (s_alias_item));
   }
-  alias->table[alias->count - 1].name = name;
-  alias->table[alias->count - 1].value = value;
+  alias->table[alias->count - 1].name = strdup(name);
+  alias->table[alias->count - 1].value = strdup(value);
   return ret;
 }
 

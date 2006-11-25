@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Tue Nov 14 13:55:46 2006 seblu
-** Last update Fri Nov 17 13:11:10 2006 seblu
+** Last update Thu Nov 23 11:35:56 2006 seblu
 */
 
 #include <string.h>
@@ -15,9 +15,9 @@
 #include "../common/macro.h"
 #include "../common/function.h"
 
-s_var		*var_init(void)
+s_var			*var_init(void)
 {
-  s_var		*var;
+  s_var			*var;
 
   secmalloc(var, sizeof (s_var));
   var->count = 0;
@@ -26,13 +26,40 @@ s_var		*var_init(void)
   return var;
 }
 
-const char	*var_get(const s_var *var, const char *name)
+int			var_add(s_var *var, const char *name, const char *value)
 {
-  const char	*res;
+  assert(var && name && value);
+  //check for add or update
+  for (register size_t i = 0; i < var->count; ++i)
+    if (!strcmp(name, var->table[i].name)) {
+      //update time
+      free(var->table[i].value);
+      var->table[i].value = strdup(value);
+      return 1;
+    }
+  //add time
+  ++var->count;
+  if (var->size < var->count) {
+    var->size += VAR_PADDING;
+    secrealloc(var->table, var->table, var->size * sizeof (s_var_item));
+  }
+  var->table[var->count - 1].name = strdup(name);
+  var->table[var->count - 1].value = strdup(value);
+  return 0;
+}
 
+int			var_exist(s_var *var, const char *name)
+{
+  assert(var && name);
+  for (register size_t i = 0; i < var->count; ++i)
+    if (!strcmp(name, var->table[i].name))
+      return 1;
+  return 0;
+}
+
+const char		*var_get(const s_var *var, const char *name)
+{
   assert(name && var);
-  if ((res = getenv(name)))
-    return res;
   for (size_t i = 0; i < var->count; ++i) {
     if (!(var->table[i].name))
       continue;
@@ -42,103 +69,22 @@ const char	*var_get(const s_var *var, const char *name)
   return NULL;
 }
 
-void		var_add(s_var	*var,
-			char	*name,
-			char	*value,
-			int	overwrite)
+int			var_del(s_var *var, const char *name)
 {
-  assert(0); var = var; name = value; overwrite = overwrite;
-/*  size_t		i; */
-/*  int		pos = -1; */
+  register size_t	i;
 
-/*   if (getenv(name)) { */
-/*     setenv2(name, value, overwrite); */
-/*     return; */
-/*   } */
-/*   for (i = 0; i < var->count; ++i) */
-/*   { */
-/*     if (!(var->table[i].name)) */
-/*       pos = i; */
-/*     else */
-/*       if (!strcmp(var->table[i].name, name)) */
-/* 	break; */
-/*   } */
-/*   if (i < var->count) */
-/*     set_exist_var(var, value, overwrite, i); */
-/*   else */
-/*     if (pos != -1) */
-/*       set_non_exist_var(var, value, name, pos); */
-/*     else */
-/*       add_var(var, name, value); */
-}
-
-int		var_del(s_var *var, const char *name)
-{
   assert(var && name);
-  var = var; name = name;
-/*   if (getenv(name)) { */
-/*     var_unsetenv(name); */
-/*     return 0; */
-/*   } */
-/*   for (i = 0; i < var->len_var; ++i) */
-/*   { */
-/*     if (!(var->tab_var[i].name)) */
-/*       continue; */
-/*     if (!strcmp(var->tab_var[i].name, name)) */
-/*     { */
-/*       free(var->tab_var[i].name); */
-/*       free(var->tab_var[i].value); */
-/*       var->tab_var[i].name = NULL; */
-/*       var->tab_var[i].value = NULL; */
-/*       return 0; */
-/*     } */
-/*   } */
-  return 1;
-}
-
-/* static void		add_var(struct s_var	*var, */
-/* 				const char	*name, */
-/* 				const char	*value) */
-/* { */
-/*   struct s_local_var	*new_buff; */
-
-/*   if (var->len_var >= var->size) */
-/*   { */
-/*     var->size += 50; */
-/*     secrealloc(new_buff, var->tab_var, sizeof (struct s_local_var) * var->size); */
-/*     free(var->tab_var); */
-/*     var->tab_var = new_buff; */
-/*   } */
-/*   secstrdup(var->tab_var[var->len_var].name, name); */
-/*   secstrdup(var->tab_var[var->len_var].value, value); */
-/*   ++var->len_var; */
-/* } */
-
-/* static void		set_exist_var(struct s_var	*var, */
-/* 				      const char	*value, */
-/* 				      char		perm, */
-/* 				      unsigned int	i) */
-/* { */
-/*   if (!perm) */
-/*     return; */
-/*   free(var->tab_var[i].value); */
-/*   secstrdup(var->tab_var[i].value, value); */
-/* } */
-
-/* static void		set_non_exist_var(struct s_var	*var, */
-/* 					  const char	*value, */
-/* 					  const char	*name, */
-/* 					  unsigned int	i) */
-/* { */
-/*   secstrdup(var->tab_var[i].name, name); */
-/*   secstrdup(var->tab_var[i].value, value); */
-/* } */
-
-void		var_print(const s_var *var)
-{
-  for (size_t i = 0; i < var->count; ++i) {
-    if (!(var->table[i].name))
-      continue;
-    printf("%s=%s\n", var->table[i].name, var->table[i].value);
+  for (i = 0; i < var->count; ++i)
+    if (!strcmp(name, var->table[i].name))
+      break;
+  if (i >= var->count)
+    return 0;
+  free(var->table[i].name);
+  free(var->table[i].value);
+  var->table[i] = var->table[--var->count];
+  if (var->size - var->count > 2 * VAR_PADDING) {
+    var->size -= VAR_PADDING;
+    secrealloc(var->table, var->table, var->size * sizeof (s_var_item));
   }
+  return 1;
 }

@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Wed Aug 23 00:32:09 2006 Seblu
-** Last update Thu Nov 16 17:53:46 2006 seblu
+** Last update Thu Nov 23 11:24:08 2006 seblu
 */
 
 #ifndef ALIAS_H_
@@ -45,7 +45,7 @@ s_alias		*alias_init(void);
 ** @param name new alias name
 ** @param value new alias value
 */
-int		alias_add(s_alias *alias, char *name, char *value);
+int		alias_add(s_alias *alias, const char *name, const char *value);
 
 /*!
 ** Remove an alias into an alias database

@@ -5,7 +5,7 @@
 ** Login   <seblu@epita.fr>
 **
 ** Started on  Thu Nov 16 17:18:24 2006 seblu
-** Last update Fri Nov 17 12:43:05 2006 seblu
+** Last update Thu Nov 23 11:23:49 2006 seblu
 */
 
 #include <assert.h>
@@ -37,7 +37,7 @@ int		builtin_alias(char *argv[])
       ret = show_alias(carg) || ret;
     else {
       *equal = 0;
-      alias_add(shell->alias, strdup(carg), strdup(equal + 1));
+      alias_add(shell->alias, carg, equal + 1);
       *equal = '=';
     }
   }
