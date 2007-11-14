@@ -44,7 +44,7 @@ element:	  WORD
 
 compound_list:  ('\n')* and_or ((';'|'&'|'\n') ('\n')* and_or)* [(('&'|';'|'\n') ('\n')*)]
 
-rule_for:	'for' WORD ('\n')* ['in' (WORD)+ (';'|'\n') ('\n')*] do_group
+rule_for: 	'for' WORD ('\n')* ['in' (WORD)* (';'|'\n') ('\n')*] do_group
 
 rule_while:	'while' compound_list do_group
 
@@ -59,6 +59,6 @@ else_clause:  	  'else' compound_list
 
 do_group:	'do' compound_list 'done'
 
-case_clause:	case_item (';;' (\n)* case_item)* [;;]
+case_clause: 	case_item (';;' ('\n')* case_item)* [;;] ('\n')*
 
 case_item:	['('] WORD ('|' WORD)* ')' ( ('\n')* | compound_list )
