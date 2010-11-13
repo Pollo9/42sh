@@ -63,8 +63,8 @@ void		ast_cmd_print(s_ast_node *node, FILE *fs, unsigned int *node_id)
       size_t last = 0, p = 0;
       for (; prefix[i][p]; ++p)
 	if (prefix[i][p] == '"')
-	  fprintf(fs, "%.*s\\", p - last, prefix[i] + last), last = p;
-      fprintf(fs, "%*s", p - last, prefix[i] + last), last = p;
+	  fprintf(fs, "%.*s\\", (int) (p - last), prefix[i] + last), last = p;
+      fprintf(fs, "%*s", (int) (p - last), prefix[i] + last), last = p;
       fprintf(fs, "\\n");
     }
   }
@@ -76,8 +76,8 @@ void		ast_cmd_print(s_ast_node *node, FILE *fs, unsigned int *node_id)
       size_t last = 0, p = 0;
       for (; argv[i][p]; ++p)
 	if (argv[i][p] == '"')
-	  fprintf(fs, "%.*s\\", p - last, argv[i] + last), last = p;
-      fprintf(fs, "%*s", p - last, argv[i] + last), last = p;
+	  fprintf(fs, "%.*s\\", (int) (p - last), argv[i] + last), last = p;
+      fprintf(fs, "%*s", (int) (p - last), argv[i] + last), last = p;
       fprintf(fs, "\\n");
     }
   fprintf(fs, "\"];\n");

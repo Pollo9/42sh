@@ -39,7 +39,7 @@ void		ast_for_print(s_ast_node *node, FILE *fs, unsigned *node_id)
     fprintf(fs, "%u [ label = \"Values\\n", *node_id);
     ++*node_id;
     for (register size_t i = 0; node->body.child_for.values[i]; ++i)
-      fprintf(fs, "id=%u %s\\n", i, node->body.child_for.values[i]);
+      fprintf(fs, "id=%zu %s\\n", i, node->body.child_for.values[i]);
     fprintf(fs, "\"];");
   }
   //execution

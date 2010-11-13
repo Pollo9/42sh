@@ -53,7 +53,7 @@ void		ast_red_print(s_ast_node *node, FILE *fs, unsigned *node_id)
   fprintf(fs, "%u [label = \"Redirection\\n", *node_id);
   ++*node_id;
   for (register size_t i = 0; i < reds->size; ++i)
-    fprintf(fs, "id=%d, fd=%d, type=%d, word=%s\\n",
+    fprintf(fs, "id=%zu, fd=%d, type=%d, word=%s\\n",
 	    i, reds->fd[i], reds->type[i], reds->word[i]);
   fprintf(fs, "\"];\n");
   fprintf(fs, "%u -> %u\n", cur_id, *node_id);
