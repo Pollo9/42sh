@@ -16,6 +16,6 @@ int	builtin_export(char *argv[])
 {
   assert(argv);
   fprintf(stderr, "%s: export: not yet implemeted.\n", shell->name);
-  argv = argv;
+  (void) argv;
   return 1;
 }

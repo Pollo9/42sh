@@ -15,5 +15,5 @@ void		exec_case(s_case_node *node)
   assert(node);
   //FIXME: code it
   assert(0);
-  node = node;
+  (void) node;
 }
