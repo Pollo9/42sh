@@ -8,7 +8,7 @@ AC_INIT([42sh],[1.0],[seblu@seblu.net], [42sh])
 AC_CONFIG_AUX_DIR([build])
 
 # Auto Make init
-AM_INIT_AUTOMAKE([foreign dist-bzip2 no-dist-gzip])
+AM_INIT_AUTOMAKE([subdir-objects foreign dist-bzip2 no-dist-gzip])
 
 echo "checking CFLAGS..."
 # Check platform
