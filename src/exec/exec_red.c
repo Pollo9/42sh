@@ -21,6 +21,8 @@
 ** ===========
 */
 
+#pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
+
 #define rederror(file, msg) do { fprintf(stderr, "%s: %s: %s.\n", \
  shell->name, file, msg); return ERROR_PIPE; } while (0)
 
